@@ -52,7 +52,9 @@
 #include "cmsis_os.h"
 
 /* USER CODE BEGIN Includes */     
-
+#define APP_LOG_MODULE_NAME   "[freertos]"
+#define APP_LOG_MODULE_LEVEL   APP_LOG_LEVEL_DEBUG    
+#include "app_log.h"
 /* USER CODE END Includes */
 
 /* Variables -----------------------------------------------------------------*/
