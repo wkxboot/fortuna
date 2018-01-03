@@ -1169,6 +1169,9 @@
             <name>User</name>
             <group>
                 <name>tasks</name>
+                <file>
+                    <name>$PROJ_DIR$\..\Src\tasks\communication_task.c</name>
+                </file>
             </group>
             <file>
                 <name>$PROJ_DIR$\..\Src\adc.c</name>

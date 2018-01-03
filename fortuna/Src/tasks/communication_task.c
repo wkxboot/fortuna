@@ -6,65 +6,72 @@
 #include "app_log.h"
 #include "app_error.h"
 
-
-
-
-#define  COMM_ADDR_OFFSET             0
-#define  COMM_ADDR_SIZE               1
-
-#define  COMM_CMD_OFFSET              1
-#define  COMM_CMD_SIZE                1
-
-#define  COMM_PARAM_OFFSET            2
-
-
-#define  COMM_BUFF_MAX                42
-
-
-#define  COMM_RECV_MAX                COMM_BUFF_MAX
-#define  COMM_BUFF_MIN                2
-
-
-static uint8_t volatile comm_serial_buff[COMM_BUFF_MAX];
-static uint8_t volatile *ptr_send_buff;
-static uint8_t volatile comm_recv_cnt,comm_send_cnt;
-static uint16_t timer_frame_1ms=0;
-static uint8_t comm_addr;
 typedef enum
 {
-  COMM_BOOL_TRUE =1;
-  COMM_BOOL_FALSE=0;
-}comm_bool_t;
-typedef enum 
-{
- COMM_ERR_NO_ERR;/*没有错误*/
- COMM_ERR_PORT_ERR;/*移植错误*/
- COMM_ERR_IO_ERR;/*通信端口错误*/
- COMM_ERR_INVAL_ERR;/*非法参数错误*/
- COMM_ERR_TIMEOUT_ERR;/*超时错误*/
-}comm_err_code_t;
-typedef enum
-{
-  COMM_RECV_STATE_INIT;
-  COMM_RECV_STATE_IDLE;
-  COMM_RECV_STATE_RECV;
-  COMM_RECV_STATE_ERR;
-}comm_recv_state_t;
-
-comm_recv_state_t comm_recv_state;
+FORTUNA_TRUE=1;
+FORTUNA_FALSE=0;
+}fortuna_bool_t;
 
 typedef enum
 {
-  COMM_SEND_STATE_IDLE;
-  COMM_SEND_STATE_SEND;
-}comm_send_state_t;
-comm_err_code_t comm_serial_init(uint8_t slav_addr,uint8_t port,uint32_t baudrate,uint8_t databits)
+COMM_OK=0;
+COMM_ERR;
+}comm_status_t;
+
+
+
+#define  COMM_BUFF_MAX            44
+#define  comm_buff[COMM_BUFF_MAX];
+
+
+static volatile uint8_t serial_recv_cnt;
+uint8_t timer_frame_1ms;
+uint8_t comm_addr;
+
+typedef struct
 {
- comm_err_code_t err_code=COMMU_ERR_NO_ERR;
- slave_addr=addr;
- if(xcomm_port_serial_init(port,baudrate,databits)==COMM_FALSE)
+  comm_status_t (*comm_cmd_process)(uint8_t *ptr_buff,uint8_t *ptr_len);
+  uint8_t cmd_code;
+  uint8_t len;
+}comm_cmd_t;
+#define  COMM_CMD_CNT       8
+comm_cmd_t comm_cmd[COMM_CMD_CNT];
+
+void comm_serial_isr(void)
+{
+ uint8_t recv_byte;
+ comm_serial_get_byte(&recv_byte);
+ if(serial_recv_cnt>=COMM_BUFF_MAX)
  {
- err_code=COMM_ERR_PORT_ERROR;
+ APP_LOG_ERROR("串口缓存溢出.本次数据无效.\r\n");
+ osSignalSet(comm_task_hdl,COMM_BUFF_OVERFLOW_SIGNAL);
+ serial_recv_cnt=0;
+ }
+ comm_buff[serial_recv_cnt++]=recv_byte;
+}
+
+void comm_fsm_timer_expired()
+{
+ /*关闭串口接收，方便后续数据处理*/
+ APP_LOG_INFO("串口定时器到期.\r\n")
+ APP_LOG_INFO("关闭串口接收.");
+ comm_enable_serial(FORTUNA_FALSE,FORTUNA_FALSE);
+ APP_LOG_INFO("接收完一帧数据.向通信任务发送信号.\r\n");
+ /*发送接收完成信号*/
+ comm_send_signal(COMM_RECV_FSM_SIGNAL);
+}
+
+
+comm_status_t comm_init(uint8_t slave_addr,uint8_t port,uint32_t baudrate,uint8_t databits)
+{
+/*本机地址*/
+ comm_addr=slave_addr;
+ comm_status_t status=FORTUNA_OK;
+ 
+if(comm_serial_init(port,baudrate,databits)!=FORTUNA_OK)
+ {
+ err_code=FORTUNA_ERR;
+ APP_LOG_ERROR("通信串口初始化错误！\r\n");
  }
  if(baudrate>19200)
  {
@@ -79,141 +86,172 @@ comm_err_code_t comm_serial_init(uint8_t slav_addr,uint8_t port,uint32_t baudrat
              *             = 11000 / Baudrate
              * The reload for t3.5 is 3.5 times this value.
              */
-  timer_frame_1ms=(7UL * 11000UL) /(2UL*ulBaudRate ); 
+ timer_frame_1ms=(7UL * 11000UL) /(2UL*baudrate ); 
  }
- if(xcomm_port_timer_init(timer_frame_1ms)==COMM_FALSE)
- err_code=COMM_ERR_PORT_ERROR;
-   
+ APP_LOG_INFO("串口定时器值为%dmS.\r\n",timer_frame_1ms);
+ if(comm_serial_timer_init(timer_frame_1ms)!=FORTUNA_OK)
+ {
+ err_code=FORTUNA_ERR;
+ APP_LOG_ERROR("通信串口定时器初始化错误！\r\n");
+ }
  return err_code;
+ 
+}
+
+void communication_task(void const * argument)
+{
+ osEvent signals;
+ uint8_t *ptr_buff;
+ uint8_t addr;
+ comm_status_t status;
+ while(1)
+ {
+ signals=osSignalWait(COMM_ALL_SIGNALS,osWaitForever);
+ if(signals.status!=osEventSignal)
+ continue;
+ 
+ if(signals.value.signals & COMM_BUFF_OVERFLOW_SIGNAL)
+ {
+  APP_LOG_ERROR("通信任务收到串口缓存溢出信号.\r\n"); 
+ }
+ if(signals.value.signals & COMM_RECV_FSM_SIGNAL)
+ {
+ APP_LOG_ERROR("通信任务收到串口数据帧信号.开始接收.\r\n");
+ status=comm_receive(&ptr_buff,&comm_recv_cnt);
+ if(status==FORTUNA_OK)
+ {
+  APP_LOG_ERROR("通信任务接收数据成功.\r\n"); 
+  APP_LOG_ERROR("向通信任务发送解析协议信号.\r\n"); 
+  osSignalSet(comm_task_hdl,COMM_PARSE_PROTOCOL_SIGNAL);
+ }
+ }
+ if(signals.value.signals & COMM_PARSE_PROTOCOL_SIGNAL)
+ {
+ addr=ptr_buff[COMM_ADDR_OFFSET];
+ if(addr!=comm_addr)
+ {
+   APP_LOG_WARNING("%d不是本机地址.无效不解析协议.\r\n",addr);
+   continue; 
+ }
+/*数据长度去掉地址一个字节,同时更新指针*/
+ comm_recv_len-=COMM_ADDR_SIZE;
+ ptr_buff=ptr_buff+COMM_ADDR_SIZE;
+ APP_LOG_ERROR("通信任务收到解析协议信号.\r\n");
+ status=comm_protocol_parse(&ptr_buff,&comm_recv_cnt,&comm_send_cnt);
+ if(status==FORTUNA_OK)
+ {
+ APP_LOG_INFO("协议解析完成.\r\n");
+ APP_LOG_INFO("向通信任务发送发送数据帧信号.\r\n");
+ osSignalSet(comm_task_hdl,COMM_SEND_FSM_SIGNAL);
+ }
+ }
+ if(signals.value.signals & COMM_SEND_FSM_SIGNAL)
+ {
+  APP_LOG_ERROR("通信任务收到发送串口数据帧信号.\r\n"); 
+  APP_LOG_ERROR("使能串口发送.\r\n")
+  comm_serial_enable(FORTUNA_FALSE,FORTUNA_TRUE);
+  comm_serial_send_fsm(comm_buff,&comm_send_cnt);
+ }
+ if(signals.value.signals & COMM_SEND_OVER_SIGNAL)
+ {
+  APP_LOG_ERROR("通信任务收到发送串口数据帧完毕信号.\r\n"); 
+  APP_LOG_ERROR("使能串口接收.禁止串口发送.\r\n")
+  comm_serial_enable(FORTUNA_TRUE,FORTUNA_FALSE);
+ }
+}
 }
 
 
-void comm_serial_start(void)
+comm_status_t comm_protocol_parse(uint8_t **ptr_buff,uint8_t *ptr_recv_len，uint8_t *ptr_send_len)
 {
- COMM_ENTER_CRITICAL_SECTION();
- comm_recv_state=COMM_RECV_STATE_INIT;
- vcomm_port_serial_enable(COMM_TRUE,COMM_FALSE);/*使能串口接收，禁止串口输出*/
- vcomm_port_timer_enable();
- COMM_EXIT_CRITICAL_SECTION();
+ fortuna_status_t status;
+ uint8_t addr;
+
+ status=FORTUNA_ERR;
+ if(*ptr_recv_len<=COMM_PDU_LEN_MIN)
+ {
+   APP_LOG_WARNING("有效数据过短.无效.\r\n");
+   return status;
+ } 
+ for(uint8_t i=0;i<COMM_CMD_CNT;i++)
+ {
+ if(comm_cmd[i].cmd_code== *ptr_buff[COMM_CMD_OFFSET] && comm_cmd[i].len==*ptr_recv_len)
+ {
+   /*去除命令码的长度*/
+   *ptr_buff=*ptr_buff+COMM_CMD_SIZE;
+   *ptr_recv_len=*ptr_recv_len-COMM_CMD_SIZE;
+   /*发送长度先加上命令码的长度*/   
+   *ptr_send_len=COMM_CMD_SIZE;
+   status=comm_cmd[i].comm_cmd_process(ptr_buff,ptr_recv_len,ptr_send_len);
+   break;
+ }
+ }
+ if(status!=FORTUNA_OK)
+ {
+  APP_LOG_WARNING("协议解析.命令处理 出错.\r\n");
+ }
+ return status;
 }
 
-void comm_serial_stop(void)
+/*命令码01 去除皮重 处理函数*/
+comm_status_t comm_cmd01_process(uint8_t **ptr_buff,uint8_t *ptr_recv_len，uint8_t *ptr_send_len) 
 {
- COMM_ENTER_CRITICAL_SECTION();
- vcomm_port_serial_enable(COMM_FALSE,COMM_FALSE);/*使能串口接收，禁止串口输出*/
- vcomm_port_timer_disable();
- COMM_EXIT_CRITICAL_SECTION();
-}
-
-
-/*
- *处理接收到的一帧数据
- */
-comm_err_code_t comm_serial_recv_fsm(uint8_t *ptr_addr,uint8_t **ptr_fsm,uint8_t *ptr_len)
-{
-    comm_bool_t        fsm_received = COMM_BOOL_FALSE;
-    comm_err_code_t    err_code = COMM_ERR_NO_ERR;
-
-    COMMU_ENTER_CRITICAL_SECTION();
-    /*长度校验*/
-    if((comm_recv_cnt <= COMM_RECV_MAX )&& (recv_buff_pos >= COMM_RECV_MIN))
-    {
-        /* 保存地址*/
-        *ptr_addr = comm_serial_buff[COMM_ADDR_OFFSET];
-        /* 计算接收的除去地址后的数据长度 */
-        *ptr_len =(uint8_t)(comm_recv_cnt-COMM_ADDR_SIZE);
-
-        /*把除去地址后的数据返回给调用者*/
-        *ptr_fsm = (uint8_t*)&comm_serial_buff[COMM_CMD_OFFSET];
-        fsm_received = COMM_BOOL_TRUE;
-    }
-    else
-    {
-       err_code = COMM_ERR_IO_ERR;
-    }
-
-   COMMU_EXIT_CRITICAL_SECTION();
-   return err_code;
-}
-/*
- *处理要发送的一帧数据
- */
-comm_err_code_t comm_serial_send_fsm(uint8_t slave_addr,uint8_t *ptr_fsm,uint8_t len)
-{
- comm_err_code_t err_code=COMMU_ERR_NO_ERR; 
-
-  COMMU_ENTER_CRITICAL_SECTION();
-  if(comm_recv_state==COMM_RECV_STATE_IDLE)
+ uint8_t param;
+ osEvent signal;
+ uint32_t send_signal,wait_signal,timeout;
+ if(*ptr_recv_len!=COMM_CMD01_PARAM_SIZE)
+ {
+   APP_LOG_ERROR("命令01参数长度不匹配.\r\n",addr);
+   return COMM_ERR;
+ }
+ /*装载去皮指令参数*/
+ param=*ptr_buff[0];
+ if(param>COMM_CMD01_PARAM_MAX)
+ {
+   APP_LOG_ERROR("命令01参数%d非法.\r\n",param);
+   return COMM_ERR;
+ }
+  switch(param)
   {
-  /*第一个字节是地址*/
-   ptr_send=ptr_fsm-COMM_ADDR_SIZE;
-   ptr_send[COMM_ADDR_OFFSET]=slave_addr;
-   comm_send_cnt=1;
-   comm_send+=len;
-   comm_send_state=COMM_SEND_STATE_XMIT;
-   vcomm_port_enable_serial(COMM_BOOL_FALSE,COMM_BOOL_TRUE);  
+  case 0:/*对所有称去皮*/
+  send_signal=COMM_CLEAR_ALL_TAR_WEIGHT_SIGNAL;
+  break;
+  case 1:/*1号称*/
+  send_signal=COMM_CLEAR_SCALES1_TAR_WEIGHT_SIGNAL;
+  break;
+  case 2:/*2号称*/
+  send_signal=COMM_CLEAR_SCALES2_TAR_WEIGHT_SIGNAL;
+  break;
+  case 3:/*3号称*/
+  send_signal=COMM_CLEAR_SCALES3_TAR_WEIGHT_SIGNAL;
+  break;
+  case 4:/*4号称*/
+  send_signal=COMM_CLEAR_SCALES4_TAR_WEIGHT_SIGNAL;
+  break;
+  default:
+  APP_LOG_ERROR("命令01参数%d非法.\r\n",param);  
+  }
+  wait_signal=COMM_CLEAR_TAR_WEIGHT_OK_SIGNAL;
+  timeout=COMM_CLEAR_TAR_TIMEOUT;
+  osSignalSet(elec_scales_task_hdl,send_signal);
+  signal=osSignalWait(wait_signal,timeout);
+  if(signal.status==osEventSignal && (signal.value.signals & wait_signal))
+  {
+   /*回填操作结果*/
+   *ptr_buff[0]=COMM_CMD01_EXECUTE_SUCCESS; 
+   APP_LOG_INFO("命令01执行成功.\r\n",param);
   }
   else
   {
-   err_code=COMMU_ERR_IO;
+   /*回填操作结果*/
+   *ptr_buff[0]=COMM_CMD01_EXECUTE_FAIL;
+   APP_LOG_INFO("命令01执行成功.\r\n",param);
   }
-  COMMU_EXIT_CRITICAL_SECTION();
-  return err_code;
+
+  /*回填需要发送的数据长度*/
+  *ptr_send_len=*ptr_send_len+COMM_CMD01_EXECUTE_RESULT_SIZE;
+
+  return COMM_OK;
 }
-comm_err_code_t comm_serial_recv_byte(void)
-{
-  uint8_t recv_byte;
-  xcomm_serial_get_byte(&recv_byte);
-  switch(comm_recv_state)
-    {
-    /*如果在接收时还没有开始，就重置定时器*/
-    case COMM_RECV_STATE_INIT:
-        vcomm_port_timer_enable();
-        break;
-    /*在错误的状态下，重置定时器*/
-    case COMM_RECV_STATE_ERROR:
-        vcomm_port_timer_enable();
-        break;
-    /*在空闲状态下第一次接收数据，开启定时器，置状态为正在接收数据*/
-    case COMM_RECV_STATE_IDLE:
-        comm_recv_cnt = 0;
-        comm_serial_buff[comm_recv_cnt++] = recv_byte;
-        comm_recv_state = COMM_RECV_STATE_RECV;
-        /* Enable t3.5 timers. */
-        vcomm_port_timer_enable();
-        break;
-
-        /* We are currently receiving a frame. Reset the timer after
-         * every character received. If more than the maximum possible
-         * number of bytes in a modbus frame is received the frame is
-         * ignored.
-         */
-    case COMM_RECV_STATE_RECV:
-        if( usRcvBufferPos < MB_SER_PDU_SIZE_MAX )
-        {
-            ucRTUBuf[usRcvBufferPos++] = ucByte;
-        }
-        else
-        {
-            eRcvState = STATE_RX_ERROR;
-        }
-        vMBPortTimersEnable(  );
-        break;
-    }
-    return xTaskNeedSwitch;
-}
-}
-
-
-
-uint8_t port_serial_init()
-{
-port_
-port_comm_timer_init(); 
-  
-return FORTUNA_TRUE;
-}
-
-
-
-
+ 
+ 
