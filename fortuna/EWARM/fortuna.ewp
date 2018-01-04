@@ -1041,6 +1041,12 @@
             <group>
                 <name>tasks</name>
                 <file>
+                    <name>$PROJ_DIR$\..\Src\tasks\comm_port_serial.c</name>
+                </file>
+                <file>
+                    <name>$PROJ_DIR$\..\Src\tasks\comm_port_timer.c</name>
+                </file>
+                <file>
                     <name>$PROJ_DIR$\..\Src\tasks\communication_task.c</name>
                 </file>
             </group>
