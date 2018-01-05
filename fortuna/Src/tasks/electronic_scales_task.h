@@ -15,8 +15,6 @@ typedef struct
 extern osThreadId elec_scales_task_hdl;
 
 
-
-
 /*电子秤任务消息*/
 
 #define  COMM_CLEAR_SCALE_TARE_WEIGHT_MSG     1

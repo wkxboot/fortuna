@@ -1,7 +1,7 @@
 #ifndef  __COMM_PORT_SERIAL_H__
 #define  __COMM_PORT_SERIAL_H__
 #include "fortuna_common.h"
-#include "communication_task.h"
+#include "communication.h"
 
 
 #define  SERIAL_BUFF_MAX          64
