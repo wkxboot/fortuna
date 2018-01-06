@@ -1,7 +1,7 @@
 #ifndef  __COMMUNICATION_H__
 #define  __COMMUNICATION_H__
 #include "fortuna_common.h"
-
+#include "scales.h"
 typedef enum
 {
 COMM_OK =0,
@@ -36,45 +36,38 @@ comm_status_t comm_send_fsm(uint8_t *ptr_buff,uint8_t send_len);
 
 
 /*通信协议部分*/
-#define  COMM_SERIAL_PDU_SIZE_MIN                2
-#define  COMM_PDU_SIZE_MIN                       1
+#define  COMM_SERIAL_PDU_SIZE_MIN                     2
+#define  COMM_PDU_SIZE_MIN                            1
 
-/*通信任务信号*/
-#define  COMM_BUFF_OVERFLOW_SIGNAL               (1<<0)
-#define  COMM_RECV_FSM_SIGNAL                    (1<<1)
-#define  COMM_PARSE_PROTOCOL_SIGNAL              (1<<2)
-#define  COMM_SEND_FSM_SIGNAL                    (1<<3)
-#define  COMM_SEND_FSM_OVER_SIGNAL               (1<<4)
-#define  COMM_ALL_SIGNALS                        ((1<<5)-1)
 /*通信任务子函数信号*/
-#define  COMM_CLEAR_SCALE_TARE_WEIGHT_OK_SIGNAL  (1<<0)
-#define  COMM_CLEAR_SCALE_TARE_WEIGHT_ERR_SIGNAL (1<<1)
-#define  COMM_CALIBRATE_SCALE_WEIGHT_OK_SIGNAL   (1<<2)
-#define  COMM_CALIBRATE_SCALE_WEIGHT_ERR_SIGNAL  (1<<3)
-#define  COMM_UNLOCK_LOCK_OK_SIGNAL              (1<<4)
-#define  COMM_UNLOCK_LOCK_ERR_SIGNAL             (1<<5)
-#define  COMM_LOCK_LOCK_OK_SIGNAL                (1<<6)
-#define  COMM_LOCK_LOCK_ERR_SIGNAL               (1<<7)
+#define  COMM_TASK_CLEAR_SCALE_TARE_WEIGHT_OK_SIGNAL  (1<<0)
+#define  COMM_TASK_CLEAR_SCALE_TARE_WEIGHT_ERR_SIGNAL (1<<1)
+#define  COMM_TASK_CALIBRATE_SCALE_WEIGHT_OK_SIGNAL   (1<<2)
+#define  COMM_TASK_CALIBRATE_SCALE_WEIGHT_ERR_SIGNAL  (1<<3)
+#define  COMM_TASK_UNLOCK_LOCK_OK_SIGNAL              (1<<4)
+#define  COMM_TASK_UNLOCK_LOCK_ERR_SIGNAL             (1<<5)
+#define  COMM_TASK_LOCK_LOCK_OK_SIGNAL                (1<<6)
+#define  COMM_TASK_LOCK_LOCK_ERR_SIGNAL               (1<<7)
 
 
 /*通信任务子函数超时时间*/
-#define  COMM_CLEAR_SCALE_TARE_WEIGHT_TIMEOUT    100
-#define  COMM_CALIBRATE_SCALE_WEIGHT_TIMEOUT     100
-#define  COMM_UNLOCK_LOCK_TIMEOUT                100
-#define  COMM_LOCK_LOCK_TIMEOUT                  100
+#define  COMM_TASK_CLEAR_SCALE_TARE_WEIGHT_TIMEOUT     100
+#define  COMM_TASK_CALIBRATE_SCALE_WEIGHT_TIMEOUT      100
+#define  COMM_TASK_UNLOCK_LOCK_TIMEOUT                 100
+#define  COMM_TASK_LOCK_LOCK_TIMEOUT                   100
+
+/*通信协议部分*/
+#define  COMM_CMD_CNT                         11
 
 
-#define  COMM_CMD_CNT                            11
-
-
-#define  COMM_ADDR_OFFSET                        0
-#define  COMM_ADDR_SIZE                          1
-#define  COMM_CMD_OFFSET                         1
-#define  COMM_CMD_SIZE                           1
-#define  COMM_PARAM_OFFSET                       2
+#define  COMM_ADDR_OFFSET                     0
+#define  COMM_ADDR_SIZE                       1
+#define  COMM_CMD_OFFSET                      1
+#define  COMM_CMD_SIZE                        1
+#define  COMM_PARAM_OFFSET                    2
 
 /*目前实际只有4个称重单元*/
-#define  COMM_CMD_PARAM_SCALE_MAX             4
+#define  COMM_CMD_PARAM_SCALE_MAX             SCALES_CNT_MAX
 /*最大可接入的称重单元数量*/
 #define  COMM_VIRTUAL_SCALE_MAX               20
 /*参数部分的长度大小*/

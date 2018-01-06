@@ -1,0 +1,103 @@
+#include "FreeRTOS.h"
+#include "task.h"
+#include "cmsis_os.h"
+#include "lock_task.h"
+#include "communication.h"
+#include "communication_task.h"
+#define APP_LOG_MODULE_NAME   "[comm_task]"
+#define APP_LOG_MODULE_LEVEL   APP_LOG_LEVEL_DEBUG    
+#include "app_log.h"
+#include "app_error.h"
+
+#define  LOCK_STATUS_PIN_STATE                 GPIO_PIN_RESET
+#define  UNLOCK_STATUS_PIN_STATE               GPIO_PIN_SET
+
+#define  LOCK_TASK_STATUS_LOCKED               0
+#define  LOCK_TASK_STATUS_UNLOCKED             1
+
+#define  LOCK_TASK_STATUS_INTERVAL             10/*锁和门的状态更新间隔*/
+#define  LOCK_TASK_LOCK_TIMEOUT                80/*开锁的时间*/
+
+static uint8_t lock_task_update_lock_status();
+static uint8_t lock_task_update_door_status();
+static void lock_task_unlock_lock();
+static void lock_task_lock_lock();
+
+uint8_t lock_status;
+uint8_t door_status;
+/*门锁任务*/
+void lock_task(void const * argument)
+{
+ osEvent msg;
+ lock_msg_t lock_msg;
+ uint16_t time;
+ APP_LOG_INFO("######门锁任务开始.\r\n");
+ while(1)
+ {
+  msg=osMessageGet(lock_task_msg_q_id,LOCK_TASK_STATUS_INTERVAL);
+  /*如果到达更新状态时间，那么就更新锁和门的状态*/
+  if(msg.status == osEventTimeout)
+  {
+   lock_status=lock_task_update_lock_status();
+   door_status=lock_task_update_door_status();
+   continue;  
+  }
+  /*如果到不是锁消息，继续*/
+  if(msg.status!=osEventMessage)
+   continue;
+  /*如果到是锁消息，执行对应的指令*/
+  lock_msg=*(lock_msg_t*)&msg.value.v;
+  switch(lock_msg.type)
+  {
+  case LOCK_TASK_UNLOCK_LOCK_MSG:
+    APP_LOG_DEBUG("锁任务收到开锁指令消息.");
+    time=0;
+    while(time<LOCK_TASK_LOCK_TIMEOUT)
+    {
+    lock_task_unlock_lock();
+    osDelay(LOCK_TASK_STATUS_INTERVAL);
+    lock_status=lock_task_update_lock_status();
+    if(lock_status==LOCK_TASK_STATUS_UNLOCKED)
+      break;
+    time+=LOCK_TASK_STATUS_INTERVAL;
+    }
+    if(lock_status==LOCK_TASK_STATUS_UNLOCKED)
+    {
+    APP_LOG_INFO("向通信任务发送开锁成功信号.");
+    osSignalSet(comm_task_hdl,COMM_TASK_UNLOCK_LOCK_OK_SIGNAL); 
+    }
+    else
+    {
+    APP_LOG_INFO("向通信任务发送开锁失败信号.");
+    osSignalSet(comm_task_hdl,COMM_TASK_UNLOCK_LOCK_ERR_SIGNAL);  
+    }
+      
+    break;
+  case LOCK_TASK_LOCK_LOCK_MSG:
+    APP_LOG_DEBUG("锁任务收到关锁指令消息.");
+    time=0;
+    while(time<LOCK_TASK_LOCK_TIMEOUT)
+    {
+    lock_task_lock_lock();
+    osDelay(LOCK_TASK_STATUS_INTERVAL);
+    lock_status=lock_task_update_lock_status();
+    if(lock_status==LOCK_TASK_STATUS_LOCKED)
+      break;
+    time+=LOCK_TASK_STATUS_INTERVAL;
+    }
+    if(lock_status==LOCK_TASK_STATUS_LOCKED)
+    {
+    APP_LOG_INFO("向通信任务发送关锁成功信号.");
+    osSignalSet(comm_task_hdl,COMM_TASK_LOCK_LOCK_OK_SIGNAL); 
+    }
+    else
+    {
+    APP_LOG_INFO("向通信任务发送关锁失败信号.");
+    osSignalSet(comm_task_hdl,COMM_TASK_LOCK_LOCK_ERR_SIGNAL);  
+    }     
+   break;
+  default:
+    APP_LOG_ERROR("错误的锁任务消息.%d\r\n",lock_msg.type);
+  } 
+ }
+}

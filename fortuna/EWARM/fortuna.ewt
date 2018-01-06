@@ -1236,7 +1236,7 @@
             <group>
                 <name>scales</name>
                 <file>
-                    <name>$PROJ_DIR$\..\Src\scales\scales_reg.c</name>
+                    <name>$PROJ_DIR$\..\Src\scales\scales.c</name>
                 </file>
             </group>
             <group>
@@ -1246,6 +1246,9 @@
                 </file>
                 <file>
                     <name>$PROJ_DIR$\..\Src\tasks\electronic_scales_task.c</name>
+                </file>
+                <file>
+                    <name>$PROJ_DIR$\..\Src\tasks\lock_task.c</name>
                 </file>
                 <file>
                     <name>$PROJ_DIR$\..\Src\tasks\modbus_master_task.c</name>

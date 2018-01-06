@@ -5,6 +5,7 @@
 #include "comm_port_serial.h"
 #include "comm_port_timer.h"
 #include "communication.h"
+#include "communication_task.h"
 #include "electronic_scales_task.h"
 #include "lock_task.h"
 #define APP_LOG_MODULE_NAME   "[comm]"
@@ -68,7 +69,7 @@ void comm_fsm_timer_expired()
  xcomm_port_serial_enable(FORTUNA_FALSE,FORTUNA_FALSE);
  APP_LOG_INFO("接收完一帧数据.向通信任务发送信号.\r\n");
  /*发送接收完成信号*/
- osSignalSet(comm_task_hdl,COMM_RECV_FSM_SIGNAL);
+ osSignalSet(comm_task_hdl,COMM_TASK_RECV_FSM_SIGNAL);
 }
 
 
@@ -198,15 +199,15 @@ static comm_status_t comm_cmd01_process(uint8_t *ptr_param,uint8_t param_len,uin
    APP_LOG_ERROR("命令0x01参数%d非法.\r\n",scale);
    return COMM_ERR;
   }
-  msg.type=COMM_CLEAR_SCALE_TARE_WEIGHT_MSG;
+  msg.type=ELEC_SCALE_TASK_CLEAR_TARE_WEIGHT_MSG;
   msg.scale=scale;
   /*向电子秤任务发送去除皮重消息*/
   APP_LOG_DEBUG("向电子秤任务发送去除皮重消息.");
   osMessagePut(elec_scales_task_hdl,*(uint32_t*)&msg,0);
   /*等待处理返回*/
   APP_LOG_DEBUG("等待电子秤任务返回结果...");
-  signal=osSignalWait(COMM_CLEAR_SCALE_TARE_WEIGHT_OK_SIGNAL|COMM_CLEAR_SCALE_TARE_WEIGHT_ERR_SIGNAL,COMM_CLEAR_SCALE_TARE_WEIGHT_TIMEOUT);
-  if(signal.status==osEventSignal && (signal.value.signals & COMM_CLEAR_SCALE_TARE_WEIGHT_OK_SIGNAL))
+  signal=osSignalWait(COMM_TASK_CLEAR_SCALE_TARE_WEIGHT_OK_SIGNAL|COMM_TASK_CLEAR_SCALE_TARE_WEIGHT_ERR_SIGNAL,COMM_TASK_CLEAR_SCALE_TARE_WEIGHT_TIMEOUT);
+  if(signal.status==osEventSignal && (signal.value.signals & COMM_TASK_CLEAR_SCALE_TARE_WEIGHT_OK_SIGNAL))
   {
    /*回填操作结果*/
    ptr_param[0]=COMM_CMD01_EXECUTE_RESULT_SUCCESS; 
@@ -245,7 +246,7 @@ static comm_status_t comm_cmd02_process(uint8_t *ptr_param,uint8_t param_len,uin
   APP_LOG_ERROR("命令0x02参数%d非法.\r\n",scale);
   return COMM_ERR;
  }
- msg.type=COMM_CALIBRATE_SCALE_WEIGHT_MSG;
+ msg.type=ELEC_SCALE_TASK_CALIBRATE_WEIGHT_MSG;
  msg.scale=scale;
  msg.param16=weight;
  /*向电子秤任务发送校准消息*/
@@ -253,8 +254,8 @@ static comm_status_t comm_cmd02_process(uint8_t *ptr_param,uint8_t param_len,uin
  osMessagePut(elec_scales_task_hdl,*(uint32_t*)&msg,0);
  /*等待处理返回*/
  APP_LOG_DEBUG("等待电子秤任务返回结果...");
- signal=osSignalWait(COMM_CALIBRATE_SCALE_WEIGHT_OK_SIGNAL|COMM_CALIBRATE_SCALE_WEIGHT_ERR_SIGNAL,COMM_CALIBRATE_SCALE_WEIGHT_TIMEOUT);
- if(signal.status==osEventSignal && (signal.value.signals & COMM_CALIBRATE_SCALE_WEIGHT_OK_SIGNAL))
+ signal=osSignalWait(COMM_TASK_CALIBRATE_SCALE_WEIGHT_OK_SIGNAL|COMM_TASK_CALIBRATE_SCALE_WEIGHT_ERR_SIGNAL,COMM_TASK_CALIBRATE_SCALE_WEIGHT_TIMEOUT);
+ if(signal.status==osEventSignal && (signal.value.signals & COMM_TASK_CALIBRATE_SCALE_WEIGHT_OK_SIGNAL))
  {
   /*回填操作结果*/
   ptr_param[0]=COMM_CMD02_EXECUTE_RESULT_SUCCESS; 
@@ -358,21 +359,21 @@ static comm_status_t comm_cmd11_process(uint8_t *ptr_param,uint8_t param_len,uin
 static comm_status_t comm_cmd21_process(uint8_t *ptr_param,uint8_t param_len,uint8_t *ptr_send_len) 
 {
   osEvent signal;
-  scale_msg_t msg;
+  lock_msg_t msg;
   APP_LOG_DEBUG("执行命令0x21.开锁指令.\r\n");
   if(param_len!=COMM_CMD01_PARAM_SIZE)
   {
    APP_LOG_ERROR("命令0x21参数长度不匹配.\r\n",param_len);
    return COMM_ERR;
   }
-  msg.type=COMM_UNLOCK_LOCK_MSG;
+  msg.type=LOCK_TASK_UNLOCK_LOCK_MSG;
   /*向锁任务发送开锁消息*/
   APP_LOG_DEBUG("向锁任务发送开锁消息.\r\n");
-  osMessagePut(lock_task_hdl,*(uint32_t*)&msg,0);
+  osMessagePut(lock_task_msg_q_id,*(uint32_t*)&msg,0);
   /*等待处理返回*/
   APP_LOG_DEBUG("等待锁任务返回结果...");
-  signal=osSignalWait(COMM_UNLOCK_LOCK_OK_SIGNAL|COMM_UNLOCK_LOCK_ERR_SIGNAL,COMM_UNLOCK_LOCK_TIMEOUT);
-  if(signal.status==osEventSignal && (signal.value.signals & COMM_UNLOCK_LOCK_OK_SIGNAL))
+  signal=osSignalWait(COMM_TASK_UNLOCK_LOCK_OK_SIGNAL|COMM_TASK_UNLOCK_LOCK_ERR_SIGNAL,COMM_TASK_UNLOCK_LOCK_TIMEOUT);
+  if(signal.status==osEventSignal && (signal.value.signals & COMM_TASK_UNLOCK_LOCK_OK_SIGNAL))
   {
    /*回填操作结果*/
    ptr_param[0]=COMM_CMD21_EXECUTE_RESULT_SUCCESS;
@@ -396,22 +397,21 @@ static comm_status_t comm_cmd21_process(uint8_t *ptr_param,uint8_t param_len,uin
 static comm_status_t comm_cmd22_process(uint8_t *ptr_param,uint8_t param_len,uint8_t *ptr_send_len) 
 {
   osEvent signal;
-  scale_msg_t msg;
+  lock_msg_t msg;
   APP_LOG_DEBUG("执行命令0x22.关锁指令.\r\n");
   if(param_len!=COMM_CMD01_PARAM_SIZE)
   {
    APP_LOG_ERROR("命令0x22参数长度不匹配.\r\n",param_len);
    return COMM_ERR;
   }
-
-  msg.type=COMM_LOCK_LOCK_MSG;
+  msg.type=LOCK_TASK_LOCK_LOCK_MSG;
   /*向锁任务发送关锁消息*/
   APP_LOG_DEBUG("向锁任务发送关锁消息.\r\n");
-  osMessagePut(lock_task_hdl,*(uint32_t*)&msg,0);
+  osMessagePut(lock_task_msg_q_id,*(uint32_t*)&msg,0);
   /*等待处理返回*/
   APP_LOG_DEBUG("等待锁任务返回结果...");
-  signal=osSignalWait(COMM_LOCK_LOCK_OK_SIGNAL|COMM_LOCK_LOCK_ERR_SIGNAL,COMM_LOCK_LOCK_TIMEOUT);
-  if(signal.status==osEventSignal && (signal.value.signals & COMM_LOCK_LOCK_OK_SIGNAL))
+  signal=osSignalWait(COMM_TASK_LOCK_LOCK_OK_SIGNAL|COMM_TASK_LOCK_LOCK_ERR_SIGNAL,COMM_TASK_LOCK_LOCK_TIMEOUT);
+  if(signal.status==osEventSignal && (signal.value.signals & COMM_TASK_LOCK_LOCK_OK_SIGNAL))
   {
    /*回填操作结果*/
    ptr_param[0]=COMM_CMD22_EXECUTE_RESULT_SUCCESS; 

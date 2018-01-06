@@ -1,14 +1,7 @@
-#ifndef    __MB_CB_M_H__
-#define    __MB_CB_M_H__
-/* ----------------------- Modbus includes ----------------------------------*/
-#include "port_m.h"
-#include "mbport_m.h"
-#include "mbproto_m.h"
-#include "mb_m.h"
-#include "mbframe_m.h"
-#include "mbconfig_m.h"
-#include "mbutils_m.h"
+#ifndef    __SCALES_H__
+#define    __SCALES_H__
 
+#define  SCALES_CNT_MAX                        4
 
 /* -----------------------Master Defines -------------------------------------*/
 #define  M_DISCRETE_INPUT_START                0
@@ -25,10 +18,10 @@
 #define  DEVICE_ADDR_REG_CNT                   1 
 #define  DEVICE_BAUDRATE_REG_ADDR             (40002)
 #define  DEVICE_BAUDRATE_REG_CNT               1
-#define  DEVICE_FSM_TYPE_REG_ADDR             (40003)
-#define  DEVICE_FSM_TYPE_REG_CNT               1
-#define  DEVICE_PROTOCOL_TYPE_REG_ADDR        (40004)
-#define  DEVICE_PROTOCOL_TYPE_REG_CNT          1
+#define  DEVICE_FSM_FORMAT_REG_ADDR           (40003)
+#define  DEVICE_FSM_FORMAT_REG_CNT             1
+#define  DEVICE_PROTOCOL_FORMAT_REG_ADDR      (40004)
+#define  DEVICE_PROTOCOL_FORMAT_REG_CNT        1
 #define  DEVICE_RESPONSE_DELAY_REG_ADDR       (40005)
 #define  DEVICE_RESPONSE_DELAY_REG_CNT         1
 #define  DEVICE_LOCK_REG_ADDR                 (40006)
@@ -37,8 +30,7 @@
 #define  DEVICE_FIRMWARE_VERTION_REG_CNT       1
 #define  DEVICE_RESET_REG_ADDR                (40008)
 #define  DEVICE_RESET_REG_CNT                  1
-#define  DEVICE_LOCK_REG_ADDR                 (40009)
-#define  DEVICE_LOCK_REG_CNT                   1
+
 
 #define  DEVICE_MEASUREMENT_REG_ADDR          (40031)
 #define  DEVICE_MEASUREMENT_REG_CNT            2
@@ -52,8 +44,8 @@
 #define  DEVICE_SMOOTH_STRENGTH_REG_CNT        1
 #define  DEVICE_ZERO_CODE_REG_ADDR            (40037)
 #define  DEVICE_ZERO_CODE_REG_CNT              2
-#define  DEVICE_ZERO_MEASUREMENT_HI_REG_ADDR  (40039)
-#define  DEVICE_ZERO_MEASUREMENT_LO_REG_CNT    2
+#define  DEVICE_ZERO_MEASUREMENT_REG_ADDR     (40039)
+#define  DEVICE_ZERO_MEASUREMENT_REG_CNT       2
 #define  DEVICE_SPAN_CODE_REG_ADDR            (40041)
 #define  DEVICE_SPAN_CODE_REG_CNT              2
 #define  DEVICE_SPAN_MEASUREMENT_REG_ADDR     (40043)
