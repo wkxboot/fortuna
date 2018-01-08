@@ -2,8 +2,8 @@
 #include "task.h"
 #include "cmsis_os.h"
 #include "lock_task.h"
-#include "communication.h"
-#include "communication_task.h"
+#include "host_protocol.h"
+#include "host_comm_task.h"
 #define APP_LOG_MODULE_NAME   "[comm_task]"
 #define APP_LOG_MODULE_LEVEL   APP_LOG_LEVEL_DEBUG    
 #include "app_log.h"
@@ -70,8 +70,7 @@ void lock_task(void const * argument)
     {
     APP_LOG_INFO("向通信任务发送开锁失败信号.");
     osSignalSet(comm_task_hdl,COMM_TASK_UNLOCK_LOCK_ERR_SIGNAL);  
-    }
-      
+    }      
     break;
   case LOCK_TASK_LOCK_LOCK_MSG:
     APP_LOG_DEBUG("锁任务收到关锁指令消息.");

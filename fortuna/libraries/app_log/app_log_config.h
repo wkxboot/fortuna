@@ -63,7 +63,9 @@
 #define APP_LOG_DEBUG_COLOR           5
 #endif
 
-
+#ifndef APP_LOG_ARRAY_COLOR
+#define APP_LOG_ARRAY_COLOR           4
+#endif
 // <o> APP_LOG_DEFAULT_LEVEL  - Default Severity level
  
 // <0=> Off 

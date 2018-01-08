@@ -1168,15 +1168,15 @@
         <group>
             <name>User</name>
             <group>
-                <name>custom</name>
+                <name>host</name>
                 <file>
-                    <name>$PROJ_DIR$\..\Src\custom\comm_port_serial.c</name>
+                    <name>$PROJ_DIR$\..\Src\host\comm_port_serial.c</name>
                 </file>
                 <file>
-                    <name>$PROJ_DIR$\..\Src\custom\comm_port_timer.c</name>
+                    <name>$PROJ_DIR$\..\Src\host\comm_port_timer.c</name>
                 </file>
                 <file>
-                    <name>$PROJ_DIR$\..\Src\custom\communication.c</name>
+                    <name>$PROJ_DIR$\..\Src\host\host_protocol.c</name>
                 </file>
             </group>
             <group>
@@ -1236,22 +1236,28 @@
             <group>
                 <name>scales</name>
                 <file>
-                    <name>$PROJ_DIR$\..\Src\scales\scales.c</name>
+                    <name>$PROJ_DIR$\..\Src\scale\scales.c</name>
                 </file>
             </group>
             <group>
                 <name>tasks</name>
                 <file>
-                    <name>$PROJ_DIR$\..\Src\tasks\communication_task.c</name>
+                    <name>$PROJ_DIR$\..\Src\tasks\debug_task.c</name>
                 </file>
                 <file>
-                    <name>$PROJ_DIR$\..\Src\tasks\electronic_scales_task.c</name>
+                    <name>$PROJ_DIR$\..\Src\tasks\host_comm_task.c</name>
                 </file>
                 <file>
                     <name>$PROJ_DIR$\..\Src\tasks\lock_task.c</name>
                 </file>
                 <file>
-                    <name>$PROJ_DIR$\..\Src\tasks\modbus_master_task.c</name>
+                    <name>$PROJ_DIR$\..\Src\tasks\scale_comm_task.c</name>
+                </file>
+                <file>
+                    <name>$PROJ_DIR$\..\Src\tasks\scale_func_task.c</name>
+                </file>
+                <file>
+                    <name>$PROJ_DIR$\..\Src\tasks\scale_poll_task.c</name>
                 </file>
             </group>
             <file>

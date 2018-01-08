@@ -12,6 +12,7 @@
 #define APP_LOG_LEVEL_WARNING      2U
 #define APP_LOG_LEVEL_INFO         3U
 #define APP_LOG_LEVEL_DEBUG        4U
+#define APP_LOG_LEVEL_ARRAY        4U
 
 #define APP_LOG_COLOR_CODE_DEFAULT "\x1B[0m"
 #define APP_LOG_COLOR_CODE_BLACK   "\x1B[1;30m"
@@ -40,11 +41,13 @@
 #define APP_LOG_WARNING_COLOR_CODE APP_LOG_COLOR_DECODE(APP_LOG_WARNING_COLOR)
 #define APP_LOG_INFO_COLOR_CODE    APP_LOG_COLOR_DECODE(APP_LOG_INFO_COLOR)
 #define APP_LOG_DEBUG_COLOR_CODE   APP_LOG_COLOR_DECODE(APP_LOG_DEBUG_COLOR)
+#define APP_LOG_ARRAY_COLOR_CODE   APP_LOG_COLOR_DECODE(APP_LOG_ARRAY_COLOR)
 #else 
 #define APP_LOG_ERROR_COLOR_CODE
 #define APP_LOG_WARNING_COLOR_CODE
 #define APP_LOG_INFO_COLOR_CODE
 #define APP_LOG_DEBUG_COLOR_CODE
+#define APP_LOG_ARRAY_COLOR_CODE  
 #endif 
 
 
@@ -62,7 +65,7 @@
 #define LOG_WARNING_PREFIX APP_LOG_WARNING_COLOR_CODE APP_LOG_TIMESTAMP_STRING APP_LOG_MODULE_NAME APP_LOG_BREAK "[WARNING]"
 #define LOG_INFO_PREFIX    APP_LOG_INFO_COLOR_CODE    APP_LOG_TIMESTAMP_STRING APP_LOG_MODULE_NAME APP_LOG_BREAK "[INFO]"
 #define LOG_DEBUG_PREFIX   APP_LOG_DEBUG_COLOR_CODE   APP_LOG_TIMESTAMP_STRING APP_LOG_MODULE_NAME APP_LOG_BREAK "[DEBUG]"
-
+#define LOG_ARRAY_PREFIX   APP_LOG_ARRAY_COLOR_CODE   APP_LOG_TIMESTAMP_STRING APP_LOG_MODULE_NAME APP_LOG_BREAK "[ARRAY]"
 
 
 #if APP_LOG_ENABLED > 0
@@ -83,28 +86,35 @@
     if ((APP_LOG_MODULE_LEVEL >= APP_LOG_LEVEL_ERROR) &&                                          \
         (APP_LOG_LEVEL_ERROR <= APP_LOG_DEFAULT_LEVEL))                                           \
     {                                                                                             \
-      APP_LOG_STD_OUT(LOG_ERROR_PREFIX"line:%d\r\n"format,__LINE__,##arg);  \
+      APP_LOG_STD_OUT(LOG_ERROR_PREFIX"line:%d\r\n"format,__LINE__,##arg);                        \
     }
     
 #define APP_LOG_WARNING(format,arg...)                                                            \
     if ((APP_LOG_MODULE_LEVEL >= APP_LOG_LEVEL_WARNING) &&                                        \
         (APP_LOG_LEVEL_WARNING <= APP_LOG_DEFAULT_LEVEL))                                         \
     {                                                                                             \
-      APP_LOG_STD_OUT(LOG_WARNING_PREFIX"line:%d\r\n"format,__LINE__,##arg);\
+      APP_LOG_STD_OUT(LOG_WARNING_PREFIX"line:%d\r\n"format,__LINE__,##arg);                      \
     }
     
 #define APP_LOG_INFO(format,arg...)                                                               \
     if ((APP_LOG_MODULE_LEVEL >= APP_LOG_LEVEL_INFO) &&                                           \
         (APP_LOG_LEVEL_INFO <= APP_LOG_DEFAULT_LEVEL))                                            \
     {                                                                                             \
-      APP_LOG_STD_OUT(LOG_INFO_PREFIX"line:%d\r\n"format,__LINE__,##arg);   \
+      APP_LOG_STD_OUT(LOG_INFO_PREFIX"line:%d\r\n"format,__LINE__,##arg);                         \
     }
-    
+
 #define APP_LOG_DEBUG(format,arg...)                                                              \
     if ((APP_LOG_MODULE_LEVEL >= APP_LOG_LEVEL_DEBUG) &&                                          \
         (APP_LOG_LEVEL_DEBUG <= APP_LOG_DEFAULT_LEVEL))                                           \
     {                                                                                             \
-      APP_LOG_STD_OUT(LOG_DEBUG_PREFIX"line:%d\r\n"format,__LINE__,##arg);  \
+      APP_LOG_STD_OUT(LOG_DEBUG_PREFIX"line:%d\r\n"format,__LINE__,##arg);                        \
+    }
+    
+#define APP_LOG_ARRAY(format,arg...)                                                              \
+    if ((APP_LOG_MODULE_LEVEL >= APP_LOG_LEVEL_ARRAY) &&                                          \
+        (APP_LOG_LEVEL_ARRAY <= APP_LOG_DEFAULT_LEVEL))                                           \
+    {                                                                                             \
+      APP_LOG_STD_OUT(LOG_ARRAY_PREFIX"\r\n"format,##arg);                        \
     }
 
 #else
