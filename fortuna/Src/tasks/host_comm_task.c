@@ -44,7 +44,7 @@ void host_comm_task(void const * argument)
  {
   APP_LOG_ERROR("通信任务接收数据成功.\r\n"); 
   APP_LOG_ERROR("向通信任务发送解析协议信号.\r\n"); 
-  osSignalSet(comm_task_hdl,HOST_COMM_TASK_PARSE_PROTOCOL_SIGNAL);
+  osSignalSet(host_comm_task_hdl,HOST_COMM_TASK_PARSE_PROTOCOL_SIGNAL);
  }
  }
  /*处理解析数据帧信号*/
@@ -55,7 +55,7 @@ void host_comm_task(void const * argument)
  {
  APP_LOG_INFO("协议解析完成.\r\n");
  APP_LOG_INFO("向通信任务发送发送数据帧信号.\r\n");
- osSignalSet(comm_task_hdl,HOST_COMM_TASK_SEND_FSM_SIGNAL);
+ osSignalSet(host_comm_task_hdl,HOST_COMM_TASK_SEND_FSM_SIGNAL);
  }
  }
  /*处理发送数据帧信号*/

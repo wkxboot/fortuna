@@ -1,4 +1,4 @@
-"D:\development\st\stm32\src_code\fortuna\fortuna\Src\custom\comm_port_timer.c"
+"D:\development\st\stm32\src_code\fortuna\fortuna\Src\host\comm_port_timer.c"
 -std=c11
 -ferror-limit=0
 -I
@@ -20,9 +20,9 @@ D:\development\st\stm32\src_code\fortuna\fortuna\EWARM/../Drivers/CMSIS/Include
 -I
 D:\development\st\stm32\src_code\fortuna\fortuna\EWARM/../Src/tasks
 -I
-D:\development\st\stm32\src_code\fortuna\fortuna\EWARM/../Src/custom
+D:\development\st\stm32\src_code\fortuna\fortuna\EWARM/../Src/host
 -I
-D:\development\st\stm32\src_code\fortuna\fortuna\EWARM/../Src/scales
+D:\development\st\stm32\src_code\fortuna\fortuna\EWARM/../Src/scale
 -I
 D:\development\st\stm32\src_code\fortuna\fortuna\EWARM/../Src/modbus/port
 -I
@@ -68,9 +68,9 @@ D:\development\st\stm32\src_code\fortuna\fortuna\Drivers\CMSIS\Include
 -I
 D:\development\st\stm32\src_code\fortuna\fortuna\Src\tasks
 -I
-D:\development\st\stm32\src_code\fortuna\fortuna\Src\custom
+D:\development\st\stm32\src_code\fortuna\fortuna\Src\host
 -I
-D:\development\st\stm32\src_code\fortuna\fortuna\Src\scales
+D:\development\st\stm32\src_code\fortuna\fortuna\Src\scale
 -I
 D:\development\st\stm32\src_code\fortuna\fortuna\Src\modbus\port
 -I

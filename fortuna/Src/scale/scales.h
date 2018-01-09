@@ -3,6 +3,7 @@
 #include "fortuna_common.h"
 /*称重单元数量*/
 #define  SCALES_CNT_MAX                        4
+
 /*无效的重量值*/
 #define  SCLAE_NET_WEIGHT_INVALID_VALUE        0xffff
 
