@@ -28,9 +28,9 @@
 #define APP_LOG_MODULE_LEVEL   APP_LOG_LEVEL_DEBUG    
 #include "app_log.h"
 /* ----------------------- Defines ------------------------------------------*/
-extern UART_HandleTypeDef huart2;
+extern UART_HandleTypeDef huart3;
 
-UART_HandleTypeDef * ptr_master_modbus_uart_handle =&huart2;
+UART_HandleTypeDef * ptr_master_modbus_uart_handle =&huart3;
 
 
 #if MB_MASTER_RTU_ENABLED > 0 || MB_MASTER_ASCII_ENABLED > 0

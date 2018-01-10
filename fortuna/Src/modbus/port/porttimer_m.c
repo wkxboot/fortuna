@@ -52,6 +52,7 @@ BOOL xMBMasterPortTimersInit()
 
 void vMBMasterPortTimersT35Enable()
 {
+ APP_LOG_DEBUG("启动MODBUS主机T35定时器.\r\n");
  osTimerStart(MASTER_MB_timerHandle,3);
 }
 
@@ -63,6 +64,7 @@ void vMBMasterPortTimersConvertDelayEnable()
 
 void vMBMasterPortTimersRespondTimeoutEnable()
 {
+  APP_LOG_DEBUG("启动MODBUS主机回应定时器.\r\n");
   uint32_t time = MB_MASTER_TIMEOUT_MS_RESPOND;
   osTimerStart ( MASTER_MB_timerHandle, time);
 }

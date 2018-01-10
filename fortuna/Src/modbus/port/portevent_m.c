@@ -60,7 +60,7 @@ xMBMasterPortEventInit( void )
 	APP_LOG_ERROR("MODBUS主机事件组初始化失败.\r\n");// FreeRTOS heap available.
     }
     {
-    APP_LOG_ERROR("MODBUS主机事件组初始化成功.\r\n")
+    APP_LOG_DEBUG("MODBUS主机事件组初始化成功.\r\n")
     }
     return bOk;
 }
@@ -69,6 +69,7 @@ BOOL
 xMBMasterPortEventPost( eMBMasterEventType eEvent )
 {
    // EventBits_t uxBits;
+     APP_LOG_DEBUG("MODBUS发送事件：%d.\r\n",eEvent);
      xEventGroupSetBits(xMasterOsEvent,	// The event group being updated.
 			        eEvent );// The bits being set.
     return TRUE;
@@ -80,7 +81,7 @@ xMBMasterPortEventGet( eMBMasterEventType * peEvent )
     EventBits_t uxBits;
     /* waiting forever OS event */
 
-    
+    APP_LOG_DEBUG("MODBUS等待事件.\r\n");
     uxBits = xEventGroupWaitBits(   xMasterOsEvent,	// The event group being tested.
 			            EV_MASTER_READY | EV_MASTER_FRAME_RECEIVED | EV_MASTER_EXECUTE |EV_MASTER_FRAME_SENT | EV_MASTER_ERROR_PROCESS,// The bits within the event group to wait for.
 				    pdTRUE,		// should be cleared before returning.
@@ -122,7 +123,7 @@ BOOL  vMBMasterOsResInit( void )
         // The semaphore was created successfully.
         // The semaphore can now be used.
      bOk=TRUE;   
-     APP_LOG_ERROR("MODBUS主机信号量初始化成功.\r\n" );
+     APP_LOG_DEBUG("MODBUS主机信号量初始化成功.\r\n" );
      vMBMasterRunResRelease();//release semaphore    
     }
     else
@@ -147,7 +148,7 @@ BOOL xMBMasterRunResTake( LONG lTimeOut )
   if( xSemaphoreTake( arxSemaphorehdls[0].xSemaphore, ticks ) == pdTRUE)
   {
     bOk=TRUE;
-    APP_LOG_ERROR("MODBUS主机获取信号量成功.\r\n" );
+    APP_LOG_DEBUG("MODBUS主机获取信号量成功.\r\n" );
   }
   else
   {
@@ -168,7 +169,7 @@ BOOL vMBMasterRunResRelease( void )
    if( xSemaphoreGive( arxSemaphorehdls[0].xSemaphore ) == pdTRUE )
    {
     bOk=TRUE;                 // We would expect this call to fail because we cannot give
-    APP_LOG_ERROR("MODBUS主机释放信号量成功.\r\n" );// a semaphore without first "taking" it!
+    APP_LOG_DEBUG("MODBUS主机释放信号量成功.\r\n" );// a semaphore without first "taking" it!
    }
    else
    {
@@ -274,6 +275,7 @@ eMBMasterReqErrCode eMBMasterWaitRequestFinish( void )
     eMBMasterReqErrCode    eErrStatus = MB_MRE_NO_ERR;
     /* waiting for OS event */
     EventBits_t uxBits;
+    APP_LOG_DEBUG("MODBUS等待请求结束.\r\n");
     uxBits = xEventGroupWaitBits(   xMasterOsEvent,	// The event group being tested.
 			            EV_MASTER_PROCESS_SUCCESS | EV_MASTER_ERROR_RESPOND_TIMEOUT | EV_MASTER_ERROR_RECEIVE_DATA |EV_MASTER_ERROR_EXECUTE_FUNCTION ,// The bits within the event group to wait for.
 				    pdTRUE,		// should be cleared before returning.

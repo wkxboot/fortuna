@@ -23,7 +23,7 @@ void scale_poll_task(void const * argument)
  uint16_t time;
  /*创建自己的消息队列*/
  osMessageQDef(scale_poll_task_msg,6,uint32_t);
- scale_poll_msg_q_id=osMessageCreate(osMessageQ(scale_poll_task_msg),scale_func_task_hdl);
+ scale_poll_msg_q_id=osMessageCreate(osMessageQ(scale_poll_task_msg),scale_poll_task_hdl);
  APP_ASSERT(scale_poll_msg_q_id);
  APP_LOG_DEBUG("######电子秤轮询任务开始.\r\n");
 
@@ -38,6 +38,7 @@ void scale_poll_task(void const * argument)
  /*向电子秤功能任务发送净重值消息*/
  while(time<SCALE_POLL_TASK_OBTAIN_NET_WEIGHT_TIMEOUT)
  {
+ APP_LOG_INFO("向电子秤功能任务发送获取净重值消息.\r\n");
  osMessagePut(scale_func_msg_q_id,*(uint32_t*)&scale_msg,0);
  signal=osSignalWait(SCALE_POLL_TASK_OBTAIN_NET_WEIGHT_OK_SIGNAL,SCALE_POLL_TASK_WAIT_TIMEOUT);
  if(signal.status==osEventSignal && signal.value.signals & SCALE_POLL_TASK_OBTAIN_NET_WEIGHT_OK_SIGNAL)/*超时或者其他错误*/

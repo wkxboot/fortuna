@@ -7,7 +7,7 @@
 #include "scale_func_task.h"
 #include "scale_poll_task.h"
 #include "mb_m.h"
-#define APP_LOG_MODULE_NAME   "[elec_scales]"
+#define APP_LOG_MODULE_NAME   "[scales_func]"
 #define APP_LOG_MODULE_LEVEL   APP_LOG_LEVEL_DEBUG    
 #include "app_log.h"
 #include "app_error.h"
@@ -120,7 +120,7 @@ void scale_func_task(void const * argument)
    for(scale=scale_start;scale<=scale_cnt;scale++)
    {
     APP_LOG_DEBUG("电子秤%d执行获取净重.\r\n",scale);
-    err_code=eMBMasterReqReadHoldingRegister(scale,DEVICE_NET_WEIGHT_REG_ADDR,DEVICE_NET_WEIGHT_REG_CNT,SCALE_FUNC_TASK_WAIT_TIMEOUT);
+    err_code=eMBMasterReqReadHoldingRegister(scale,DEVICE_NET_WEIGHT_REG_ADDR,1/*DEVICE_NET_WEIGHT_REG_CNT*/,SCALE_FUNC_TASK_WAIT_TIMEOUT);
     if(err_code!=MB_MRE_NO_ERR)
     break;
     APP_LOG_DEBUG("电子秤%d执行获取净重成功.\r\n",scale);
