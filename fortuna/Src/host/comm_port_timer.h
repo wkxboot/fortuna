@@ -4,8 +4,8 @@
 
 
 comm_status_t xcomm_port_serial_timer_init(uint16_t time);
-comm_status_t xcomm_port_serial_timer_start();
-
+void xcomm_port_serial_timer_start();
+void xcomm_port_serial_timer_stop();
 
 
 

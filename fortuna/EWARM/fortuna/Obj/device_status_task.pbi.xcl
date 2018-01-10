@@ -1,4 +1,4 @@
-"D:\development\st\stm32\src_code\fortuna\fortuna\Src\modbus\modbus\functions\mbfuncdisc_m.c"
+"D:\development\st\stm32\src_code\fortuna\fortuna\Src\tasks\device_status_task.c"
 -std=c11
 -ferror-limit=0
 -I

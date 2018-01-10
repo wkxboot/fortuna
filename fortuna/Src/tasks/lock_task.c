@@ -4,7 +4,7 @@
 #include "lock_task.h"
 #include "host_protocol.h"
 #include "host_comm_task.h"
-#define APP_LOG_MODULE_NAME   "[comm_task]"
+#define APP_LOG_MODULE_NAME   "[lock]"
 #define APP_LOG_MODULE_LEVEL   APP_LOG_LEVEL_DEBUG    
 #include "app_log.h"
 #include "app_error.h"
@@ -23,14 +23,51 @@ static uint8_t lock_task_update_door_status();
 static void lock_task_unlock_lock();
 static void lock_task_lock_lock();
 
+/*任务和消息句柄*/
+osThreadId lock_task_hdl;
+osMessageQId lock_task_msg_q_id;
+/*门锁状态机*/
 uint8_t lock_status;
 uint8_t door_status;
+
+static uint8_t lock_task_update_lock_status()
+{
+  
+  return 0;
+}
+static uint8_t lock_task_update_door_status()
+{
+ return 0; 
+}
+static void lock_task_unlock_lock()
+{
+  
+}
+static void lock_task_lock_lock()
+{
+  
+}
+
+
+
+
+
+
+
+
+
+
 /*门锁任务*/
 void lock_task(void const * argument)
 {
  osEvent msg;
  lock_msg_t lock_msg;
  uint16_t time;
+ /*创建自己的消息队列*/
+ osMessageQDef(lock_task_msg,2,uint32_t);
+ lock_task_msg_q_id=osMessageCreate(osMessageQ(lock_task_msg),lock_task_hdl);
+ APP_ASSERT(lock_task_msg_q_id);
+ 
  APP_LOG_INFO("######门锁任务开始.\r\n");
  while(1)
  {
@@ -64,12 +101,12 @@ void lock_task(void const * argument)
     if(lock_status==LOCK_TASK_STATUS_UNLOCKED)
     {
     APP_LOG_INFO("向通信任务发送开锁成功信号.");
-    osSignalSet(comm_task_hdl,COMM_TASK_UNLOCK_LOCK_OK_SIGNAL); 
+    osSignalSet(host_comm_task_hdl,COMM_TASK_UNLOCK_LOCK_OK_SIGNAL); 
     }
     else
     {
     APP_LOG_INFO("向通信任务发送开锁失败信号.");
-    osSignalSet(comm_task_hdl,COMM_TASK_UNLOCK_LOCK_ERR_SIGNAL);  
+    osSignalSet(host_comm_task_hdl,COMM_TASK_UNLOCK_LOCK_ERR_SIGNAL);  
     }      
     break;
   case LOCK_TASK_LOCK_LOCK_MSG:
@@ -87,12 +124,12 @@ void lock_task(void const * argument)
     if(lock_status==LOCK_TASK_STATUS_LOCKED)
     {
     APP_LOG_INFO("向通信任务发送关锁成功信号.");
-    osSignalSet(comm_task_hdl,COMM_TASK_LOCK_LOCK_OK_SIGNAL); 
+    osSignalSet(host_comm_task_hdl,COMM_TASK_LOCK_LOCK_OK_SIGNAL); 
     }
     else
     {
     APP_LOG_INFO("向通信任务发送关锁失败信号.");
-    osSignalSet(comm_task_hdl,COMM_TASK_LOCK_LOCK_ERR_SIGNAL);  
+    osSignalSet(host_comm_task_hdl,COMM_TASK_LOCK_LOCK_ERR_SIGNAL);  
     }     
    break;
   default:

@@ -14,6 +14,8 @@ typedef struct
 
 extern osThreadId scale_func_task_hdl;
 extern osMessageQId scale_func_msg_q_id;
+void scale_func_task(void const * argument);
+
 /*电子秤功能执行超时时间*/
 #define  SCALE_FUNC_TASK_WAIT_TIMEOUT                      50
 /*电子秤任务消息*/

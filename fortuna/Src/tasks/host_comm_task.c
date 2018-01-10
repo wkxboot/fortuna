@@ -8,11 +8,12 @@
 #include "comm_port_timer.h"
 #include "scale_func_task.h"
 #include "lock_task.h"
-#define APP_LOG_MODULE_NAME   "[comm_task]"
+#define APP_LOG_MODULE_NAME   "[host_comm]"
 #define APP_LOG_MODULE_LEVEL   APP_LOG_LEVEL_DEBUG    
 #include "app_log.h"
 #include "app_error.h"
 
+osThreadId host_comm_task_hdl;
 /*与上位机的通信任务*/
 void host_comm_task(void const * argument)
 {

@@ -1,6 +1,10 @@
 #ifndef    __SCALES_H__
 #define    __SCALES_H__
 #include "fortuna_common.h"
+
+fortuna_bool_t scale_get_net_weight(uint8_t sclae,uint16_t *ptr_net_weight);
+
+
 /*称重单元数量*/
 #define  SCALES_CNT_MAX                        4
 

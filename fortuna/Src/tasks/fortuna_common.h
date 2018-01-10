@@ -1,6 +1,6 @@
 #ifndef  __FORTUNA_COMMON_H__
 #define  __FORTUNA_COMMON_H__
-
+#include "stdint.h"
 
 typedef enum
 {

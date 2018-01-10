@@ -27,11 +27,13 @@
 #define APP_LOG_MODULE_NAME   "[MB_m_timer]"
 #define APP_LOG_MODULE_LEVEL   APP_LOG_LEVEL_DEBUG    
 #include "app_log.h"
+#include "app_error.h"
 
 #if MB_MASTER_RTU_ENABLED > 0 || MB_MASTER_ASCII_ENABLED > 0
 /* ----------------------- Variables ----------------------------------------*/
 
-extern osTimerId MASTER_MB_timerHandle;
+osTimerId MASTER_MB_timerHandle;
+static void MASTER_MB_timer_expired_callback(void const * argument);
 static void prvvTIMERExpiredISR(void);
 
 
@@ -40,8 +42,12 @@ static void prvvTIMERExpiredISR(void);
 /* ----------------------- Start implementation -----------------------------*/
 BOOL xMBMasterPortTimersInit()
 {
-  APP_LOG_DEBUG("MODBUS主机定时器初始化成功.\r\n");
-  return TRUE;
+ osTimerDef(MASTER_MB_timer,MASTER_MB_timer_expired_callback);
+ MASTER_MB_timerHandle=osTimerCreate(osTimer(MASTER_MB_timer),osTimerOnce,0);
+ APP_ASSERT(MASTER_MB_timerHandle); 
+ APP_LOG_DEBUG("MODBUS主机定时器初始化成功.\r\n");
+   
+ return TRUE;
 }
 
 void vMBMasterPortTimersT35Enable()
@@ -67,12 +73,12 @@ void vMBMasterPortTimersRespondTimeoutEnable()
   osTimerStop (MASTER_MB_timerHandle);
 }
 
-void prvvTIMERExpiredISR(void)
+static void prvvTIMERExpiredISR(void)
 {
   pxMBMasterPortCBTimerExpired();
 }
 
-void MASTER_MB_timer_expired_callback(void const * argument)
+static void MASTER_MB_timer_expired_callback(void const * argument)
 {
  APP_LOG_DEBUG("MODBUS主机定时器到达.\r\n");
  prvvTIMERExpiredISR();

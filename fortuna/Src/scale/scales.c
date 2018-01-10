@@ -16,11 +16,11 @@
  * modify by wkxboot 2017.7.11 
  * *****************************************************************************
  */
-#include "scales.h"
 #include "mbconfig_m.h"
 #include "mbutils_m.h"
 #include "mbport_m.h"
 #include "mb_m.h"
+#include "scales.h"
 #define APP_LOG_MODULE_NAME   "[scales]"
 #define APP_LOG_MODULE_LEVEL   APP_LOG_LEVEL_DEBUG    
 #include "app_log.h"

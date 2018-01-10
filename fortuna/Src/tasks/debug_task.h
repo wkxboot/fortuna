@@ -1,10 +1,12 @@
 #ifndef  __DEBUG_TASK_H__
 #define  __DEBUG_TASK_H__
 
+extern osThreadId debug_task_hdl;
+void debug_task(void const * argument);
+
 /*调试任务命令长度定义*/
 
 #define  DEBUG_TASK_CMD_EOL_LEN                      2/*调试时字符串结束符号长度*/
-#define  DEBUG_TASK_CMD_ADDR_LEN                     1
 
 #define  DEBUG_TASK_CMD_SET_ADDR_PARAM_LEN           2
 #define  DEBUG_TASK_CMD_OBTAIN_NET_WEIGHT_PARAM_LEN  1

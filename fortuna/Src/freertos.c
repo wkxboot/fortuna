@@ -52,16 +52,26 @@
 #include "cmsis_os.h"
 
 /* USER CODE BEGIN Includes */     
+#include "fortuna_common.h"
+#include "host_comm_task.h"
+#include "scale_poll_task.h"
+#include "scale_func_task.h"
+#include "scale_comm_task.h"
+#include "lock_task.h"
+#include "display_task.h"
+#include "device_status_task.h"
+#include "debug_task.h"
 #define APP_LOG_MODULE_NAME   "[freertos]"
 #define APP_LOG_MODULE_LEVEL   APP_LOG_LEVEL_DEBUG    
 #include "app_log.h"
+#include "app_error.h"
 /* USER CODE END Includes */
 
 /* Variables -----------------------------------------------------------------*/
 osThreadId defaultTaskHandle;
 
 /* USER CODE BEGIN Variables */
-
+static void create_user_tasks();
 /* USER CODE END Variables */
 
 /* Function prototypes -------------------------------------------------------*/
@@ -172,6 +182,10 @@ void StartDefaultTask(void const * argument)
 
   /* USER CODE BEGIN StartDefaultTask */
   /* Infinite loop */
+  /*创建用户任务*/
+  APP_LOG_DEBUG("创建用户任务...\r\n");
+  
+  create_user_tasks();
   for(;;)
   {
     osDelay(1);
@@ -180,7 +194,42 @@ void StartDefaultTask(void const * argument)
 }
 
 /* USER CODE BEGIN Application */
-     
+static void create_user_tasks()
+{
+  /*创建主机通信任务*/
+  osThreadDef(host_comm_task, host_comm_task, osPriorityNormal, 0, 128);
+  host_comm_task_hdl = osThreadCreate(osThread(host_comm_task), NULL); 
+  APP_ASSERT(host_comm_task_hdl);
+  /*创建电子秤功能任�?*/
+  osThreadDef(scale_func_task, scale_func_task, osPriorityNormal, 0, 256);
+  scale_func_task_hdl = osThreadCreate(osThread(scale_func_task), NULL); 
+  APP_ASSERT(scale_func_task_hdl);
+  /*创建电子秤轮询任�?*/
+  osThreadDef(scale_poll_task, scale_poll_task, osPriorityNormal, 0, 128);
+  scale_poll_task_hdl = osThreadCreate(osThread(scale_poll_task), NULL); 
+  APP_ASSERT(scale_poll_task_hdl);
+  /*创建电子秤�?�信任务*/
+  osThreadDef(scale_comm_task, scale_comm_task, osPriorityNormal, 0, 256);
+  scale_comm_task_hdl = osThreadCreate(osThread(scale_comm_task), NULL); 
+  APP_ASSERT(scale_comm_task_hdl);
+  /*创建锁任�?*/
+  osThreadDef(lock_task, lock_task, osPriorityNormal, 0, 128);
+  lock_task_hdl = osThreadCreate(osThread(lock_task), NULL); 
+  APP_ASSERT(lock_task_hdl);
+  /*创建数码管显示任�?*/
+  osThreadDef(display_task, display_task, osPriorityNormal, 0, 128);
+  display_task_hdl = osThreadCreate(osThread(display_task), NULL); 
+  APP_ASSERT(display_task_hdl);
+  /*创建设备状�?�任�?*/
+  osThreadDef(device_status_task, device_status_task, osPriorityNormal, 0, 128);
+  device_status_task_hdl = osThreadCreate(osThread(device_status_task), NULL); 
+  APP_ASSERT(device_status_task_hdl);
+  /*创建调试任务*/
+  osThreadDef(debug_task, debug_task, osPriorityNormal, 0, 128);
+  debug_task_hdl = osThreadCreate(osThread(debug_task), NULL); 
+  APP_ASSERT(debug_task_hdl);
+  APP_LOG_INFO("�?有任务创建成�?.\r\n"); 
+}
 /* USER CODE END Application */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

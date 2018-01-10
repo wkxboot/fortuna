@@ -2,7 +2,11 @@
 #define  __SCALE_POLL_TASK_H__
 
 /*重量任务handle*/
+extern osMessageQId scale_poll_msg_q_id;
 extern osThreadId scale_poll_task_hdl;
+void scale_poll_task(void const * argument);
+
+
 /*电子秤轮询任务单次超时时间*/
 #define  SCALE_POLL_TASK_WAIT_TIMEOUT                            80
 
@@ -13,7 +17,7 @@ extern osThreadId scale_poll_task_hdl;
 /*设置分辨率超时时间*/
 #define  SCALE_POLL_TASK_SET_DIVISION_TIMEOUT                    2000
 /*获取净重值超时时间,为了最快速的反馈通信错误，只尝试2次*/
-#define  SCALE_POLL_TASK_OBTAIN_NET_WEIGHT_TIMEOUT               (SCALE_POLL_TASK_WAIT_TIMEOUT*2)
+#define  SCALE_POLL_TASK_OBTAIN_NET_WEIGHT_TIMEOUT               2000
 
 
 /*电子秤轮询任务信号*/

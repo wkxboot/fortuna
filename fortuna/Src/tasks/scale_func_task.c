@@ -10,19 +10,27 @@
 #define APP_LOG_MODULE_NAME   "[elec_scales]"
 #define APP_LOG_MODULE_LEVEL   APP_LOG_LEVEL_DEBUG    
 #include "app_log.h"
+#include "app_error.h"
 
+osThreadId scale_func_task_hdl;
+osMessageQId scale_func_msg_q_id;
 /*
  * 电子秤功能操作任务
  */
 void scale_func_task(void const * argument)
 {
- APP_LOG_DEBUG("######电子秤通信任务开始.");
  osEvent msg;
  scale_msg_t scale_msg;
  uint8_t scale,scale_cnt,scale_start;
  uint16_t param[2];
  uint16_t reg_addr,reg_cnt;
  eMBMasterReqErrCode err_code;
+ /*创建自己的消息队列*/
+ osMessageQDef(scale_func_task_msg,6,uint32_t);
+ scale_func_msg_q_id=osMessageCreate(osMessageQ(scale_func_task_msg),scale_func_task_hdl);
+ APP_ASSERT(scale_func_msg_q_id);
+ APP_LOG_DEBUG("######电子秤功能任务开始.\r\n");
+
  while(1)
  {
  msg=osMessageGet(scale_func_msg_q_id,osWaitForever);

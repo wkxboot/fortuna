@@ -1245,6 +1245,12 @@
                     <name>$PROJ_DIR$\..\Src\tasks\debug_task.c</name>
                 </file>
                 <file>
+                    <name>$PROJ_DIR$\..\Src\tasks\device_status_task.c</name>
+                </file>
+                <file>
+                    <name>$PROJ_DIR$\..\Src\tasks\display_task.c</name>
+                </file>
+                <file>
                     <name>$PROJ_DIR$\..\Src\tasks\host_comm_task.c</name>
                 </file>
                 <file>

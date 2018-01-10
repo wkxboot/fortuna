@@ -9,13 +9,13 @@
 #include "app_log.h"
 #include "app_error.h"
 
-
+osThreadId scale_comm_task_hdl;
 /*
  * 电子秤通信任务
  */
 void scale_comm_task(void const * argument)
 {
-  APP_LOG_DEBUG("######电子秤MODBUS主机任务开始.\r\n");
+  APP_LOG_DEBUG("######电子秤MODBUS主机通信任务开始.\r\n");
   /*这个地方初始化参数无效，因为在usart.c已经初始化。为了移植.*/
   eMBMasterInit(MB_MASTER_RTU,0,115200,8);
   /* Enable the Modbus Protocol Stack. */

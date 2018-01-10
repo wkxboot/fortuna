@@ -5,6 +5,7 @@
 #include "host_protocol.h"
 #include "host_comm_task.h"
 #include "comm_port_serial.h"
+#include "comm_port_timer.h"
 #define APP_LOG_MODULE_NAME   "[port_serial]"
 #define APP_LOG_MODULE_LEVEL   APP_LOG_LEVEL_DEBUG    
 #include "app_log.h"
@@ -68,6 +69,8 @@ static void xcomm_port_serial_isr_receive(void)
  serial_recv_cnt=0;
  }
  serial_buff[serial_recv_cnt++]=recv_byte;
+ /*重新开始定时器*/
+ xcomm_port_serial_timer_start();
 }
 
 static void xcomm_port_serial_isr_send(void)

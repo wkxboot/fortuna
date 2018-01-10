@@ -16,7 +16,9 @@ typedef struct
 extern uint8_t lock_status;
 extern uint8_t door_status;
 
-/*锁任务handle*/
+
+/*锁任务*/
+void lock_task(void const * argument);
 extern osThreadId lock_task_hdl;
 extern osMessageQId lock_task_msg_q_id;
 

@@ -11,8 +11,8 @@ void xcomm_port_serial_enable(fortuna_bool_t rx_bool,fortuna_bool_t tx_bool);
 void xcomm_port_serial_recv(uint8_t **ptr_buff,uint8_t *ptr_recv_len);
 /*发送一帧串口数据*/
 void xcomm_port_serial_send(uint8_t *ptr_buff,uint8_t send_len);
-
-
+/*中断处理*/
+void xcomm_port_serial_isr(void);
 
 
 

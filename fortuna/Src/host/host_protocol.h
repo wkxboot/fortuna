@@ -8,9 +8,11 @@ COMM_OK =0,
 COMM_ERR
 }comm_status_t;
 
+typedef comm_status_t (*ptr_comm_cmd_process)(uint8_t *ptr_buff,uint8_t param_len,uint8_t *ptr_sen_len);
+
 typedef struct
 {
- comm_status_t (*comm_cmd_process)(uint8_t *ptr_buff,uint8_t param_len,uint8_t *ptr_sen_len);
+ ptr_comm_cmd_process comm_cmd_process;
  uint8_t cmd_code;
  uint8_t pdu_len;
 }comm_cmd_t;
@@ -26,14 +28,10 @@ comm_status_t comm_receive_fsm(uint8_t **ptr_buff,uint8_t *ptr_recv_len);
 comm_status_t comm_send_fsm(uint8_t *ptr_buff,uint8_t send_len);
 
 /*串口通信定义*/
-#define  COMM_ADDR                              1
-#define  COMM_PORT                              0
-#define  COMM_BAUDRATE                          115200UL
-#define  COMM_DATABITS                          8
-
-
-
-
+#define  COMM_ADDR                                   1
+#define  COMM_PORT                                   0
+#define  COMM_BAUDRATE                               115200UL
+#define  COMM_DATABITS                               8
 
 /*通信协议部分*/
 #define  COMM_SERIAL_PDU_SIZE_MIN                     2

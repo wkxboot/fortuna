@@ -2,6 +2,7 @@
 #include "task.h"
 #include "cmsis_os.h"
 #include "fortuna_common.h"
+#include "scales.h"
 #include "host_protocol.h"
 #include "host_comm_task.h"
 #include "scale_func_task.h"
@@ -9,14 +10,11 @@
 #include "comm_port_timer.h"
 #include "scale_func_task.h"
 #include "lock_task.h"
-#define APP_LOG_MODULE_NAME   "[comm]"
+#define APP_LOG_MODULE_NAME   "[protocol]"
 #define APP_LOG_MODULE_LEVEL   APP_LOG_LEVEL_DEBUG    
 #include "app_log.h"
 #include "app_error.h"
 
-extern uint8_t scale_weight[];
-extern uint8_t vendor_id,firmware_version;
-extern uint8_t elec_scale_cnt;
 extern uint8_t door_status,lock_status,ups_status;
 extern int8_t temperature;
 
@@ -70,7 +68,7 @@ void comm_fsm_timer_expired()
  xcomm_port_serial_enable(FORTUNA_FALSE,FORTUNA_FALSE);
  APP_LOG_INFO("接收完一帧数据.向通信任务发送信号.\r\n");
  /*发送接收完成信号*/
- osSignalSet(comm_task_hdl,HOST_COMM_TASK_RECV_FSM_SIGNAL);
+ osSignalSet(host_comm_task_hdl,HOST_COMM_TASK_RECV_FSM_SIGNAL);
 }
 
 
@@ -297,7 +295,7 @@ static comm_status_t comm_cmd03_process(uint8_t *ptr_param,uint8_t param_len,uin
  for(uint8_t i=0;i<COMM_VIRTUAL_SCALE_MAX;i++)
  {
  /*回填重量值*/
-  weight=scale_weight[i];
+  scale_get_net_weight(i+1,&weight);
   ptr_param[i*2]=weight>>8;
   ptr_param[i*2+1]=weight & 0xff;
  }
@@ -308,7 +306,7 @@ static comm_status_t comm_cmd03_process(uint8_t *ptr_param,uint8_t param_len,uin
  }
  else
  {
-  weight=scale_weight[scale-1];
+  scale_get_net_weight(scale,&weight);
   ptr_param[0]=weight>>8;
   ptr_param[1]=weight & 0xff;
   APP_LOG_DEBUG("获取称重值：%d\r\n",ptr_param[0]<<8|ptr_param[1]);
@@ -328,7 +326,7 @@ static comm_status_t comm_cmd04_process(uint8_t *ptr_param,uint8_t param_len,uin
    return COMM_ERR;
  }
  /*回填称重数量*/
- scale_cnt=elec_scale_cnt;
+ scale_cnt=SCALES_CNT_MAX;
  ptr_param[0]=scale_cnt;
  APP_LOG_DEBUG("获取的称重单元数量：%d\r\n",ptr_param[0]);
  /*更新需要发送的数据长度*/
@@ -501,8 +499,8 @@ static comm_status_t comm_cmd51_process(uint8_t *ptr_param,uint8_t param_len,uin
    APP_LOG_ERROR("命令0x51参数长度不匹配.\r\n",param_len);
    return COMM_ERR;
  }
- id=vendor_id;
- ver=firmware_version;
+ id=VENDOR_ID_CHANGHONG;
+ ver=FIRMWARE_VERSION;
  /*回填称重数量*/
  ptr_param[0]=id;
  ptr_param[1]=ver;
