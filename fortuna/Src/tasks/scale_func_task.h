@@ -41,7 +41,8 @@ void scale_func_task(void const * argument);
 #define  SCALE_FUNC_TASK_AUTO_TARE_WEIGHT_VALUE            0x7fffffff
 #define  SCALE_FUNC_TASK_RESET_VALUE                       0x55
 
-
+/*电子秤功能任务同步事件*/
+#define  SCALE_FUNC_TASK_SYNC_EVT                          (1<<1)
 
 
 

@@ -3,29 +3,42 @@
 #include "cmsis_os.h"
 #include "fortuna_common.h"
 #include "host_protocol.h"
-#include "host_comm_task.h"
 #include "comm_port_serial.h"
 #include "comm_port_timer.h"
+#include "host_comm_task.h"
+#include "scale_comm_task.h"
 #include "scale_func_task.h"
+#include "scale_poll_task.h"
 #include "lock_task.h"
 #define APP_LOG_MODULE_NAME   "[host_comm]"
 #define APP_LOG_MODULE_LEVEL   APP_LOG_LEVEL_DEBUG    
 #include "app_log.h"
 #include "app_error.h"
 
+
 osThreadId host_comm_task_hdl;
-/*与上位机的通信任务*/
+extern EventGroupHandle_t task_sync_evt_group_hdl;
+
+/*与主机通信任务*/
 void host_comm_task(void const * argument)
 {
  osEvent signals;
  uint8_t *ptr_buff,recv_len,send_len;
  comm_status_t status;
- APP_LOG_INFO("######上位机通信任务开始.\r\n");
+ APP_LOG_INFO("######与主机通信任务开始.\r\n");
  status=comm_init(COMM_ADDR,COMM_PORT,COMM_BAUDRATE,COMM_DATABITS);
  if(status!=COMM_OK)
  {
- APP_LOG_ERROR("通信任务初始化失败.\r\n");
+   APP_LOG_ERROR("与主机通信任务初始化失败.\r\n");
  }
+ APP_LOG_INFO("与主机通信任务等待同步...\r\n");
+ xEventGroupSync(task_sync_evt_group_hdl,HOST_COMM_TASK_SYNC_EVT,SCALE_POLL_TASK_SYNC_EVT  |\
+                                                                  SCALE_FUNC_TASK_SYNC_EVT |\
+                                                                  SCALE_COMM_TASK_SYNC_EVT |\
+                                                                  HOST_COMM_TASK_SYNC_EVT,  \
+                                                                  osWaitForever);
+
+ APP_LOG_INFO("与主机通信任务同步完成.\r\n");
  while(1)
  {
  signals=osSignalWait(HOST_COMM_TASK_ALL_SIGNALS,osWaitForever);
@@ -39,13 +52,20 @@ void host_comm_task(void const * argument)
  /*处理接收数据帧信号*/
  if(signals.value.signals & HOST_COMM_TASK_RECV_FSM_SIGNAL)
  {
- APP_LOG_ERROR("通信任务收到串口数据帧信号.开始接收.\r\n");
+ APP_LOG_DEBUG("通信任务收到串口数据帧信号.开始接收.\r\n");
+ APP_LOG_DEBUG("禁止串口接收中断.发送中断.\r\n");
+ xcomm_port_serial_enable(FORTUNA_FALSE,FORTUNA_FALSE);
  status=comm_receive_fsm(&ptr_buff,&recv_len);
  if(status==COMM_OK)
  {
-  APP_LOG_ERROR("通信任务接收数据成功.\r\n"); 
-  APP_LOG_ERROR("向通信任务发送解析协议信号.\r\n"); 
+  APP_LOG_DEBUG("通信任务接收数据成功.\r\n"); 
+  APP_LOG_DEBUG("向通信任务发送解析协议信号.\r\n"); 
   osSignalSet(host_comm_task_hdl,HOST_COMM_TASK_PARSE_PROTOCOL_SIGNAL);
+ }
+ else
+ {
+  /*禁止串口中断发送,启动接收中断*/
+  xcomm_port_serial_enable(FORTUNA_TRUE,FORTUNA_FALSE);  
  }
  }
  /*处理解析数据帧信号*/
@@ -54,24 +74,38 @@ void host_comm_task(void const * argument)
  status=comm_protocol_parse(ptr_buff,recv_len,&send_len);
  if(status==COMM_OK)
  {
- APP_LOG_INFO("协议解析完成.\r\n");
- APP_LOG_INFO("向通信任务发送发送数据帧信号.\r\n");
+ APP_LOG_DEBUG("协议解析完成.\r\n");
+ APP_LOG_DEBUG("向通信任务发送发送数据帧信号.\r\n");
  osSignalSet(host_comm_task_hdl,HOST_COMM_TASK_SEND_FSM_SIGNAL);
+ }
+ else
+ {
+  /*禁止串口中断发送,启动接收中断*/
+  xcomm_port_serial_enable(FORTUNA_TRUE,FORTUNA_FALSE); 
  }
  }
  /*处理发送数据帧信号*/
  if(signals.value.signals & HOST_COMM_TASK_SEND_FSM_SIGNAL)
  {
-  APP_LOG_ERROR("通信任务收到发送串口数据帧信号.\r\n"); 
-  send_len+=COMM_ADDR_SIZE;
-  
+  APP_LOG_DEBUG("通信任务收到发送串口数据帧信号.\r\n"); 
+  /*启动串口发送中断,禁止接收中断*/
+  APP_LOG_DEBUG("启动发送串口数据.\r\n");
+  status=comm_send_fsm(ptr_buff,send_len);
+  if(status==COMM_OK)
+  {
   xcomm_port_serial_enable(FORTUNA_FALSE,FORTUNA_TRUE);
-  comm_send_fsm(ptr_buff,send_len);
+  }
+  else
+  {
+ /*禁止串口中断发送,启动接收中断*/
+  xcomm_port_serial_enable(FORTUNA_TRUE,FORTUNA_FALSE);
+  }
  }
  /*处理发送数据帧完毕信号*/
  if(signals.value.signals & HOST_COMM_TASK_SEND_FSM_OVER_SIGNAL)
  {
-  APP_LOG_ERROR("通信任务收到发送串口数据帧完毕信号.\r\n"); 
+  APP_LOG_DEBUG("通信任务收到发送串口数据帧完毕信号.\r\n"); 
+  /*禁止串口中断发送,启动接收中断*/
   xcomm_port_serial_enable(FORTUNA_TRUE,FORTUNA_FALSE);
  }
 }

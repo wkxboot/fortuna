@@ -362,7 +362,7 @@
                     <state>$PROJ_DIR$/../libraries/app_error</state>
                     <state>$PROJ_DIR$/../libraries/SEGGER_RTT_V612j/RTT</state>
                     <state>$PROJ_DIR$/../libraries/SEGGER_RTT_V612j/Syscalls</state>
-                <state /><state /><state /><state /><state /><state /><state /><state /><state /><state /><state /><state /><state /><state /><state /><state /></option>
+                <state /><state /><state /><state /><state /><state /><state /><state /><state /><state /><state /><state /><state /><state /><state /><state /><state /><state /><state /><state /><state /><state /><state /><state /></option>
                 <option>
                     <name>CCStdIncCheck</name>
                     <state>0</state>

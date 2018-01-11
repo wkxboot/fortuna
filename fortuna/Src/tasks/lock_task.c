@@ -63,12 +63,12 @@ void lock_task(void const * argument)
  osEvent msg;
  lock_msg_t lock_msg;
  uint16_t time;
+ APP_LOG_INFO("######门锁任务开始.\r\n");
  /*创建自己的消息队列*/
  osMessageQDef(lock_task_msg,2,uint32_t);
  lock_task_msg_q_id=osMessageCreate(osMessageQ(lock_task_msg),lock_task_hdl);
  APP_ASSERT(lock_task_msg_q_id);
  
- APP_LOG_INFO("######门锁任务开始.\r\n");
  while(1)
  {
   msg=osMessageGet(lock_task_msg_q_id,LOCK_TASK_STATUS_INTERVAL);
@@ -87,7 +87,7 @@ void lock_task(void const * argument)
   switch(lock_msg.type)
   {
   case LOCK_TASK_UNLOCK_LOCK_MSG:
-    APP_LOG_DEBUG("锁任务收到开锁指令消息.");
+    APP_LOG_DEBUG("锁任务收到开锁指令消息.\r\n");
     time=0;
     while(time<LOCK_TASK_LOCK_TIMEOUT)
     {
@@ -100,17 +100,17 @@ void lock_task(void const * argument)
     }
     if(lock_status==LOCK_TASK_STATUS_UNLOCKED)
     {
-    APP_LOG_INFO("向通信任务发送开锁成功信号.");
+    APP_LOG_DEBUG("向通信任务发送开锁成功信号.\r\n");
     osSignalSet(host_comm_task_hdl,COMM_TASK_UNLOCK_LOCK_OK_SIGNAL); 
     }
     else
     {
-    APP_LOG_INFO("向通信任务发送开锁失败信号.");
+    APP_LOG_ERROR("向通信任务发送开锁失败信号.\r\n");
     osSignalSet(host_comm_task_hdl,COMM_TASK_UNLOCK_LOCK_ERR_SIGNAL);  
     }      
     break;
   case LOCK_TASK_LOCK_LOCK_MSG:
-    APP_LOG_DEBUG("锁任务收到关锁指令消息.");
+    APP_LOG_DEBUG("锁任务收到关锁指令消息.\r\n");
     time=0;
     while(time<LOCK_TASK_LOCK_TIMEOUT)
     {
@@ -123,12 +123,12 @@ void lock_task(void const * argument)
     }
     if(lock_status==LOCK_TASK_STATUS_LOCKED)
     {
-    APP_LOG_INFO("向通信任务发送关锁成功信号.");
+    APP_LOG_DEBUG("向通信任务发送关锁成功信号.\r\n");
     osSignalSet(host_comm_task_hdl,COMM_TASK_LOCK_LOCK_OK_SIGNAL); 
     }
     else
     {
-    APP_LOG_INFO("向通信任务发送关锁失败信号.");
+    APP_LOG_ERROR("向通信任务发送关锁失败信号.\r\n");
     osSignalSet(host_comm_task_hdl,COMM_TASK_LOCK_LOCK_ERR_SIGNAL);  
     }     
    break;

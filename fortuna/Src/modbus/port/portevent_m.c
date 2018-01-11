@@ -26,8 +26,8 @@
 #include "task.h"
 #include "semphr.h"
 #include "event_groups.h"
-#define APP_LOG_MODULE_NAME   "[MB_m_evt]"
-#define APP_LOG_MODULE_LEVEL   APP_LOG_LEVEL_DEBUG    
+#define APP_LOG_MODULE_NAME   "[MB_M_EVT]"
+#define APP_LOG_MODULE_LEVEL   APP_LOG_LEVEL_INFO    
 #include "app_log.h"
 
 #define  EVENT_WAIT_FOREVER      0xFFFFFFFF
@@ -82,11 +82,11 @@ xMBMasterPortEventGet( eMBMasterEventType * peEvent )
     /* waiting forever OS event */
 
     APP_LOG_DEBUG("MODBUS等待事件.\r\n");
-    uxBits = xEventGroupWaitBits(   xMasterOsEvent,	// The event group being tested.
+    uxBits = xEventGroupWaitBits(xMasterOsEvent,// The event group being tested.
 			            EV_MASTER_READY | EV_MASTER_FRAME_RECEIVED | EV_MASTER_EXECUTE |EV_MASTER_FRAME_SENT | EV_MASTER_ERROR_PROCESS,// The bits within the event group to wait for.
-				    pdTRUE,		// should be cleared before returning.
-				    pdFALSE,		// Don't wait for both bits, either bit will do.
-				    EVENT_WAIT_FOREVER );// Wait forever either bit to be set.
+				        pdTRUE,// should be cleared before returning.
+				        pdFALSE,// Don't wait for both bits, either bit will do.
+				        EVENT_WAIT_FOREVER);// Wait forever either bit to be set.
   
     //*peEvent = (eMBMasterEventType)uxBits;
     switch (uxBits)

@@ -12,11 +12,11 @@ osMessageQId display_task_msg_q_id;
 
 void display_task(void const * argument)
 {
-  
-while(1)
-{
+  APP_LOG_INFO("######显示任务开始.\r\n");
+ while(1)
+ {
   osDelay(10);
-}
+ }
   
   
   

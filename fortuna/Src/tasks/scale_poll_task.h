@@ -43,8 +43,8 @@ void scale_poll_task(void const * argument);
 #define  SCALE_POLL_TASK_LOCK_ERR_SIGNAL                         (1<<19)
 #define  SCALE_POLL_TASK_ALL_SIGNALS                             ((1<<20)-1)
 
-
-
+/*电子秤轮询任务同步事件*/
+#define  SCALE_POLL_TASK_SYNC_EVT                                (1<<0)
 
 
 

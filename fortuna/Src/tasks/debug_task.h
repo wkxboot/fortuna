@@ -12,19 +12,19 @@ void debug_task(void const * argument);
 #define  DEBUG_TASK_CMD_OBTAIN_NET_WEIGHT_PARAM_LEN  1
 #define  DEBUG_TASK_CMD_UNLOCK_DEVICE_PARAM_LEN      1
 #define  DEBUG_TASK_CMD_LOCK_DEVICE_PARAM_LEN        1
-#define  DEBUG_TASK_CMD_SET_MAX_WEIGHT_PARAM_LEN     1
+#define  DEBUG_TASK_CMD_SET_MAX_WEIGHT_PARAM_LEN     6
 #define  DEBUG_TASK_CMD_SET_DIVISION_PARAM_LEN       1
 #define  DEBUG_TASK_CMD_CALIBRATE_WEIGHT_PARAM_LEN   6
 
 
 /*调试任务命令值定义*/
-#define  DEBUG_TASK_CMD_SET_ADDR               "设置地址"    
-#define  DEBUG_TASK_CMD_OBTAIN_NET_WEIGHT      "获取净重" 
-#define  DEBUG_TASK_CMD_UNLOCK_DEVICE          "解锁设备"
-#define  DEBUG_TASK_CMD_LOCK_DEVICE            "上锁设备" 
-#define  DEBUG_TASK_CMD_SET_MAX_WEIGHT         "设置最大值" 
-#define  DEBUG_TASK_CMD_SET_DIVISION           "设置分度值"
-#define  DEBUG_TASK_CALIBRATE_WEIGHT           "校准重量"
+#define  DEBUG_TASK_CMD_SET_ADDR                   "设置地址"    
+#define  DEBUG_TASK_CMD_OBTAIN_NET_WEIGHT          "获取净重" 
+#define  DEBUG_TASK_CMD_UNLOCK_DEVICE              "解锁设备"
+#define  DEBUG_TASK_CMD_LOCK_DEVICE                "上锁设备" 
+#define  DEBUG_TASK_CMD_SET_MAX_WEIGHT             "设置最大值" 
+#define  DEBUG_TASK_CMD_SET_DIVISION               "设置分度值"
+#define  DEBUG_TASK_CALIBRATE_WEIGHT               "校准重量"
 
 /*调试任务超时值定义*/
 #define  DEBUG_TASK_WAIT_TIMEOUT                   100

@@ -167,8 +167,8 @@ void SysTick_Handler(void)
 void USART1_IRQHandler(void)
 {
   /* USER CODE BEGIN USART1_IRQn 0 */
-  void xcomm_port_serial_isr(void);
-  xcomm_port_serial_isr();
+void MASTER_MODBUS_USARTIRQHandler(void);
+MASTER_MODBUS_USARTIRQHandler();
 #if 0
   /* USER CODE END USART1_IRQn 0 */
   HAL_UART_IRQHandler(&huart1);
@@ -197,8 +197,9 @@ void USART2_IRQHandler(void)
 void USART3_IRQHandler(void)
 {
   /* USER CODE BEGIN USART3_IRQn 0 */
-void MASTER_MODBUS_USARTIRQHandler(void);
-MASTER_MODBUS_USARTIRQHandler();
+ void xcomm_port_serial_isr(void);
+ xcomm_port_serial_isr();
+
 #if 0
   /* USER CODE END USART3_IRQn 0 */
   HAL_UART_IRQHandler(&huart3);

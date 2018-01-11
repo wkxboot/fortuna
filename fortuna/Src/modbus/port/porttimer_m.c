@@ -24,8 +24,8 @@
 #include "mbconfig_m.h"
 
 #include "cmsis_os.h"
-#define APP_LOG_MODULE_NAME   "[MB_m_timer]"
-#define APP_LOG_MODULE_LEVEL   APP_LOG_LEVEL_DEBUG    
+#define APP_LOG_MODULE_NAME   "[MB_M_TIMER]"
+#define APP_LOG_MODULE_LEVEL   APP_LOG_LEVEL_INFO    
 #include "app_log.h"
 #include "app_error.h"
 

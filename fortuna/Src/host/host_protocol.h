@@ -22,30 +22,32 @@ extern osThreadId comm_task_hdl;
 comm_status_t comm_protocol_parse(uint8_t *ptr_buff,uint8_t recv_len,uint8_t *ptr_send_len);
 /*通信初始化*/
 comm_status_t comm_init(uint8_t slave_addr,uint8_t port,uint32_t baudrate,uint8_t databits);
+/*通信协议接收处理*/
+void host_protocol_byte_receive(void);
+/*通信协议发送处理*/
+void host_protocol_byte_send(void);
+
 /*获取一帧数据的地址和长度*/
 comm_status_t comm_receive_fsm(uint8_t **ptr_buff,uint8_t *ptr_recv_len);
 /*发送一帧数据*/
 comm_status_t comm_send_fsm(uint8_t *ptr_buff,uint8_t send_len);
 
-/*串口通信定义*/
-#define  COMM_ADDR                                   1
-#define  COMM_PORT                                   0
-#define  COMM_BAUDRATE                               115200UL
-#define  COMM_DATABITS                               8
+#define  BUFF_SIZE_MAX                              64
+
 
 /*通信协议部分*/
 #define  COMM_SERIAL_PDU_SIZE_MIN                     2
 #define  COMM_PDU_SIZE_MIN                            1
 
 /*通信任务子函数信号*/
-#define  COMM_TASK_CLEAR_SCALE_TARE_WEIGHT_OK_SIGNAL  (1<<0)
-#define  COMM_TASK_CLEAR_SCALE_TARE_WEIGHT_ERR_SIGNAL (1<<1)
-#define  COMM_TASK_CALIBRATE_SCALE_WEIGHT_OK_SIGNAL   (1<<2)
-#define  COMM_TASK_CALIBRATE_SCALE_WEIGHT_ERR_SIGNAL  (1<<3)
-#define  COMM_TASK_UNLOCK_LOCK_OK_SIGNAL              (1<<4)
-#define  COMM_TASK_UNLOCK_LOCK_ERR_SIGNAL             (1<<5)
-#define  COMM_TASK_LOCK_LOCK_OK_SIGNAL                (1<<6)
-#define  COMM_TASK_LOCK_LOCK_ERR_SIGNAL               (1<<7)
+#define  COMM_TASK_CLEAR_SCALE_TARE_WEIGHT_OK_SIGNAL  (1<<5)
+#define  COMM_TASK_CLEAR_SCALE_TARE_WEIGHT_ERR_SIGNAL (1<<6)
+#define  COMM_TASK_CALIBRATE_SCALE_WEIGHT_OK_SIGNAL   (1<<7)
+#define  COMM_TASK_CALIBRATE_SCALE_WEIGHT_ERR_SIGNAL  (1<<8)
+#define  COMM_TASK_UNLOCK_LOCK_OK_SIGNAL              (1<<9)
+#define  COMM_TASK_UNLOCK_LOCK_ERR_SIGNAL             (1<<10)
+#define  COMM_TASK_LOCK_LOCK_OK_SIGNAL                (1<<11)
+#define  COMM_TASK_LOCK_LOCK_ERR_SIGNAL               (1<<12)
 
 
 /*通信任务子函数超时时间*/
@@ -70,9 +72,9 @@ comm_status_t comm_send_fsm(uint8_t *ptr_buff,uint8_t send_len);
 #define  COMM_VIRTUAL_SCALE_MAX               20
 /*参数部分的长度大小*/
 #define  COMM_CMD01_PARAM_SIZE                1
-#define  COMM_CMD02_PARAM_SIZE                2
+#define  COMM_CMD02_PARAM_SIZE                3
 #define  COMM_CMD03_PARAM_SIZE                1
-#define  COMM_CMD04_PARAM_SIZE                1
+#define  COMM_CMD04_PARAM_SIZE                0
 #define  COMM_CMD11_PARAM_SIZE                0
 #define  COMM_CMD21_PARAM_SIZE                0
 #define  COMM_CMD22_PARAM_SIZE                0

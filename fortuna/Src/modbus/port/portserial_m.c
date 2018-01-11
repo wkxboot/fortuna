@@ -24,13 +24,13 @@
 #include "task.h"
 #include "queue.h"
 #include "stm32f1xx.h"
-#define APP_LOG_MODULE_NAME   "[MB_m_serial]"
-#define APP_LOG_MODULE_LEVEL   APP_LOG_LEVEL_DEBUG    
+#define APP_LOG_MODULE_NAME   "[MB_M_SERIAL]"
+#define APP_LOG_MODULE_LEVEL   APP_LOG_LEVEL_INFO    
 #include "app_log.h"
 /* ----------------------- Defines ------------------------------------------*/
-extern UART_HandleTypeDef huart3;
+extern UART_HandleTypeDef huart1;
 
-UART_HandleTypeDef * ptr_master_modbus_uart_handle =&huart3;
+UART_HandleTypeDef * ptr_master_modbus_uart_handle =&huart1;
 
 
 #if MB_MASTER_RTU_ENABLED > 0 || MB_MASTER_ASCII_ENABLED > 0
@@ -43,7 +43,7 @@ BOOL xMBMasterPortSerialInit(uint8_t port,uint32_t baudrate,uint8_t databits)
  (void)port;
  (void)baudrate;
  (void)databits;
- APP_LOG_INFO("MODBUS主机串口初始化成功.\r\n!");
+ APP_LOG_DEBUG("MODBUS主机串口初始化成功.\r\n!");
  return TRUE;
 }
 
@@ -54,31 +54,31 @@ void vMBMasterPortSerialEnable(BOOL xRxEnable, BOOL xTxEnable)
     {
     /* Enable the UART Data Register not empty Interrupt */
     __HAL_UART_ENABLE_IT(ptr_master_modbus_uart_handle, UART_IT_RXNE);   
-    APP_LOG_WARNING("MODBUS主机使能接收.\r\n"); 
+    APP_LOG_DEBUG("MODBUS主机使能接收.\r\n"); 
     }
     else
     {
     /* Enable the UART Transmit data register empty Interrupt */
     __HAL_UART_DISABLE_IT(ptr_master_modbus_uart_handle, UART_IT_RXNE);  
-    APP_LOG_WARNING("MODBUS主机禁止接收.\r\n");  
+    APP_LOG_DEBUG("MODBUS主机禁止接收.\r\n");  
     }
    if(xTxEnable)
     {
    /* Enable the UART Transmit data register empty Interrupt */
     __HAL_UART_ENABLE_IT(ptr_master_modbus_uart_handle, UART_IT_TXE);   
-     APP_LOG_WARNING("MODBUS主机使能发送.\r\n"); 
+     APP_LOG_DEBUG("MODBUS主机使能发送.\r\n"); 
     }
     else
     {
      /* Enable the UART Data Register not empty Interrupt */
     __HAL_UART_DISABLE_IT(ptr_master_modbus_uart_handle, UART_IT_TXE);   
-    APP_LOG_WARNING("MODBUS主机禁止发送.\r\n");
+    APP_LOG_DEBUG("MODBUS主机禁止发送.\r\n");
     }
 }
 
 void vMBMasterPortClose(void)
 {
- APP_LOG_WARNING("MODBUS主机关闭.\r\n"); 
+ APP_LOG_DEBUG("MODBUS主机关闭.\r\n"); 
 }
 
 BOOL xMBMasterPortSerialPutByte(CHAR ucByte)

@@ -16,7 +16,7 @@
 #include "app_log.h"
 #include "app_error.h"
 
-#define  DEBUG_CMD_MAX_LEN    20
+#define  DEBUG_CMD_MAX_LEN      30
 
 osThreadId debug_task_hdl;
 uint8_t cmd[DEBUG_CMD_MAX_LEN];

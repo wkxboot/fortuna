@@ -32,7 +32,7 @@
     	<board>custom</board>
 			
     <usedDebug>true</usedDebug>
-    	<debugprobe>swd</debugprobe>
+    	<debugprobe></debugprobe>
     <optimization></optimization>
     <icfloc>0</icfloc>
     <Adefines>

@@ -51,7 +51,10 @@
 #include "iwdg.h"
 
 /* USER CODE BEGIN 0 */
-
+#define APP_LOG_MODULE_NAME   "[iwdg]"
+#define APP_LOG_MODULE_LEVEL   APP_LOG_LEVEL_DEBUG    
+#include "app_log.h"
+#include "app_error.h"
 /* USER CODE END 0 */
 
 IWDG_HandleTypeDef hiwdg;
@@ -71,7 +74,13 @@ void MX_IWDG_Init(void)
 }
 
 /* USER CODE BEGIN 1 */
-
+void sys_feed_dog()
+{
+  HAL_StatusTypeDef status;
+  status= HAL_IWDG_Refresh(&hiwdg);
+  if(status!=  HAL_OK)
+  APP_ERROR_HANDLER(status);  
+}
 /* USER CODE END 1 */
 
 /**

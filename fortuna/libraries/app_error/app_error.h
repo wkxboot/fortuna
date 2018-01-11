@@ -92,7 +92,7 @@ else                                                                       \
 #define APP_ERROR_HANDLER(ERR_CODE)                                    \
     do                                                                 \
     {                                                                  \
-      app_error_handler((ERR_CODE), __LINE__, (uint8_t*) __FILE__);  \
+      app_error_handler((ERR_CODE), __LINE__, (uint8_t*) __FILE__);    \
     } while (0)
 
 /**@brief Macro for calling error handler function if supplied error code any other than NRF_SUCCESS.
