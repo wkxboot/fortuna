@@ -24,13 +24,14 @@
 #include "task.h"
 #include "queue.h"
 #include "stm32f1xx.h"
+#include "usart.h"
 #define APP_LOG_MODULE_NAME   "[MB_M_SERIAL]"
 #define APP_LOG_MODULE_LEVEL   APP_LOG_LEVEL_INFO    
 #include "app_log.h"
+#include "app_error.h"
 /* ----------------------- Defines ------------------------------------------*/
-extern UART_HandleTypeDef huart1;
 
-UART_HandleTypeDef * ptr_master_modbus_uart_handle =&huart1;
+UART_HandleTypeDef * ptr_master_modbus_uart_handle;
 
 
 #if MB_MASTER_RTU_ENABLED > 0 || MB_MASTER_ASCII_ENABLED > 0
@@ -40,9 +41,33 @@ UART_HandleTypeDef * ptr_master_modbus_uart_handle =&huart1;
 /* ----------------------- Start implementation -----------------------------*/
 BOOL xMBMasterPortSerialInit(uint8_t port,uint32_t baudrate,uint8_t databits)
 {
- (void)port;
- (void)baudrate;
- (void)databits;
+ if(port==1)
+ {
+  ptr_master_modbus_uart_handle=&huart1;
+  ptr_master_modbus_uart_handle->Instance=USART1;
+ }
+ else if(port==2)
+ {
+  ptr_master_modbus_uart_handle=&huart2;
+  ptr_master_modbus_uart_handle->Instance=USART2;  
+ }
+ else
+ {
+  ptr_master_modbus_uart_handle=&huart3;
+  ptr_master_modbus_uart_handle->Instance=USART3;  
+ }
+  ptr_master_modbus_uart_handle->Init.BaudRate = baudrate;
+  ptr_master_modbus_uart_handle->Init.WordLength =(databits==8?UART_WORDLENGTH_8B:UART_WORDLENGTH_9B);
+  ptr_master_modbus_uart_handle->Init.StopBits = UART_STOPBITS_2;
+  ptr_master_modbus_uart_handle->Init.Parity = UART_PARITY_NONE;
+  ptr_master_modbus_uart_handle->Init.Mode = UART_MODE_TX_RX;
+  ptr_master_modbus_uart_handle->Init.HwFlowCtl = UART_HWCONTROL_NONE;
+  ptr_master_modbus_uart_handle->Init.OverSampling = UART_OVERSAMPLING_16;
+  if(HAL_UART_Init(ptr_master_modbus_uart_handle)!=HAL_OK)
+  {
+    APP_LOG_ERROR("MODBUS主机串口初始化失败.\r\n!");
+    return FALSE;
+  }
  APP_LOG_DEBUG("MODBUS主机串口初始化成功.\r\n!");
  return TRUE;
 }

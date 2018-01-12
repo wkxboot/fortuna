@@ -2,7 +2,7 @@
 #include "task.h"
 #include "cmsis_os.h"
 #include "lock_task.h"
-#include "host_protocol.h"
+#include "comm_protocol.h"
 #include "host_comm_task.h"
 #define APP_LOG_MODULE_NAME   "[lock]"
 #define APP_LOG_MODULE_LEVEL   APP_LOG_LEVEL_DEBUG    

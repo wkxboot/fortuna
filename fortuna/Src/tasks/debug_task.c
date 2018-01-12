@@ -4,7 +4,7 @@
 #include "string.h"
 #include "fortuna_common.h"
 #include "scales.h"
-#include "host_protocol.h"
+#include "comm_protocol.h"
 #include "host_comm_task.h"
 #include "comm_port_serial.h"
 #include "comm_port_timer.h"

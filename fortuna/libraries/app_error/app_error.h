@@ -27,7 +27,7 @@ extern "C" {
 #define  APP_ERROR_NOT_FOUND            APP_ERROR_RANGE_START + 3 
 #define  APP_ERROR_INVALID_LENGTH       APP_ERROR_RANGE_START + 4
 #define  APP_ERROR_INVALID_PARAM        APP_ERROR_RANGE_START + 5
-
+#define  APP_ERROR_INIT                 APP_ERROR_RANGE_START + 6
 
 
 

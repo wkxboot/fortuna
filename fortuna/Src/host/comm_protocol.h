@@ -1,5 +1,5 @@
-#ifndef  __HOST_PROTOCOL__H__
-#define  __HOST_PROTOCOL__H__
+#ifndef  __COMM_PROTOCOL__H__
+#define  __COMM_PROTOCOL__H__
 #include "fortuna_common.h"
 #include "scales.h"
 typedef enum
@@ -23,9 +23,9 @@ comm_status_t comm_protocol_parse(uint8_t *ptr_buff,uint8_t recv_len,uint8_t *pt
 /*通信初始化*/
 comm_status_t comm_init(uint8_t slave_addr,uint8_t port,uint32_t baudrate,uint8_t databits);
 /*通信协议接收处理*/
-void host_protocol_byte_receive(void);
+void comm_byte_receive(void);
 /*通信协议发送处理*/
-void host_protocol_byte_send(void);
+void comm_byte_send(void);
 
 /*获取一帧数据的地址和长度*/
 comm_status_t comm_receive_fsm(uint8_t **ptr_buff,uint8_t *ptr_recv_len);

@@ -2,7 +2,7 @@
 #include "task.h"
 #include "cmsis_os.h"
 #include "usart.h"
-#include "host_protocol.h"
+#include "comm_protocol.h"
 #include "host_comm_task.h"
 #include "comm_port_timer.h"
 #define APP_LOG_MODULE_NAME   "[port_timer]"
@@ -24,6 +24,7 @@ comm_status_t xcomm_port_serial_timer_init(uint16_t time)
 }
 void xcomm_port_serial_timer_start()
 {
+ APP_LOG_DEBUG("启动HOST通信定时器.\r\n");
  osTimerStart(host_comm_timer_id,timeout);
 }
 void xcomm_port_serial_timer_stop()

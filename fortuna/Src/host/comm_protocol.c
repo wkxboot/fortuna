@@ -3,7 +3,7 @@
 #include "cmsis_os.h"
 #include "fortuna_common.h"
 #include "scales.h"
-#include "host_protocol.h"
+#include "comm_protocol.h"
 #include "host_comm_task.h"
 #include "scale_func_task.h"
 #include "comm_port_serial.h"
@@ -87,6 +87,8 @@ void comm_fsm_timer_expired()
  /*关闭串口接收，方便后续数据处理*/
  APP_LOG_DEBUG("串口定时器到期.\r\n")
  APP_LOG_DEBUG("接收完一帧数据.向通信任务发送信号.\r\n");
+ /*禁止串口发送接收*/
+ xcomm_port_serial_enable(FORTUNA_FALSE,FORTUNA_FALSE); 
  /*发送接收完成信号*/
  osSignalSet(host_comm_task_hdl,HOST_COMM_TASK_RECV_FSM_SIGNAL);
 }
@@ -105,33 +107,33 @@ if(xcomm_port_serial_init(port,baudrate,databits)!=COMM_OK)
  }
  if(baudrate>19200)
  {
-   timer_frame_1ms=2;/*波特率超过19200，帧超时定时器时间固定为2mS*/
+  timer_frame_1ms=2;/*波特率超过19200，帧超时定时器时间固定为2mS*/
  }
  else
  {
-          /* The timer reload value for a character is given by:
-             *
-             * ChTimeValue = Ticks_per_1s / ( Baudrate / 11 )
-             *             = 11 * Ticks_per_1s / Baudrate
-             *             = 11000 / Baudrate
-             * The reload for t3.5 is 3.5 times this value.
-             */
+/* The timer reload value for a character is given by:
+ *
+ * ChTimeValue = Ticks_per_1s / ( Baudrate / 11 )
+ *             = 11 * Ticks_per_1s / Baudrate
+ *             = 11000 / Baudrate
+ * The reload for t3.5 is 3.5 times this value.
+ */
  timer_frame_1ms=(7UL * 11000UL) /(2UL*baudrate ); 
  }
- APP_LOG_INFO("串口定时器值为%dmS.\r\n",timer_frame_1ms);
+ APP_LOG_DEBUG("串口定时器值为%dmS.\r\n",timer_frame_1ms);
  if(xcomm_port_serial_timer_init(timer_frame_1ms)!=COMM_OK)
  {
  status=COMM_ERR;
  APP_LOG_ERROR("通信串口定时器初始化错误！\r\n");
  }
- /*暂停串口中断发送,启动接收中断*/
- xcomm_port_serial_enable(FORTUNA_TRUE,FORTUNA_FALSE);
+ /*等待新的数据*/
+ xcomm_port_serial_enable(FORTUNA_TRUE,FORTUNA_FALSE); 
  return status;
  
 }
 
 
-void host_protocol_byte_receive(void)
+void comm_byte_receive(void)
 {
  uint8_t recv_byte;
  xcomm_port_serial_get_byte(&recv_byte);
@@ -145,7 +147,7 @@ void host_protocol_byte_receive(void)
  xcomm_port_serial_timer_start();
 }
 
-void host_protocol_byte_send(void)
+void comm_byte_send(void)
 {
 if(send_cnt!=0)
 {
@@ -155,8 +157,8 @@ send_cnt--;/*更新待发送数量*/
 }
 else
 {
- /*暂停串口中断发送,启动接收中断*/
- xcomm_port_serial_enable(FORTUNA_TRUE,FORTUNA_FALSE);
+ /*等待新的数据*/
+ xcomm_port_serial_enable(FORTUNA_TRUE,FORTUNA_FALSE); 
  osSignalSet(host_comm_task_hdl,HOST_COMM_TASK_SEND_FSM_OVER_SIGNAL);  
 }
 }
@@ -165,52 +167,26 @@ else
 /*获取一帧数据的地址和长度*/
 comm_status_t comm_receive_fsm(uint8_t **ptr_buff,uint8_t *ptr_recv_len)
 { 
-  uint8_t addr;
-  comm_status_t status=COMM_OK;
   HOST_PROTOCOL_CRITICAL_REGION_ENTER();
-  addr=rx_buff[COMM_ADDR_OFFSET];
-  if(addr!=comm_addr) 
-  {
-  APP_LOG_ERROR("%d不是本机地址.不接收这帧数据.\r\n",addr);
-  status= COMM_ERR;
-  }
-  if(recv_cnt<COMM_SERIAL_PDU_SIZE_MIN)
-  {
-   APP_LOG_ERROR("%d个帧数据少于最小串口数量.不接收这帧数据.\r\n",recv_cnt);
-   status= COMM_ERR;
-  }
-  if(status==COMM_OK)
-  {
-  /*接收数据长度去掉地址长度*/
-  *ptr_recv_len=recv_cnt-COMM_ADDR_SIZE;;
+  /*接收数据长度和缓存*/
+  *ptr_recv_len=recv_cnt;;
   *ptr_buff=(uint8_t*)rx_buff; 
-  }
   recv_cnt=0;/*重新开始计数*/
   HOST_PROTOCOL_CRITICAL_REGION_EXIT();
-
-  return status;
+  return COMM_OK;
 }
 
 /*发送一帧数据*/
 comm_status_t comm_send_fsm(uint8_t *ptr_buff,uint8_t send_len)
 {
-  uint8_t addr;
-  addr=ptr_buff[COMM_ADDR_OFFSET];
-  if(addr!=comm_addr)
-  {
-   APP_LOG_ERROR("%d不是本机地址.不发送这帧数据.\r\n",addr);
-   return COMM_ERR;
-  }
-  if(send_len<COMM_SERIAL_PDU_SIZE_MIN)
-  {
-   APP_LOG_ERROR("%d个帧数据少于最小串口数量.不发送这帧数据.\r\n",send_len);
-   return COMM_ERR;
-  }
   HOST_PROTOCOL_CRITICAL_REGION_ENTER();
   /*数据长度加上地址长度*/
-  send_cnt=send_len+COMM_ADDR_SIZE;
+  ptr_buff[COMM_ADDR_OFFSET]=comm_addr;
+  send_cnt=send_len;
   ptr_send_buff=ptr_buff;
   HOST_PROTOCOL_CRITICAL_REGION_EXIT();
+  /*启动发送*/
+  xcomm_port_serial_enable(FORTUNA_FALSE,FORTUNA_TRUE); 
   return COMM_OK;
 }
 
@@ -218,18 +194,35 @@ comm_status_t comm_send_fsm(uint8_t *ptr_buff,uint8_t send_len)
 comm_status_t comm_protocol_parse(uint8_t *ptr_buff,uint8_t recv_len,uint8_t *ptr_send_len)
 {
  comm_status_t status;
- status=COMM_ERR;
+ uint8_t addr;
+ status=COMM_OK;
  /*发送的数据长度置0*/
  *ptr_send_len=0;
- APP_LOG_DEBUG("通信任务收到解析协议信号.\r\n");
- if(recv_len < COMM_PDU_SIZE_MIN)
- {
-   APP_LOG_ERROR("有效数据过短.无效.\r\n");
-   return status;
- } 
+  APP_LOG_DEBUG("解析协议...\r\n");
+  addr=ptr_buff[COMM_ADDR_OFFSET];
+  if(addr!=comm_addr) 
+  {
+  APP_LOG_ERROR("%d不是本机地址.\r\n",addr);
+  status= COMM_ERR;
+  }
+  if(recv_len<COMM_SERIAL_PDU_SIZE_MIN)
+  {
+   APP_LOG_ERROR("%d个帧数据少于串口最小接收值.\r\n",recv_len);
+   status= COMM_ERR;
+  }
+ /*发生了错误*/
+  if(status!=COMM_OK)
+  {
+  goto parse_err_handle;
+  }
+ /*处理发送长度和接收长度*/
+ recv_len-=COMM_ADDR_SIZE;
+ *ptr_send_len+=COMM_ADDR_SIZE;
+ 
  for(uint8_t i=0;i<COMM_CMD_CNT;i++)
  {
- if(comm_cmd[i].cmd_code==ptr_buff[COMM_CMD_OFFSET] && comm_cmd[i].pdu_len==recv_len)
+ status=COMM_ERR;
+ if(comm_cmd[i].cmd_code==ptr_buff[COMM_CMD_OFFSET])
  {
    /*去除命令码的长度*/
    recv_len-=COMM_CMD_SIZE;
@@ -239,10 +232,14 @@ comm_status_t comm_protocol_parse(uint8_t *ptr_buff,uint8_t recv_len,uint8_t *pt
    break;
  }
  }
- if(status!=COMM_OK)
- {
-  APP_LOG_ERROR("协议解析.命令处理 出错.\r\n");
- }
+if(status==COMM_OK)
+return status;
+
+APP_LOG_ERROR("协议数据错误.\r\n");
+
+parse_err_handle:
+  /*等待新数据*/
+ xcomm_port_serial_enable(FORTUNA_TRUE,FORTUNA_FALSE); 
  return status;
 }
 
@@ -255,7 +252,7 @@ static comm_status_t comm_cmd01_process(uint8_t *ptr_param,uint8_t param_len,uin
   APP_LOG_DEBUG("执行命令0x01.去皮指令.\r\n");
   if(param_len!=COMM_CMD01_PARAM_SIZE)
   {
-   APP_LOG_ERROR("命令0x01参数长度不匹配.\r\n",param_len);
+   APP_LOG_ERROR("命令0x01参数长度%d不匹配.\r\n",param_len);
    return COMM_ERR;
   }
   /*装载去皮指令参数*/
@@ -277,7 +274,7 @@ static comm_status_t comm_cmd01_process(uint8_t *ptr_param,uint8_t param_len,uin
   {
    /*回填操作结果*/
    ptr_param[0]=COMM_CMD01_EXECUTE_RESULT_SUCCESS; 
-   APP_LOG_INFO("命令0x01执行成功.\r\n");
+   APP_LOG_DEBUG("命令0x01执行成功.\r\n");
   }
   else
   {
@@ -300,7 +297,7 @@ static comm_status_t comm_cmd02_process(uint8_t *ptr_param,uint8_t param_len,uin
  APP_LOG_DEBUG("执行命令0x02.校准指令.\r\n");
  if(param_len!=COMM_CMD02_PARAM_SIZE)
  {
-  APP_LOG_ERROR("命令0x02参数长度不匹配.\r\n",param_len);
+  APP_LOG_ERROR("命令0x02参数长度%d不匹配.\r\n",param_len);
   return COMM_ERR;
  }
  /*装载校准指令参数*/
@@ -345,7 +342,7 @@ static comm_status_t comm_cmd03_process(uint8_t *ptr_param,uint8_t param_len,uin
  APP_LOG_DEBUG("执行命令0x03.获取称重值.\r\n");
  if(param_len!=COMM_CMD03_PARAM_SIZE)
  {
-   APP_LOG_ERROR("命令0x03参数长度不匹配.\r\n",param_len);
+   APP_LOG_ERROR("命令0x03参数长度%d不匹配.\r\n",param_len);
    return COMM_ERR;
  }
  /*装载查询重量指令参数*/
@@ -389,7 +386,7 @@ static comm_status_t comm_cmd04_process(uint8_t *ptr_param,uint8_t param_len,uin
  APP_LOG_DEBUG("执行命令04.查询称重单元\r\n");
  if(param_len!=COMM_CMD04_PARAM_SIZE)
  {
-   APP_LOG_ERROR("命令04参数长度不匹配.\r\n",param_len);
+   APP_LOG_ERROR("命令04参数长度%d不匹配.\r\n",param_len);
    return COMM_ERR;
  }
  /*回填称重数量*/
@@ -408,7 +405,7 @@ static comm_status_t comm_cmd11_process(uint8_t *ptr_param,uint8_t param_len,uin
  APP_LOG_DEBUG("执行命令0x11.查询门的状态.\r\n");
  if(param_len!=COMM_CMD11_PARAM_SIZE)
  {
-   APP_LOG_ERROR("命令0x11参数长度不匹配.\r\n",param_len);
+   APP_LOG_ERROR("命令0x11参数长度%d不匹配.\r\n",param_len);
    return COMM_ERR;
  }
  status=door_status;
@@ -429,7 +426,7 @@ static comm_status_t comm_cmd21_process(uint8_t *ptr_param,uint8_t param_len,uin
   APP_LOG_DEBUG("执行命令0x21.开锁指令.\r\n");
   if(param_len!=COMM_CMD21_PARAM_SIZE)
   {
-   APP_LOG_ERROR("命令0x21参数长度不匹配.\r\n",param_len);
+   APP_LOG_ERROR("命令0x21参数长度%d不匹配.\r\n",param_len);
    return COMM_ERR;
   }
   msg.type=LOCK_TASK_UNLOCK_LOCK_MSG;
@@ -467,7 +464,7 @@ static comm_status_t comm_cmd22_process(uint8_t *ptr_param,uint8_t param_len,uin
   APP_LOG_DEBUG("执行命令0x22.关锁指令.\r\n");
   if(param_len!=COMM_CMD22_PARAM_SIZE)
   {
-   APP_LOG_ERROR("命令0x22参数长度不匹配.\r\n",param_len);
+   APP_LOG_ERROR("命令0x22参数长度%d不匹配.\r\n",param_len);
    return COMM_ERR;
   }
   msg.type=LOCK_TASK_LOCK_LOCK_MSG;
@@ -504,7 +501,7 @@ static comm_status_t comm_cmd23_process(uint8_t *ptr_param,uint8_t param_len,uin
  APP_LOG_DEBUG("执行命令0x23.查询锁的状态.\r\n");
  if(param_len!=COMM_CMD23_PARAM_SIZE)
  {
-   APP_LOG_ERROR("命令0x23参数长度不匹配.\r\n",param_len);
+   APP_LOG_ERROR("命令0x23参数长度%d不匹配.\r\n",param_len);
    return COMM_ERR;
  }
  status=lock_status;
@@ -523,7 +520,7 @@ static comm_status_t comm_cmd31_process(uint8_t *ptr_param,uint8_t param_len,uin
  APP_LOG_DEBUG("执行命令0x31.查询UPS的状态.\r\n");
  if(param_len!=COMM_CMD31_PARAM_SIZE)
  {
-   APP_LOG_ERROR("命令0x31参数长度不匹配.\r\n",param_len);
+   APP_LOG_ERROR("命令0x31参数长度%d不匹配.\r\n",param_len);
    return COMM_ERR;
  }
  status=ups_status;
@@ -543,7 +540,7 @@ static comm_status_t comm_cmd41_process(uint8_t *ptr_param,uint8_t param_len,uin
  APP_LOG_DEBUG("执行命令0x41.查询温度.\r\n");
  if(param_len!=COMM_CMD41_PARAM_SIZE)
  {
-   APP_LOG_ERROR("命令0x41参数长度不匹配.\r\n",param_len);
+   APP_LOG_ERROR("命令0x41参数长度%d不匹配.\r\n",param_len);
    return COMM_ERR;
  }
  t=temperature;
@@ -563,7 +560,7 @@ static comm_status_t comm_cmd51_process(uint8_t *ptr_param,uint8_t param_len,uin
  APP_LOG_DEBUG("执行命令0x51.查询厂商id和固件版本号.\r\n");
  if(param_len!=COMM_CMD51_PARAM_SIZE)
  {
-   APP_LOG_ERROR("命令0x51参数长度不匹配.\r\n",param_len);
+   APP_LOG_ERROR("命令0x51参数长度%d不匹配.\r\n",param_len);
    return COMM_ERR;
  }
  id=VENDOR_ID_CHANGHONG;

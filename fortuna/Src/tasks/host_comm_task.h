@@ -10,7 +10,7 @@ extern osThreadId host_comm_task_hdl;
 
 /*串口通信定义*/
 #define  COMM_ADDR                                   1
-#define  COMM_PORT                                   0
+#define  COMM_PORT                                   3
 #define  COMM_BAUDRATE                               9600UL
 #define  COMM_DATABITS                               8
 

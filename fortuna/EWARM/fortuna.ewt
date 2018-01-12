@@ -1176,7 +1176,7 @@
                     <name>$PROJ_DIR$\..\Src\host\comm_port_timer.c</name>
                 </file>
                 <file>
-                    <name>$PROJ_DIR$\..\Src\host\host_protocol.c</name>
+                    <name>$PROJ_DIR$\..\Src\host\comm_protocol.c</name>
                 </file>
             </group>
             <group>

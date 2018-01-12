@@ -21,8 +21,8 @@ extern EventGroupHandle_t task_sync_evt_group_hdl;
 void scale_comm_task(void const * argument)
 {
   APP_LOG_INFO("######电子秤MODBUS主机通信任务开始.\r\n");
-  /*这个地方初始化参数无效，因为在usart.c已经初始化。为了移植.*/
-  eMBMasterInit(MB_MASTER_RTU,0,115200,8);
+  /*初始化参数.*/
+  eMBMasterInit(MB_MASTER_RTU,1,115200,8);
   /* Enable the Modbus Protocol Stack. */
   eMBMasterEnable();
   /*等待MODBUS初始化完毕*/

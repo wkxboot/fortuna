@@ -1,7 +1,7 @@
 #include "FreeRTOS.h"
 #include "task.h"
 #include "cmsis_os.h"
-#include "host_protocol.h"
+#include "comm_protocol.h"
 #include "host_comm_task.h"
 #include "scale_func_task.h"
 #include "scale_poll_task.h"
@@ -9,7 +9,7 @@
 #include "scales.h"
 #include "mb_m.h"
 #define APP_LOG_MODULE_NAME   "[scales_func]"
-#define APP_LOG_MODULE_LEVEL   APP_LOG_LEVEL_INFO    
+#define APP_LOG_MODULE_LEVEL   APP_LOG_LEVEL_DEBUG    
 #include "app_log.h"
 #include "app_error.h"
 
