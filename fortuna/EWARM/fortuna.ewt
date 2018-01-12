@@ -1298,6 +1298,21 @@
     <group>
         <name>Drivers</name>
         <group>
+            <name>BSP</name>
+            <group>
+                <name>board</name>
+                <file>
+                    <name>$PROJ_DIR$\..\Drivers\BSP\board\ABDK_ZNHG_ZK.c</name>
+                </file>
+            </group>
+            <group>
+                <name>components</name>
+                <group>
+                    <name>ntc_3950</name>
+                </group>
+            </group>
+        </group>
+        <group>
             <name>CMSIS</name>
             <file>
                 <name>$PROJ_DIR$\..\Src\system_stm32f1xx.c</name>

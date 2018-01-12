@@ -197,7 +197,7 @@ void StartDefaultTask(void const * argument)
 /* USER CODE BEGIN Application */
 static void create_user_tasks()
 {
- /*创建任务同步事件组*/
+ /*创建任务同步事件�?*/
   task_sync_evt_group_hdl=xEventGroupCreate();
   APP_ASSERT(task_sync_evt_group_hdl);
   
@@ -205,27 +205,27 @@ static void create_user_tasks()
   osThreadDef(host_comm_task, host_comm_task, osPriorityNormal, 0, 128);
   host_comm_task_hdl = osThreadCreate(osThread(host_comm_task), NULL); 
   APP_ASSERT(host_comm_task_hdl);
-  /*创建电子秤功能任物*/
+  /*创建电子秤功能任�?*/
   osThreadDef(scale_func_task, scale_func_task, osPriorityNormal, 0, 256);
   scale_func_task_hdl = osThreadCreate(osThread(scale_func_task), NULL); 
   APP_ASSERT(scale_func_task_hdl);
-  /*创建电子秤轮询任物*/
+  /*创建电子秤轮询任�?*/
   osThreadDef(scale_poll_task, scale_poll_task, osPriorityNormal, 0, 128);
   scale_poll_task_hdl = osThreadCreate(osThread(scale_poll_task), NULL); 
   APP_ASSERT(scale_poll_task_hdl);
-  /*创建电子秤通信任物*/
+  /*创建电子秤�?�信任物*/
   osThreadDef(scale_comm_task, scale_comm_task, osPriorityNormal, 0, 256);
   scale_comm_task_hdl = osThreadCreate(osThread(scale_comm_task), NULL); 
   APP_ASSERT(scale_comm_task_hdl);
-  /*创建锁任务*/
+  /*创建锁任�?*/
   osThreadDef(lock_task, lock_task, osPriorityNormal, 0, 128);
   lock_task_hdl = osThreadCreate(osThread(lock_task), NULL); 
   APP_ASSERT(lock_task_hdl);
-  /*创建数码管显示任务*/
+  /*创建数码管显示任�?*/
   osThreadDef(display_task, display_task, osPriorityNormal, 0, 128);
   display_task_hdl = osThreadCreate(osThread(display_task), NULL); 
   APP_ASSERT(display_task_hdl);
-  /*创建设备状态任务*/
+  /*创建设备状�?�任�?*/
   osThreadDef(device_status_task, device_status_task, osPriorityNormal, 0, 128);
   device_status_task_hdl = osThreadCreate(osThread(device_status_task), NULL); 
   APP_ASSERT(device_status_task_hdl);
@@ -233,7 +233,7 @@ static void create_user_tasks()
   osThreadDef(debug_task, debug_task, osPriorityNormal, 0, 128);
   debug_task_hdl = osThreadCreate(osThread(debug_task), NULL); 
   APP_ASSERT(debug_task_hdl);
-  APP_LOG_INFO("所有任务创建成功.\r\n"); 
+  APP_LOG_INFO("�?有任务创建成�?.\r\n"); 
 }
 /* USER CODE END Application */
 

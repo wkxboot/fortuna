@@ -55,8 +55,8 @@ void UsageFault_Handler(void);
 void DebugMon_Handler(void);
 void SysTick_Handler(void);
 void USART1_IRQHandler(void);
-void USART2_IRQHandler(void);
 void USART3_IRQHandler(void);
+void UART5_IRQHandler(void);
 
 #ifdef __cplusplus
 }

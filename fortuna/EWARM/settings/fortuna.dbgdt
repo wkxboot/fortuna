@@ -881,7 +881,7 @@
                     <item>rx_buff</item>
                     <item>ptr_buff</item>
                     <item>ptr_send_len</item>
-                    <item></item>
+                    <item />
                 </expressions>
                 <col-names>
                     <item>Expression</item>
