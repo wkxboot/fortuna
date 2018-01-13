@@ -8,12 +8,14 @@ D:\development\st\stm32\src_code\fortuna\fortuna\EWARM\fortuna\Obj\cmsis_os.pbi
 D:\development\st\stm32\src_code\fortuna\fortuna\EWARM\fortuna\Obj\comm_port_serial.pbi
 D:\development\st\stm32\src_code\fortuna\fortuna\EWARM\fortuna\Obj\comm_port_timer.pbi
 D:\development\st\stm32\src_code\fortuna\fortuna\EWARM\fortuna\Obj\comm_protocol.pbi
+D:\development\st\stm32\src_code\fortuna\fortuna\EWARM\fortuna\Obj\compressor_task.pbi
 D:\development\st\stm32\src_code\fortuna\fortuna\EWARM\fortuna\Obj\croutine.pbi
 D:\development\st\stm32\src_code\fortuna\fortuna\EWARM\fortuna\Obj\debug_task.pbi
-D:\development\st\stm32\src_code\fortuna\fortuna\EWARM\fortuna\Obj\device_status_task.pbi
+D:\development\st\stm32\src_code\fortuna\fortuna\EWARM\fortuna\Obj\display_led.pbi
 D:\development\st\stm32\src_code\fortuna\fortuna\EWARM\fortuna\Obj\display_task.pbi
 D:\development\st\stm32\src_code\fortuna\fortuna\EWARM\fortuna\Obj\event_groups.pbi
 D:\development\st\stm32\src_code\fortuna\fortuna\EWARM\fortuna\Obj\freertos.pbi
+D:\development\st\stm32\src_code\fortuna\fortuna\EWARM\fortuna\Obj\glass_pwr_task.pbi
 D:\development\st\stm32\src_code\fortuna\fortuna\EWARM\fortuna\Obj\gpio.pbi
 D:\development\st\stm32\src_code\fortuna\fortuna\EWARM\fortuna\Obj\heap_4.pbi
 D:\development\st\stm32\src_code\fortuna\fortuna\EWARM\fortuna\Obj\host_comm_task.pbi
@@ -30,6 +32,7 @@ D:\development\st\stm32\src_code\fortuna\fortuna\EWARM\fortuna\Obj\mbfuncinput_m
 D:\development\st\stm32\src_code\fortuna\fortuna\EWARM\fortuna\Obj\mbfuncother_m.pbi
 D:\development\st\stm32\src_code\fortuna\fortuna\EWARM\fortuna\Obj\mbrtu_m.pbi
 D:\development\st\stm32\src_code\fortuna\fortuna\EWARM\fortuna\Obj\mbutils_m.pbi
+D:\development\st\stm32\src_code\fortuna\fortuna\EWARM\fortuna\Obj\ntc_3950.pbi
 D:\development\st\stm32\src_code\fortuna\fortuna\EWARM\fortuna\Obj\port.pbi
 D:\development\st\stm32\src_code\fortuna\fortuna\EWARM\fortuna\Obj\port_m.pbi
 D:\development\st\stm32\src_code\fortuna\fortuna\EWARM\fortuna\Obj\portevent_m.pbi
@@ -64,8 +67,13 @@ D:\development\st\stm32\src_code\fortuna\fortuna\EWARM\fortuna\Obj\stm32f1xx_hal
 D:\development\st\stm32\src_code\fortuna\fortuna\EWARM\fortuna\Obj\stm32f1xx_hal_tim_ex.pbi
 D:\development\st\stm32\src_code\fortuna\fortuna\EWARM\fortuna\Obj\stm32f1xx_hal_uart.pbi
 D:\development\st\stm32\src_code\fortuna\fortuna\EWARM\fortuna\Obj\stm32f1xx_it.pbi
+D:\development\st\stm32\src_code\fortuna\fortuna\EWARM\fortuna\Obj\switch_task.pbi
+D:\development\st\stm32\src_code\fortuna\fortuna\EWARM\fortuna\Obj\sys_led_task.pbi
 D:\development\st\stm32\src_code\fortuna\fortuna\EWARM\fortuna\Obj\system_stm32f1xx.pbi
 D:\development\st\stm32\src_code\fortuna\fortuna\EWARM\fortuna\Obj\tasks.pbi
+D:\development\st\stm32\src_code\fortuna\fortuna\EWARM\fortuna\Obj\temperature_task.pbi
 D:\development\st\stm32\src_code\fortuna\fortuna\EWARM\fortuna\Obj\tim.pbi
 D:\development\st\stm32\src_code\fortuna\fortuna\EWARM\fortuna\Obj\timers.pbi
+D:\development\st\stm32\src_code\fortuna\fortuna\EWARM\fortuna\Obj\ups_task.pbi
 D:\development\st\stm32\src_code\fortuna\fortuna\EWARM\fortuna\Obj\usart.pbi
+D:\development\st\stm32\src_code\fortuna\fortuna\EWARM\fortuna\Obj\watch_dog_task.pbi

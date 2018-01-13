@@ -362,6 +362,10 @@
                     <state>$PROJ_DIR$/../libraries/app_error</state>
                     <state>$PROJ_DIR$/../libraries/SEGGER_RTT_V612j/RTT</state>
                     <state>$PROJ_DIR$/../libraries/SEGGER_RTT_V612j/Syscalls</state>
+                    <state>$PROJ_DIR$/../Drivers/BSP/board</state>
+                    <state>$PROJ_DIR$/../Drivers/BSP/common</state>
+                    <state>$PROJ_DIR$/../Drivers/BSP/components/ntc</state>
+                    <state>$PROJ_DIR$/../Drivers/BSP/components/display_led</state>
                 <state /><state /><state /><state /><state /><state /><state /><state /></option>
                 <option>
                     <name>CCStdIncCheck</name>
@@ -1121,13 +1125,16 @@
             <group>
                 <name>tasks</name>
                 <file>
+                    <name>$PROJ_DIR$\..\Src\tasks\compressor_task.c</name>
+                </file>
+                <file>
                     <name>$PROJ_DIR$\..\Src\tasks\debug_task.c</name>
                 </file>
                 <file>
-                    <name>$PROJ_DIR$\..\Src\tasks\device_status_task.c</name>
+                    <name>$PROJ_DIR$\..\Src\tasks\display_task.c</name>
                 </file>
                 <file>
-                    <name>$PROJ_DIR$\..\Src\tasks\display_task.c</name>
+                    <name>$PROJ_DIR$\..\Src\tasks\glass_pwr_task.c</name>
                 </file>
                 <file>
                     <name>$PROJ_DIR$\..\Src\tasks\host_comm_task.c</name>
@@ -1143,6 +1150,21 @@
                 </file>
                 <file>
                     <name>$PROJ_DIR$\..\Src\tasks\scale_poll_task.c</name>
+                </file>
+                <file>
+                    <name>$PROJ_DIR$\..\Src\tasks\switch_task.c</name>
+                </file>
+                <file>
+                    <name>$PROJ_DIR$\..\Src\tasks\sys_led_task.c</name>
+                </file>
+                <file>
+                    <name>$PROJ_DIR$\..\Src\tasks\temperature_task.c</name>
+                </file>
+                <file>
+                    <name>$PROJ_DIR$\..\Src\tasks\ups_task.c</name>
+                </file>
+                <file>
+                    <name>$PROJ_DIR$\..\Src\tasks\watch_dog_task.c</name>
                 </file>
             </group>
             <file>
@@ -1187,7 +1209,16 @@
             <group>
                 <name>components</name>
                 <group>
+                    <name>display_led</name>
+                    <file>
+                        <name>$PROJ_DIR$\..\Drivers\BSP\components\display_led\display_led.c</name>
+                    </file>
+                </group>
+                <group>
                     <name>ntc_3950</name>
+                    <file>
+                        <name>$PROJ_DIR$\..\Drivers\BSP\components\ntc\ntc_3950.c</name>
+                    </file>
                 </group>
             </group>
         </group>

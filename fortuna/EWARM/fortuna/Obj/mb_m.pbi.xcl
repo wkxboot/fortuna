@@ -44,6 +44,14 @@ D:\development\st\stm32\src_code\fortuna\fortuna\EWARM/../libraries/SEGGER_RTT_V
 -I
 D:\development\st\stm32\src_code\fortuna\fortuna\EWARM/../libraries/SEGGER_RTT_V612j/Syscalls
 -I
+D:\development\st\stm32\src_code\fortuna\fortuna\EWARM/../Drivers/BSP/board
+-I
+D:\development\st\stm32\src_code\fortuna\fortuna\EWARM/../Drivers/BSP/common
+-I
+D:\development\st\stm32\src_code\fortuna\fortuna\EWARM/../Drivers/BSP/components/ntc
+-I
+D:\development\st\stm32\src_code\fortuna\fortuna\EWARM/../Drivers/BSP/components/display_led
+-I
 C:\Program Files (x86)\IAR Systems\Embedded Workbench 8.0\arm\CMSIS\Include
 -I
 C:\Program Files (x86)\IAR Systems\Embedded Workbench 8.0\arm\inc
@@ -91,6 +99,14 @@ D:\development\st\stm32\src_code\fortuna\fortuna\libraries\app_error
 D:\development\st\stm32\src_code\fortuna\fortuna\libraries\SEGGER_RTT_V612j\RTT
 -I
 D:\development\st\stm32\src_code\fortuna\fortuna\libraries\SEGGER_RTT_V612j\Syscalls
+-I
+D:\development\st\stm32\src_code\fortuna\fortuna\Drivers\BSP\board
+-I
+D:\development\st\stm32\src_code\fortuna\fortuna\Drivers\BSP\common
+-I
+D:\development\st\stm32\src_code\fortuna\fortuna\Drivers\BSP\components\ntc
+-I
+D:\development\st\stm32\src_code\fortuna\fortuna\Drivers\BSP\components\display_led
 -I
 C:\Program Files (x86)\IAR Systems\Embedded Workbench 8.0\arm\CMSIS\Include
 -D__CHAR_BITS__=8

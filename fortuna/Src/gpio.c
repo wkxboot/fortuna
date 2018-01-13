@@ -122,7 +122,7 @@ void MX_GPIO_Init(void)
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
   /*Configure GPIO pins : PAPin PAPin */
-  GPIO_InitStruct.Pin = DOOR_STATUS_DWN_POS_Pin|LOCK_SW_STATUS_POS_Pin;
+  GPIO_InitStruct.Pin = DOOR_STATE_DWN_POS_Pin|LOCK_SW_STATE_POS_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
@@ -142,13 +142,13 @@ void MX_GPIO_Init(void)
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
   /*Configure GPIO pins : PBPin PBPin */
-  GPIO_InitStruct.Pin = W_T_SW_POS_Pin|FUNC1_SW_POS_Pin;
+  GPIO_InitStruct.Pin = W_T_SW_STATE_POS_Pin|FUNC1_SW_STATE_POS_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
   /*Configure GPIO pins : PDPin PDPin PDPin */
-  GPIO_InitStruct.Pin = ROW_SW_POS_Pin|FUNC2_SW_POS_Pin|DOOR_STATUS_UP_POS_Pin;
+  GPIO_InitStruct.Pin = ROW_SW_STATE_POS_Pin|FUNC2_SW_STATE_POS_Pin|DOOR_STATE_UP_POS_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
@@ -160,10 +160,10 @@ void MX_GPIO_Init(void)
   HAL_GPIO_Init(DISPLAY_COM2_CTL_POS_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pin : PtPin */
-  GPIO_InitStruct.Pin = LOCK_STATUS_POS_Pin;
+  GPIO_InitStruct.Pin = LOCK_STATE_POS_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(LOCK_STATUS_POS_GPIO_Port, &GPIO_InitStruct);
+  HAL_GPIO_Init(LOCK_STATE_POS_GPIO_Port, &GPIO_InitStruct);
 
 }
 
