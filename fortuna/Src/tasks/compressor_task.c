@@ -10,7 +10,7 @@
 #include "app_log.h"
 #include "app_error.h"
 
-extern osThreadId compressor_task_hdl;
+osThreadId compressor_task_hdl;
 
 void compressor_task(void const * argument)
 {
@@ -45,7 +45,7 @@ compressor_start:
   fortuna_bool_t prv_pwr_on;
   prv_pwr_on=compressor_pwr_on;
   APP_LOG_DEBUG("压缩机任务收到信号.\r\n");
- if(signal.value.signals & COMPRESSOR_TASK_OPEN_SIGNAL)
+ if(signal.value.signals & COMPRESSOR_TASK_PWR_ON_SIGNAL)
  {
   APP_LOG_DEBUG("打开压缩机！\r\n");
   BSP_COMPRESSOR_TURN_ON_OFF(COMPRESSOR_PWR_CTL_ON);
@@ -73,14 +73,10 @@ compressor_start:
   compressor_pwr_on=FORTUNA_FALSE; 
  }
  }
- /*计算温度计的平均值*/
- int8_t t_temp;
- cur_t=0;
- for(uint8_t i=0;i<TEMPERATURE_CNT;i++)
- {
- t_temp=get_temperature(i);
+ /*获取温度计的平均值*/
+ cur_t=get_average_temperature();
  /*当出现温度计错误时，关闭所有压缩机*/
- if(t_temp==NTC_ERROR_T_VALUE)
+ if(cur_t==TEMPERATURE_TASK_ERR_T_VALUE)
  {
    if(compressor_pwr_on!=FORTUNA_FALSE)
    {
@@ -91,9 +87,6 @@ compressor_start:
    }
   goto compressor_start;
  }
- cur_t+=t_temp; 
- }
- cur_t/=TEMPERATURE_CNT;
  
  /*检查压缩机是否在工作温度范围 并且满足工作时间要求*/
  if(cur_t>COMPRESSOR_TASK_T_MAX && compressor_pwr_on==FORTUNA_FALSE && stop_time >=COMPRESSOR_TASK_STOP_MIN_TIME)

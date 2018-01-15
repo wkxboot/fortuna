@@ -2,6 +2,10 @@
 #define  __LOCK_TASK_H__
 #include "fortuna_common.h"
 
+
+#define  LOCK_TASK_INTERVAL                    10/*锁和门的状态更新间隔*/
+#define  LOCK_TASK_LOCK_TIMEOUT                80/*开锁的时间*/
+
 typedef struct
 {
  uint8_t type;
@@ -13,9 +17,8 @@ typedef struct
  };
 }lock_msg_t;
 
-extern uint8_t lock_status;
-extern uint8_t door_status;
-
+uint8_t get_lock_state();
+uint8_t get_door_state();
 
 /*锁任务*/
 void lock_task(void const * argument);
@@ -26,6 +29,10 @@ extern osMessageQId lock_task_msg_q_id;
 #define  LOCK_TASK_LOCK_LOCK_MSG                1
 #define  LOCK_TASK_UNLOCK_LOCK_MSG              2
 
+/*协议约定锁的状态值*/
+#define  LOCK_TASK_STATE_LOCKED                 0
+#define  LOCK_TASK_STATE_UNLOCKED               1
+#define  LOCK_TASK_STATE_ERR                    0xff
 
 
 #endif

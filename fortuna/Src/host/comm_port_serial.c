@@ -26,10 +26,20 @@ comm_status_t xcomm_port_serial_init(uint8_t port,uint32_t baudrate,uint8_t data
   ptr_comm_serial_handle=&huart2;
   ptr_comm_serial_handle->Instance=USART2;  
  }
- else
+ else if(port==3)
  {
   ptr_comm_serial_handle=&huart3;
   ptr_comm_serial_handle->Instance=USART3;  
+ }
+  else if(port==4)
+ {
+  ptr_comm_serial_handle=&huart4;
+  ptr_comm_serial_handle->Instance=UART4;  
+ }
+ else
+ {
+  ptr_comm_serial_handle=&huart5;
+  ptr_comm_serial_handle->Instance=UART5;  
  }
   ptr_comm_serial_handle->Init.BaudRate = baudrate;
   ptr_comm_serial_handle->Init.WordLength =(databits==8?UART_WORDLENGTH_8B:UART_WORDLENGTH_9B);

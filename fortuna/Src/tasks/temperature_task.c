@@ -6,11 +6,12 @@
 #include "temperature_task.h"
 #include "ABDK_ZNHG_ZK.h"
 #include "adc.h"
-#define APP_LOG_MODULE_NAME   "[switch]"
+#define APP_LOG_MODULE_NAME   "[temperature]"
 #define APP_LOG_MODULE_LEVEL   APP_LOG_LEVEL_DEBUG    
 #include "app_log.h"
 #include "app_error.h"
 
+osThreadId temperature_task_hdl;
 /*温度值*/
 static int8_t temperature[TEMPERATURE_CNT];
 /*温度ADC单次的取样值*/
@@ -42,6 +43,19 @@ int8_t get_temperature(uint8_t t_idx)
   return NTC_ERROR_T_VALUE;
  }
  return temperature[t_idx];
+}
+int8_t get_average_temperature()
+{
+  int8_t t=0,temp;
+  /*有多个温度计 我们只获取平均值*/
+  for(uint8_t i=0;i<TEMPERATURE_CNT;i++)
+  {
+  temp=get_temperature(i);
+  if(temp==NTC_ERROR_T_VALUE)
+  return TEMPERATURE_TASK_ERR_T_VALUE;
+  t+=temp;
+  }
+ return t;
 }
 
 

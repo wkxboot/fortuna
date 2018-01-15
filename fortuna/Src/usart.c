@@ -53,7 +53,7 @@
 #include "gpio.h"
 
 /* USER CODE BEGIN 0 */
-
+UART_HandleTypeDef huart2;
 /* USER CODE END 0 */
 
 UART_HandleTypeDef huart4;

@@ -1,6 +1,10 @@
 #ifndef  __COMPRESSOR_TASK_H__
 #define  __COMPRESSOR_TASK_H__
 
+/*压缩机任务*/
+void compressor_task(void const * argument);
+extern osThreadId compressor_task_hdl;
+
 
 #define  COMPRESSOR_TASK_INTERVAL             1000/*压缩机任务间隔1秒*/
 
@@ -15,8 +19,8 @@
 #define  COMPRESSOR_TASK_STOP_MIN_TIME        (10*60*1000UL)
 
 /*压缩机任务的信号*/
-#define  COMPRESSOR_TASK_OPEN_SIGNAL           (1<<0)
-#define  COMPRESSOR_TASK_CLOSE_SIGNAL          (1<<1)
-#define  COMPRESSOR_TASK_ALL_SIGNALS           ((1<<2)-1)
+#define  COMPRESSOR_TASK_PWR_ON_SIGNAL           (1<<0)
+#define  COMPRESSOR_TASK_PWR_OFF_SIGNAL          (1<<1)
+#define  COMPRESSOR_TASK_ALL_SIGNALS             ((1<<2)-1)
 
 #endif

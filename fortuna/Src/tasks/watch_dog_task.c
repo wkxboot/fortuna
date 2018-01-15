@@ -9,8 +9,8 @@
 #include "app_log.h"
 #include "app_error.h"
 
-
-void device_status_task(void const * argument)
+osThreadId watch_dog_task_hdl;
+void watch_dog_task(void const * argument)
 {
  APP_LOG_INFO("######看门狗任务开始.\r\n");
  while(1)

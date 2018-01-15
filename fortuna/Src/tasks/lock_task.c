@@ -4,58 +4,54 @@
 #include "lock_task.h"
 #include "comm_protocol.h"
 #include "host_comm_task.h"
+#include "ABDK_ZNHG_ZK.h"
 #define APP_LOG_MODULE_NAME   "[lock]"
 #define APP_LOG_MODULE_LEVEL   APP_LOG_LEVEL_DEBUG    
 #include "app_log.h"
 #include "app_error.h"
 
-#define  LOCK_STATUS_PIN_STATE                 GPIO_PIN_RESET
-#define  UNLOCK_STATUS_PIN_STATE               GPIO_PIN_SET
 
-#define  LOCK_TASK_STATUS_LOCKED               0
-#define  LOCK_TASK_STATUS_UNLOCKED             1
 
-#define  LOCK_TASK_STATUS_INTERVAL             10/*锁和门的状态更新间隔*/
-#define  LOCK_TASK_LOCK_TIMEOUT                80/*开锁的时间*/
+static uint8_t lock_task_update_lock_state();
+static uint8_t lock_task_update_door_state();
 
-static uint8_t lock_task_update_lock_status();
-static uint8_t lock_task_update_door_status();
-static void lock_task_unlock_lock();
-static void lock_task_lock_lock();
 
 /*任务和消息句柄*/
 osThreadId lock_task_hdl;
 osMessageQId lock_task_msg_q_id;
 /*门锁状态机*/
-uint8_t lock_status;
-uint8_t door_status;
+uint8_t lock_state;
+uint8_t door_state;
 
-static uint8_t lock_task_update_lock_status()
+uint8_t get_lock_state()
 {
-  
-  return 0;
+  return lock_state;
 }
-static uint8_t lock_task_update_door_status()
+uint8_t get_door_state()
 {
- return 0; 
+  return door_state;
 }
-static void lock_task_unlock_lock()
+static uint8_t lock_task_update_lock_state()
 {
-  
+  bsp_state_t state;
+  state=BSP_get_lock_state();
+  if(state==LOCK_STATE_OPEN)
+    lock_state=LOCK_TASK_STATE_UNLOCKED ;
+  else
+    lock_state=LOCK_TASK_STATE_LOCKED;
+  return lock_state;
 }
-static void lock_task_lock_lock()
+static uint8_t lock_task_update_door_state()
 {
-  
+  bsp_state_t state_up,state_dwn;
+  state_up=BSP_get_door_up_state();
+  state_dwn=BSP_get_door_up_state();
+  if(state_up==state_dwn && state_up==LOCK_STATE_OPEN)
+    lock_state=LOCK_TASK_STATE_UNLOCKED ;
+  else
+    lock_state=LOCK_TASK_STATE_LOCKED;
+  return lock_state; 
 }
-
-
-
-
-
-
-
-
-
 
 /*门锁任务*/
 void lock_task(void const * argument)
@@ -71,12 +67,12 @@ void lock_task(void const * argument)
  
  while(1)
  {
-  msg=osMessageGet(lock_task_msg_q_id,LOCK_TASK_STATUS_INTERVAL);
+  msg=osMessageGet(lock_task_msg_q_id,LOCK_TASK_INTERVAL);
   /*如果到达更新状态时间，那么就更新锁和门的状态*/
   if(msg.status == osEventTimeout)
   {
-   lock_status=lock_task_update_lock_status();
-   door_status=lock_task_update_door_status();
+   lock_state=lock_task_update_lock_state();
+   door_state=lock_task_update_door_state();
    continue;  
   }
   /*如果到不是锁消息，继续*/
@@ -91,14 +87,14 @@ void lock_task(void const * argument)
     time=0;
     while(time<LOCK_TASK_LOCK_TIMEOUT)
     {
-    lock_task_unlock_lock();
-    osDelay(LOCK_TASK_STATUS_INTERVAL);
-    lock_status=lock_task_update_lock_status();
-    if(lock_status==LOCK_TASK_STATUS_UNLOCKED)
+    BSP_LOCK_TURN_ON_OFF(LOCK_CTL_OPEN);
+    osDelay(LOCK_TASK_INTERVAL);
+    lock_state=lock_task_update_lock_state();
+    if(lock_state==LOCK_TASK_STATE_UNLOCKED)
       break;
-    time+=LOCK_TASK_STATUS_INTERVAL;
+    time+=LOCK_TASK_INTERVAL;
     }
-    if(lock_status==LOCK_TASK_STATUS_UNLOCKED)
+    if(lock_state==LOCK_TASK_STATE_UNLOCKED)
     {
     APP_LOG_DEBUG("向通信任务发送开锁成功信号.\r\n");
     osSignalSet(host_comm_task_hdl,COMM_TASK_UNLOCK_LOCK_OK_SIGNAL); 
@@ -114,14 +110,14 @@ void lock_task(void const * argument)
     time=0;
     while(time<LOCK_TASK_LOCK_TIMEOUT)
     {
-    lock_task_lock_lock();
-    osDelay(LOCK_TASK_STATUS_INTERVAL);
-    lock_status=lock_task_update_lock_status();
-    if(lock_status==LOCK_TASK_STATUS_LOCKED)
+    BSP_LOCK_TURN_ON_OFF(LOCK_CTL_CLOSE);
+    osDelay(LOCK_TASK_INTERVAL);
+    lock_state=lock_task_update_lock_state();
+    if(lock_state==LOCK_TASK_STATE_LOCKED)
       break;
-    time+=LOCK_TASK_STATUS_INTERVAL;
+    time+=LOCK_TASK_INTERVAL;
     }
-    if(lock_status==LOCK_TASK_STATUS_LOCKED)
+    if(lock_state==LOCK_TASK_STATE_LOCKED)
     {
     APP_LOG_DEBUG("向通信任务发送关锁成功信号.\r\n");
     osSignalSet(host_comm_task_hdl,COMM_TASK_LOCK_LOCK_OK_SIGNAL); 

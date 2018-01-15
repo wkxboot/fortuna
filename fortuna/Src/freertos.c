@@ -59,7 +59,17 @@
 #include "scale_comm_task.h"
 #include "lock_task.h"
 #include "display_task.h"
-#include "device_status_task.h"
+#include "switch_task.h"
+#include "display_task.h"
+#include "dc12v_task.h"
+#include "light_task.h"
+#include "sys_led_task.h"
+#include "glass_pwr_task.h"
+#include "temperature_task.h"
+#include "compressor_task.h"
+#include "glass_pwr_task.h"
+#include "watch_dog_task.h"
+#include "ups_task.h"
 #include "debug_task.h"
 #define APP_LOG_MODULE_NAME   "[freertos]"
 #define APP_LOG_MODULE_LEVEL   APP_LOG_LEVEL_DEBUG    
@@ -165,7 +175,7 @@ void MX_FREERTOS_Init(void) {
 
   /* Create the thread(s) */
   /* definition and creation of defaultTask */
-  osThreadDef(defaultTask, StartDefaultTask, osPriorityNormal, 0, 128);
+  osThreadDef(defaultTask, StartDefaultTask, osPriorityNormal, 0, 256);
   defaultTaskHandle = osThreadCreate(osThread(defaultTask), NULL);
 
   /* USER CODE BEGIN RTOS_THREADS */
@@ -197,7 +207,7 @@ void StartDefaultTask(void const * argument)
 /* USER CODE BEGIN Application */
 static void create_user_tasks()
 {
- /*创建任务同步事件�?*/
+ /*创建任务同步事件组*/
   task_sync_evt_group_hdl=xEventGroupCreate();
   APP_ASSERT(task_sync_evt_group_hdl);
   
@@ -205,35 +215,71 @@ static void create_user_tasks()
   osThreadDef(host_comm_task, host_comm_task, osPriorityNormal, 0, 128);
   host_comm_task_hdl = osThreadCreate(osThread(host_comm_task), NULL); 
   APP_ASSERT(host_comm_task_hdl);
-  /*创建电子秤功能任�?*/
-  osThreadDef(scale_func_task, scale_func_task, osPriorityNormal, 0, 256);
+  /*创建电子秤功能任务*/
+  osThreadDef(scale_func_task, scale_func_task, osPriorityNormal, 0, 128);
   scale_func_task_hdl = osThreadCreate(osThread(scale_func_task), NULL); 
   APP_ASSERT(scale_func_task_hdl);
-  /*创建电子秤轮询任�?*/
+  /*创建电子秤轮询任务*/
   osThreadDef(scale_poll_task, scale_poll_task, osPriorityNormal, 0, 128);
   scale_poll_task_hdl = osThreadCreate(osThread(scale_poll_task), NULL); 
   APP_ASSERT(scale_poll_task_hdl);
-  /*创建电子秤�?�信任物*/
-  osThreadDef(scale_comm_task, scale_comm_task, osPriorityNormal, 0, 256);
+  /*创建电子秤通信任务*/
+  osThreadDef(scale_comm_task, scale_comm_task, osPriorityNormal, 0, 128);
   scale_comm_task_hdl = osThreadCreate(osThread(scale_comm_task), NULL); 
   APP_ASSERT(scale_comm_task_hdl);
-  /*创建锁任�?*/
-  osThreadDef(lock_task, lock_task, osPriorityNormal, 0, 128);
-  lock_task_hdl = osThreadCreate(osThread(lock_task), NULL); 
-  APP_ASSERT(lock_task_hdl);
-  /*创建数码管显示任�?*/
-  osThreadDef(display_task, display_task, osPriorityNormal, 0, 128);
-  display_task_hdl = osThreadCreate(osThread(display_task), NULL); 
-  APP_ASSERT(display_task_hdl);
-  /*创建设备状�?�任�?*/
-  osThreadDef(device_status_task, device_status_task, osPriorityNormal, 0, 128);
-  device_status_task_hdl = osThreadCreate(osThread(device_status_task), NULL); 
-  APP_ASSERT(device_status_task_hdl);
+
+  /*创建看门狗任务*/
+  osThreadDef(watch_dog_task, watch_dog_task, osPriorityNormal, 0, 128);
+  watch_dog_task_hdl = osThreadCreate(osThread(watch_dog_task), NULL); 
+  APP_ASSERT(watch_dog_task_hdl);
+  
   /*创建调试任务*/
   osThreadDef(debug_task, debug_task, osPriorityNormal, 0, 128);
   debug_task_hdl = osThreadCreate(osThread(debug_task), NULL); 
   APP_ASSERT(debug_task_hdl);
-  APP_LOG_INFO("�?有任务创建成�?.\r\n"); 
+  
+  
+  /*创建锁任任务*/
+  osThreadDef(lock_task, lock_task, osPriorityNormal, 0, 128);
+  lock_task_hdl = osThreadCreate(osThread(lock_task), NULL); 
+  APP_ASSERT(lock_task_hdl);
+  /*创建数码管显示任务*/
+  osThreadDef(display_task, display_task, osPriorityNormal, 0, 128);
+  display_task_hdl = osThreadCreate(osThread(display_task), NULL); 
+  APP_ASSERT(display_task_hdl);
+  /*创建按键任务*/
+  osThreadDef(switch_task,switch_task, osPriorityNormal, 0, 128);
+  switch_task_hdl = osThreadCreate(osThread(switch_task), NULL); 
+  APP_ASSERT(switch_task_hdl);
+  /*创建压缩机任务*/
+  osThreadDef(compressor_task, compressor_task, osPriorityNormal, 0, 128);
+  compressor_task_hdl = osThreadCreate(osThread(compressor_task), NULL); 
+  APP_ASSERT(compressor_task_hdl);
+  /*创建系统LED任务*/
+  osThreadDef(sys_led_task, sys_led_task, osPriorityNormal, 0, 128);
+  sys_led_task_hdl = osThreadCreate(osThread(sys_led_task), NULL); 
+  APP_ASSERT(sys_led_task_hdl);
+  /*创建灯带任务*/
+  osThreadDef(light_task, light_task, osPriorityNormal, 0, 128);
+  light_task_hdl = osThreadCreate(osThread(light_task), NULL); 
+  APP_ASSERT(light_task_hdl);
+  /*创建12V任务*/
+  osThreadDef(dc12v_task, dc12v_task, osPriorityNormal, 0, 128);
+  dc12v_task_hdl = osThreadCreate(osThread(dc12v_task), NULL); 
+  APP_ASSERT(dc12v_task_hdl);
+  /*创建玻璃电源任务*/
+  osThreadDef(glass_pwr_task, glass_pwr_task, osPriorityNormal, 0, 128);
+  glass_pwr_task_hdl = osThreadCreate(osThread(glass_pwr_task), NULL); 
+  APP_ASSERT(glass_pwr_task_hdl);
+  /*创建温度任务*/
+  osThreadDef(temperature_task, temperature_task, osPriorityNormal, 0, 128);
+  temperature_task_hdl = osThreadCreate(osThread(temperature_task), NULL); 
+  APP_ASSERT(temperature_task_hdl);
+  /*创建UPS任务*/
+  osThreadDef(ups_task, ups_task, osPriorityNormal, 0, 128);
+  ups_task_hdl = osThreadCreate(osThread(ups_task), NULL); 
+  APP_ASSERT(ups_task_hdl);
+  APP_LOG_INFO("所有任务创建成功.\r\n"); 
 }
 /* USER CODE END Application */
 

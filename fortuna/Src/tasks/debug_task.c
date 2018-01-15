@@ -10,7 +10,13 @@
 #include "comm_port_timer.h"
 #include "scale_func_task.h"
 #include "lock_task.h"
+#include "compressor_task.h"
+#include "temperature_task.h"
+#include "dc12v_task.h"
+#include "light_task.h"
+#include "glass_pwr_task.h"
 #include "debug_task.h"
+#include "ABDK_ZNHG_ZK.h"
 #define APP_LOG_MODULE_NAME   "[debug]"
 #define APP_LOG_MODULE_LEVEL   APP_LOG_LEVEL_DEBUG    
 #include "app_log.h"
@@ -274,12 +280,12 @@ void debug_task(void const * argument)
  continue;
  }
  /*设置校准值*/
- cmd_len=strlen(DEBUG_TASK_CALIBRATE_WEIGHT);
- if(memcmp((const char*)cmd,DEBUG_TASK_CALIBRATE_WEIGHT,cmd_len)==0)
+ cmd_len=strlen(DEBUG_TASK_CMD_CALIBRATE_WEIGHT);
+ if(memcmp((const char*)cmd,DEBUG_TASK_CMD_CALIBRATE_WEIGHT,cmd_len)==0)
  { 
  uint16_t value;
  if(recv_len !=cmd_len+DEBUG_TASK_CMD_CALIBRATE_WEIGHT_PARAM_LEN)
- APP_LOG_ERROR("命令长度非法.\r\n");
+ APP_LOG_ERROR("校准命令长度非法.\r\n");
  value=0;
  offset=cmd_len;
  for(uint8_t i=0;i<DEBUG_TASK_CMD_CALIBRATE_WEIGHT_PARAM_LEN;i++)
@@ -322,6 +328,229 @@ void debug_task(void const * argument)
 err_handle:
  continue;
  }
+ /*打开压缩机*/
+ cmd_len=strlen(DEBUG_TASK_CMD_PWR_ON_COMPRESSOR);
+ if(memcmp((const char*)cmd,DEBUG_TASK_CMD_PWR_ON_COMPRESSOR,cmd_len)==0)
+ { 
+ if(recv_len !=cmd_len+DEBUG_TASK_CMD_PWR_ON_COMPRESSOR_PARAM_LEN)
+ {
+   APP_LOG_ERROR("压缩机命令长度非法.\r\n");
+ continue;
+ } 
+ /*向压缩机任务发送开机信号*/
+ APP_LOG_DEBUG("向压缩机任务发送开机信号.\r\n");
+ osSignalSet(compressor_task_hdl,COMPRESSOR_TASK_PWR_ON_SIGNAL);
+ continue;
+ }
+ /*关闭压缩机*/
+ cmd_len=strlen(DEBUG_TASK_CMD_PWR_OFF_COMPRESSOR);
+ if(memcmp((const char*)cmd,DEBUG_TASK_CMD_PWR_OFF_COMPRESSOR,cmd_len)==0)
+ { 
+ if(recv_len !=cmd_len+DEBUG_TASK_CMD_PWR_OFF_COMPRESSOR_PARAM_LEN)
+ {
+ APP_LOG_ERROR("压缩机命令长度非法.\r\n");
+ continue;
+ } 
+ /*向压缩机任务发送关机信号*/
+ APP_LOG_DEBUG("向压缩机任务发送关机信号.\r\n");
+ osSignalSet(compressor_task_hdl,COMPRESSOR_TASK_PWR_OFF_SIGNAL);
+ continue;
+ }
+ /*打开所有灯带*/
+ cmd_len=strlen(DEBUG_TASK_CMD_PWR_ON_LIGHT);
+ if(memcmp((const char*)cmd,DEBUG_TASK_CMD_PWR_ON_LIGHT,cmd_len)==0)
+ { 
+ if(recv_len !=cmd_len+DEBUG_TASK_CMD_PWR_ON_LIGHT_PARAM_LEN)
+ {
+ APP_LOG_ERROR("灯带命令长度非法.\r\n");
+ continue;
+ } 
+ /*向灯带任务发送打开信号*/
+ APP_LOG_DEBUG("向灯带任务发送打开信号.\r\n");
+ osSignalSet(light_task_hdl,LIGHT_TASK_LIGHT_1_PWR_ON_SIGNAL|LIGHT_TASK_LIGHT_2_PWR_ON_SIGNAL);
+ continue;
+ }
+ /*关闭所有灯带*/
+ cmd_len=strlen(DEBUG_TASK_CMD_PWR_OFF_LIGHT);
+ if(memcmp((const char*)cmd,DEBUG_TASK_CMD_PWR_OFF_LIGHT,cmd_len)==0)
+ { 
+ if(recv_len !=cmd_len+DEBUG_TASK_CMD_PWR_OFF_LIGHT_PARAM_LEN)
+ {
+ APP_LOG_ERROR("灯带命令长度非法.\r\n");
+ continue;
+ } 
+ /*向灯带任务发送关闭信号*/
+ APP_LOG_DEBUG("向灯带任务发送关闭信号.\r\n");
+ osSignalSet(light_task_hdl,LIGHT_TASK_LIGHT_1_PWR_OFF_SIGNAL|LIGHT_TASK_LIGHT_2_PWR_OFF_SIGNAL);
+ continue;
+ } 
+ 
+ /*打开所有12V*/
+ cmd_len=strlen(DEBUG_TASK_CMD_PWR_ON_12V);
+ if(memcmp((const char*)cmd,DEBUG_TASK_CMD_PWR_ON_12V,cmd_len)==0)
+ { 
+ if(recv_len !=cmd_len+DEBUG_TASK_CMD_PWR_ON_12V_PARAM_LEN)
+ {
+ APP_LOG_ERROR("12V命令长度非法.\r\n");
+ continue;
+ } 
+ /*向12V任务发送打开信号*/
+ APP_LOG_DEBUG("向12V任务发送打开信号.\r\n");
+ osSignalSet(dc12v_task_hdl,DC12V_TASK_12V_1_PWR_ON_SIGNAL|DC12V_TASK_12V_2_PWR_ON_SIGNAL);
+ continue;
+ } 
+ /*关闭所有12V*/
+ cmd_len=strlen(DEBUG_TASK_CMD_PWR_OFF_12V);
+ if(memcmp((const char*)cmd,DEBUG_TASK_CMD_PWR_OFF_12V,cmd_len)==0)
+ { 
+ if(recv_len !=cmd_len+DEBUG_TASK_CMD_PWR_OFF_12V_PARAM_LEN)
+ {
+ APP_LOG_ERROR("12V命令长度非法.\r\n");
+ continue;
+ } 
+ /*向12V任务发送关闭信号*/
+ APP_LOG_DEBUG("向12V任务发送关闭信号.\r\n");
+ osSignalSet(dc12v_task_hdl,DC12V_TASK_12V_1_PWR_OFF_SIGNAL|DC12V_TASK_12V_2_PWR_OFF_SIGNAL);
+ continue;
+ } 
+ /*打开玻璃电源*/
+ cmd_len=strlen(DEBUG_TASK_CMD_PWR_ON_GLASS);
+ if(memcmp((const char*)cmd,DEBUG_TASK_CMD_PWR_ON_GLASS,cmd_len)==0)
+ { 
+ if(recv_len !=cmd_len+DEBUG_TASK_CMD_PWR_ON_GLASS_PARAM_LEN)
+ {
+ APP_LOG_ERROR("命令长度非法.\r\n");
+ continue;
+ } 
+ /*玻璃电源任务发送打开信号*/
+ APP_LOG_DEBUG("玻璃电源任务发送打开信号.\r\n");
+ osSignalSet(glass_pwr_task_hdl,GLASS_PWR_TASK_ON_SIGNAL);
+ continue;
+ } 
+  /*关闭玻璃电源*/
+ cmd_len=strlen(DEBUG_TASK_CMD_PWR_OFF_GLASS);
+ if(memcmp((const char*)cmd,DEBUG_TASK_CMD_PWR_OFF_GLASS,cmd_len)==0)
+ { 
+ if(recv_len !=cmd_len+DEBUG_TASK_CMD_PWR_OFF_GLASS_PARAM_LEN)
+ {
+ APP_LOG_ERROR("命令长度非法.\r\n");
+ continue;
+ } 
+ /*玻璃电源任务发送关闭信号*/
+ APP_LOG_DEBUG("玻璃电源任务发送关闭信号.\r\n");
+ osSignalSet(glass_pwr_task_hdl,GLASS_PWR_TASK_OFF_SIGNAL);
+ continue;
+ } 
+ 
+ /*获取温度值*/
+ cmd_len=strlen(DEBUG_TASK_CMD_OBTAIN_TEMPERATURE);
+ if(memcmp((const char*)cmd,DEBUG_TASK_CMD_OBTAIN_TEMPERATURE,cmd_len)==0)
+ { 
+ if(recv_len !=cmd_len+DEBUG_TASK_CMD_OBTAIN_TEMPERATURE_PARAM_LEN)
+ {
+  APP_LOG_ERROR("温度命令长度非法.\r\n");
+  continue;
+ }
+ int8_t t;
+ offset=cmd_len;
+ if(cmd[offset]!='0')/*0代表所有温度计平均值*/
+   t=get_average_temperature();
+ else if(cmd[offset]!='1')
+   t=get_temperature(0);
+ else if(cmd[offset]!='2')
+   t=get_temperature(1);
+ else
+ {
+  APP_LOG_ERROR("温度命令参数%2d非法.0-1-2之一.\r\n",cmd[offset]);
+  continue;  
+ }
+ APP_LOG_DEBUG("温度值：%2d.\r\n",t);
+ continue;
+ } 
+ /*打开交流电*/
+ cmd_len=strlen(DEBUG_TASK_CMD_PWR_ON_AC);
+ if(memcmp((const char*)cmd,DEBUG_TASK_CMD_PWR_ON_AC,cmd_len)==0)
+ { 
+ if(recv_len !=cmd_len+DEBUG_TASK_CMD_PWR_ON_AC_PARAM_LEN)
+ {
+  APP_LOG_ERROR("交流电命令长度非法.\r\n");
+  continue;
+ }
+ APP_LOG_DEBUG("打开交流电.\r\n");
+ BSP_AC_TURN_ON_OFF(AC_1|AC_2,AC_CTL_ON);
+ continue;
+ } 
+ /*关闭交流电*/
+ cmd_len=strlen(DEBUG_TASK_CMD_PWR_ON_AC);
+ if(memcmp((const char*)cmd,DEBUG_TASK_CMD_PWR_OFF_AC,cmd_len)==0)
+ { 
+ if(recv_len !=cmd_len+DEBUG_TASK_CMD_PWR_OFF_AC_PARAM_LEN)
+ {
+  APP_LOG_ERROR("交流电命令长度非法.\r\n");
+  continue;
+ }
+ APP_LOG_DEBUG("关闭交流电.\r\n");
+ BSP_AC_TURN_ON_OFF(AC_1|AC_2,AC_CTL_OFF);
+ continue;
+ }
+  /*开锁*/
+ cmd_len=strlen(DEBUG_TASK_CMD_UNLOCK_LOCK);
+ if(memcmp((const char*)cmd,DEBUG_TASK_CMD_UNLOCK_LOCK,cmd_len)==0)
+ { 
+ if(recv_len !=cmd_len+DEBUG_TASK_CMD_UNLOCK_LOCK_PARAM_LEN)
+ {
+  APP_LOG_ERROR("开锁命令长度非法.\r\n");
+  continue;
+ }
+ lock_msg_t msg;
+ msg.type=LOCK_TASK_UNLOCK_LOCK_MSG;
+ APP_LOG_DEBUG("向锁任务发送开锁消息.\r\n");
+ osMessagePut(lock_task_msg_q_id,*(uint32_t*)&msg,0);
+ continue;
+ }
+ /*关锁*/
+ cmd_len=strlen(DEBUG_TASK_CMD_LOCK_LOCK);
+ if(memcmp((const char*)cmd,DEBUG_TASK_CMD_LOCK_LOCK,cmd_len)==0)
+ { 
+ if(recv_len !=cmd_len+DEBUG_TASK_CMD_LOCK_LOCK_PARAM_LEN)
+ {
+  APP_LOG_ERROR("关锁命令长度非法.\r\n");
+  continue;
+ }
+ lock_msg_t msg;
+ msg.type=LOCK_TASK_LOCK_LOCK_MSG;
+ APP_LOG_DEBUG("向锁任务发送关锁消息.\r\n");
+ osMessagePut(lock_task_msg_q_id,*(uint32_t*)&msg,0);
+ continue;
+ }
+ /*打开门指示灯*/
+ cmd_len=strlen(DEBUG_TASK_CMD_PWR_ON_LOCK_LED);
+ if(memcmp((const char*)cmd,DEBUG_TASK_CMD_PWR_ON_LOCK_LED,cmd_len)==0)
+ { 
+ if(recv_len !=cmd_len+DEBUG_TASK_CMD_PWR_ON_LOCK_LED_PARAM_LEN)
+ {
+  APP_LOG_ERROR("开门指示灯命令长度非法.\r\n");
+  continue;
+ }
+ APP_LOG_DEBUG("打开门所有指示灯.\r\n");
+ BSP_LED_TURN_ON_OFF(DOOR_RED_LED|DOOR_GREEN_LED|DOOR_ORANGE_LED,LED_CTL_ON);
+ continue;
+ }
+ /*关闭门指示灯*/
+ cmd_len=strlen(DEBUG_TASK_CMD_PWR_OFF_LOCK_LED);
+ if(memcmp((const char*)cmd,DEBUG_TASK_CMD_PWR_OFF_LOCK_LED,cmd_len)==0)
+ { 
+ if(recv_len !=cmd_len+DEBUG_TASK_CMD_PWR_OFF_LOCK_LED_PARAM_LEN)
+ {
+  APP_LOG_ERROR("关闭门指示灯命令长度非法.\r\n");
+  continue;
+ }
+ APP_LOG_DEBUG("关闭门所有指示灯.\r\n");
+ BSP_LED_TURN_ON_OFF(DOOR_RED_LED|DOOR_GREEN_LED|DOOR_ORANGE_LED,LED_CTL_OFF);
+ continue;
+ }
+ 
+ 
  }
  }
   

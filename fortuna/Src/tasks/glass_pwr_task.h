@@ -1,6 +1,8 @@
 #ifndef  __GLASS_PWR_TASK_H__
 #define  __GLASS_PWR_TASK_H__
 
+/*玻璃加热电源任务*/
+void glass_pwr_task(void const * argument);
 extern osThreadId glass_pwr_task_hdl;
 
 

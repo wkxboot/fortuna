@@ -22,7 +22,7 @@ void scale_comm_task(void const * argument)
 {
   APP_LOG_INFO("######电子秤MODBUS主机通信任务开始.\r\n");
   /*初始化参数.*/
-  eMBMasterInit(MB_MASTER_RTU,1,115200,8);
+  eMBMasterInit(MB_MASTER_RTU,5,9600,8);
   /* Enable the Modbus Protocol Stack. */
   eMBMasterEnable();
   /*等待MODBUS初始化完毕*/

@@ -14,7 +14,7 @@
 
 
 osThreadId ups_task_hdl;
-osMessageQId ups_task_msg_q_id;
+/*osMessageQId ups_task_msg_q_id;*/
 
 static uint8_t ups_state;
 

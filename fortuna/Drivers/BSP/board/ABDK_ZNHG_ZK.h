@@ -6,16 +6,22 @@
 #include "adc.h"
 
 
-#define  SYS_LED                      (1<<0)
-#define  DOOR_RED_LED                 (1<<1)
-#define  DOOR_GREEN_LED               (1<<2)
-#define  DOOR_ORANGE_LED              (1<<3)
-#define  LIGHT_1                      (1<<0)
-#define  LIGHT_2                      (1<<1)
-#define  AC_1                         (1<<0)
-#define  AC_2                         (1<<1)
-#define  DC12V_1                      (1<<0)
-#define  DC12V_2                      (1<<1)
+#define  CTL_TYPE_IO                     1
+#define  CTL_TYPE_PWM                    2
+#define  LIGHT_CTL_TYPE                  CTL_TYPE_PWM
+#define  DC12V_2_CTL_TYPE                CTL_TYPE_PWM
+
+
+#define  SYS_LED                        (1<<0)
+#define  DOOR_RED_LED                   (1<<1)
+#define  DOOR_GREEN_LED                 (1<<2)
+#define  DOOR_ORANGE_LED                (1<<3)
+#define  LIGHT_1                        (1<<0)
+#define  LIGHT_2                        (1<<1)
+#define  AC_1                           (1<<0)
+#define  AC_2                           (1<<1)
+#define  DC12V_1                        (1<<0)
+#define  DC12V_2                        (1<<1)
 
 
 typedef enum 
@@ -70,17 +76,17 @@ bsp_state_t BSP_get_lock_sw_state();
 /*获取UPS状态*/
 bsp_state_t BSP_get_ups_state();
 /*获取门上部传感器状态*/
-bsp_state_t BSP_get_door_up_status();
+bsp_state_t BSP_get_door_up_state();
 /*获取门下部传感器状态*/
-bsp_state_t BSP_get_door_dwn_status();
+bsp_state_t BSP_get_door_dwn_state();
 /*获取W/T重量温度切换按键状态*/
-bsp_state_t BSP_get_wt_sw_status();
+bsp_state_t BSP_get_wt_sw_state();
 /*获取货架层数切换按键状态*/
-bsp_state_t BSP_get_row_sw_status();
+bsp_state_t BSP_get_row_sw_state();
 /*获取功能按键1按键状态*/
-bsp_state_t BSP_get_func1_sw_status();
+bsp_state_t BSP_get_func1_sw_state();
 /*获取功能按键2按键状态*/
-bsp_state_t BSP_get_func2_sw_status();
+bsp_state_t BSP_get_func2_sw_state();
 /*获取压缩机电源状态*/
 bsp_state_t BSP_get_compressor_pwr_state();
 /*获取玻璃加热电源状态*/

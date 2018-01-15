@@ -51,10 +51,20 @@ BOOL xMBMasterPortSerialInit(uint8_t port,uint32_t baudrate,uint8_t databits)
   ptr_master_modbus_uart_handle=&huart2;
   ptr_master_modbus_uart_handle->Instance=USART2;  
  }
- else
+ else if(port==3)
  {
   ptr_master_modbus_uart_handle=&huart3;
   ptr_master_modbus_uart_handle->Instance=USART3;  
+ }
+ else if(port==4)
+ {
+  ptr_master_modbus_uart_handle=&huart4;
+  ptr_master_modbus_uart_handle->Instance=UART4;  
+ }
+ else 
+ {
+  ptr_master_modbus_uart_handle=&huart5;
+  ptr_master_modbus_uart_handle->Instance=UART5;  
  }
   ptr_master_modbus_uart_handle->Init.BaudRate = baudrate;
   ptr_master_modbus_uart_handle->Init.WordLength =(databits==8?UART_WORDLENGTH_8B:UART_WORDLENGTH_9B);

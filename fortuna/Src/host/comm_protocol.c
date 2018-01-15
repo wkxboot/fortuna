@@ -10,13 +10,12 @@
 #include "comm_port_timer.h"
 #include "scale_func_task.h"
 #include "lock_task.h"
+#include "ups_task.h"
+#include "temperature_task.h"
 #define APP_LOG_MODULE_NAME   "[protocol]"
 #define APP_LOG_MODULE_LEVEL   APP_LOG_LEVEL_DEBUG    
 #include "app_log.h"
 #include "app_error.h"
-
-extern uint8_t door_status,lock_status,ups_status;
-extern int8_t temperature;
 
 uint8_t timer_frame_1ms;
 uint8_t comm_addr;
@@ -401,16 +400,16 @@ static comm_status_t comm_cmd04_process(uint8_t *ptr_param,uint8_t param_len,uin
 /*命令码0x11 查询门的状态 处理函数*/
 static comm_status_t comm_cmd11_process(uint8_t *ptr_param,uint8_t param_len,uint8_t *ptr_send_len) 
 {
- uint8_t status; 
+ uint8_t state; 
  APP_LOG_DEBUG("执行命令0x11.查询门的状态.\r\n");
  if(param_len!=COMM_CMD11_PARAM_SIZE)
  {
    APP_LOG_ERROR("命令0x11参数长度%d不匹配.\r\n",param_len);
    return COMM_ERR;
  }
- status=door_status;
- /*回填称重数量*/
- ptr_param[0]=status;
+ state=get_door_state();;
+ /*回填门的状态*/
+ ptr_param[0]=state;
  APP_LOG_DEBUG("获取的门的状态：%d\r\n", ptr_param[0]);
  /*更新需要发送的数据长度*/
  *ptr_send_len+=COMM_CMD11_EXECUTE_RESULT_SIZE;
@@ -497,17 +496,17 @@ static comm_status_t comm_cmd22_process(uint8_t *ptr_param,uint8_t param_len,uin
 /*命令码0x23 查询锁的状态 处理函数*/
 static comm_status_t comm_cmd23_process(uint8_t *ptr_param,uint8_t param_len,uint8_t *ptr_send_len) 
 {
- uint8_t status; 
+ uint8_t state; 
  APP_LOG_DEBUG("执行命令0x23.查询锁的状态.\r\n");
  if(param_len!=COMM_CMD23_PARAM_SIZE)
  {
    APP_LOG_ERROR("命令0x23参数长度%d不匹配.\r\n",param_len);
    return COMM_ERR;
  }
- status=lock_status;
- /*回填称重数量*/
- ptr_param[0]=status;
- APP_LOG_DEBUG("获取的锁的状态：%d\r\n",status);
+ state=get_lock_state();
+ /*回填锁的状态*/
+ ptr_param[0]=state;
+ APP_LOG_DEBUG("获取的锁的状态：%d\r\n",ptr_param[0]);
  /*更新需要发送的数据长度*/
  *ptr_send_len+=COMM_CMD23_EXECUTE_RESULT_SIZE;
 
@@ -516,16 +515,16 @@ static comm_status_t comm_cmd23_process(uint8_t *ptr_param,uint8_t param_len,uin
 /*命令码0x31 查询UPS的状态 处理函数*/
 static comm_status_t comm_cmd31_process(uint8_t *ptr_param,uint8_t param_len,uint8_t *ptr_send_len) 
 {
- uint8_t status; 
+ uint8_t state; 
  APP_LOG_DEBUG("执行命令0x31.查询UPS的状态.\r\n");
  if(param_len!=COMM_CMD31_PARAM_SIZE)
  {
    APP_LOG_ERROR("命令0x31参数长度%d不匹配.\r\n",param_len);
    return COMM_ERR;
  }
- status=ups_status;
+ state=get_ups_state();
  /*回填称重数量*/
- ptr_param[0]=status;
+ ptr_param[0]=state;
  APP_LOG_DEBUG("获取的UPS的状态：%d\r\n",ptr_param[0]);
  /*更新需要发送的数据长度*/
  *ptr_send_len+=COMM_CMD31_EXECUTE_RESULT_SIZE;
@@ -543,10 +542,10 @@ static comm_status_t comm_cmd41_process(uint8_t *ptr_param,uint8_t param_len,uin
    APP_LOG_ERROR("命令0x41参数长度%d不匹配.\r\n",param_len);
    return COMM_ERR;
  }
- t=temperature;
- /*回填称重数量*/
+ t=get_average_temperature();
+ /*回填温度*/
  ptr_param[0]=t;
- APP_LOG_DEBUG("获取的温度值：%d\r\n",t);
+ APP_LOG_DEBUG("获取的温度值：%d\r\n",ptr_param[0]);
  /*更新需要发送的数据长度*/
  *ptr_send_len+=COMM_CMD41_EXECUTE_RESULT_SIZE;
 

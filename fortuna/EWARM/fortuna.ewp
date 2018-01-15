@@ -366,7 +366,7 @@
                     <state>$PROJ_DIR$/../Drivers/BSP/common</state>
                     <state>$PROJ_DIR$/../Drivers/BSP/components/ntc</state>
                     <state>$PROJ_DIR$/../Drivers/BSP/components/display_led</state>
-                <state /><state /><state /><state /><state /><state /><state /><state /></option>
+                <state /><state /><state /><state /><state /><state /><state /><state /><state /><state /><state /><state /><state /><state /><state /><state /></option>
                 <option>
                     <name>CCStdIncCheck</name>
                     <state>0</state>
@@ -1128,6 +1128,9 @@
                     <name>$PROJ_DIR$\..\Src\tasks\compressor_task.c</name>
                 </file>
                 <file>
+                    <name>$PROJ_DIR$\..\Src\tasks\dc12v_task.c</name>
+                </file>
+                <file>
                     <name>$PROJ_DIR$\..\Src\tasks\debug_task.c</name>
                 </file>
                 <file>
@@ -1138,6 +1141,9 @@
                 </file>
                 <file>
                     <name>$PROJ_DIR$\..\Src\tasks\host_comm_task.c</name>
+                </file>
+                <file>
+                    <name>$PROJ_DIR$\..\Src\tasks\light_task.c</name>
                 </file>
                 <file>
                     <name>$PROJ_DIR$\..\Src\tasks\lock_task.c</name>
@@ -1194,7 +1200,9 @@
             <file>
                 <name>$PROJ_DIR$\..\Src\usart.c</name>
             </file>
-        </group>
+        <file>
+                <name>$PROJ_DIR$/../Src/dma.c</name>
+            </file></group>
     </group>
     <group>
         <name>Drivers</name>

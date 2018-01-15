@@ -1245,6 +1245,9 @@
                     <name>$PROJ_DIR$\..\Src\tasks\compressor_task.c</name>
                 </file>
                 <file>
+                    <name>$PROJ_DIR$\..\Src\tasks\dc12v_task.c</name>
+                </file>
+                <file>
                     <name>$PROJ_DIR$\..\Src\tasks\debug_task.c</name>
                 </file>
                 <file>
@@ -1255,6 +1258,9 @@
                 </file>
                 <file>
                     <name>$PROJ_DIR$\..\Src\tasks\host_comm_task.c</name>
+                </file>
+                <file>
+                    <name>$PROJ_DIR$\..\Src\tasks\light_task.c</name>
                 </file>
                 <file>
                     <name>$PROJ_DIR$\..\Src\tasks\lock_task.c</name>

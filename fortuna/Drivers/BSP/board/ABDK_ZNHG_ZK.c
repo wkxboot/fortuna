@@ -1,6 +1,7 @@
 #include "FreeRTOS.h"
 #include "task.h"
 #include "cmsis_os.h"
+#include "tim.h"
 #include "ABDK_ZNHG_ZK.h"
 
 
@@ -26,32 +27,32 @@ bsp_state_t BSP_get_ups_state()
 }
 
 /*获取门上部传感器状态*/
-bsp_state_t BSP_get_door_up_status()
+bsp_state_t BSP_get_door_up_state()
 {
 return (bsp_state_t)HAL_GPIO_ReadPin(DOOR_STATE_UP_POS_GPIO_Port,DOOR_STATE_UP_POS_Pin);
 }
 /*获取门下部传感器状态*/
-bsp_state_t BSP_get_door_dwn_status()
+bsp_state_t BSP_get_door_dwn_state()
 {
 return (bsp_state_t)HAL_GPIO_ReadPin(DOOR_STATE_DWN_POS_GPIO_Port,DOOR_STATE_DWN_POS_Pin);
 }
 /*获取W/T重量温度切换按键状态*/
-bsp_state_t BSP_get_wt_sw_status()
+bsp_state_t BSP_get_wt_sw_state()
 {
 return (bsp_state_t)HAL_GPIO_ReadPin(W_T_SW_STATE_POS_GPIO_Port,W_T_SW_STATE_POS_Pin);
 }
 /*获取货架层数切换按键状态*/
-bsp_state_t BSP_get_row_sw_status()
+bsp_state_t BSP_get_row_sw_state()
 {
 return (bsp_state_t)HAL_GPIO_ReadPin(ROW_SW_STATE_POS_GPIO_Port,ROW_SW_STATE_POS_Pin);
 }
 /*获取功能按键1按键状态*/
-bsp_state_t BSP_get_func1_sw_status()
+bsp_state_t BSP_get_func1_sw_state()
 {
 return (bsp_state_t)HAL_GPIO_ReadPin(FUNC1_SW_STATE_POS_GPIO_Port,FUNC1_SW_STATE_POS_Pin);
 }
 /*获取功能按键2按键状态*/
-bsp_state_t BSP_get_func2_sw_status()
+bsp_state_t BSP_get_func2_sw_state()
 {
 return (bsp_state_t)HAL_GPIO_ReadPin(FUNC2_SW_STATE_POS_GPIO_Port,FUNC2_SW_STATE_POS_Pin);
 }
@@ -114,15 +115,15 @@ void BSP_LOCK_TURN_ON_OFF(bsp_state_t state)
  HAL_GPIO_WritePin(LOCK_CTL_POS_GPIO_Port,LOCK_CTL_POS_Pin,(GPIO_PinState)state); 
 }
 /*玻璃加热电源操作*/
-void BSP_TURN_ON_OFF_GLASS_PWR(bsp_state_t state)
+void BSP_GLASS_PWR_TURN_ON_OFF(bsp_state_t state)
 {
  HAL_GPIO_WritePin(GLASS_T_CTL_POS_GPIO_Port,GLASS_T_CTL_POS_Pin,(GPIO_PinState)state);  
 }
 
-
 /*灯带操作*/
 void BSP_LIGHT_TURN_ON_OFF(uint8_t light,bsp_state_t state)
 {
+#if defined(LIGHT_CTL_TYPE) && (LIGHT_CTL_TYPE == CTL_TYPE_IO)/*IO直接控制*/ 
  if(light & LIGHT_1)
  {
  HAL_GPIO_WritePin(LED1_CTL_POS_GPIO_Port,LED1_CTL_POS_Pin,(GPIO_PinState)state);  
@@ -130,24 +131,50 @@ void BSP_LIGHT_TURN_ON_OFF(uint8_t light,bsp_state_t state)
  if(light & LIGHT_2)
  {
  HAL_GPIO_WritePin(LED2_CTL_POS_GPIO_Port,LED2_CTL_POS_Pin,(GPIO_PinState)state);  
- } 
+ }
+#elif defined(LIGHT_CTL_TYPE) && (LIGHT_CTL_TYPE == CTL_TYPE_PWM)/*PWM控制*/ 
+ if(light & LIGHT_1)
+ {
+ if(state==LIGHT_CTL_ON)
+ HAL_TIM_PWM_Start(&htim3,TIM_CHANNEL_1);
+ else
+ HAL_TIM_PWM_Stop(&htim3,TIM_CHANNEL_1);
+ }
+ if(light & LIGHT_2)
+ {
+ if(state==LIGHT_CTL_ON)
+ HAL_TIM_PWM_Start(&htim3,TIM_CHANNEL_2); 
+ else
+ HAL_TIM_PWM_Stop(&htim3,TIM_CHANNEL_2);   
+ }
+#endif
 }
 /*压缩机控制*/
 void BSP_COMPRESSOR_TURN_ON_OFF(bsp_state_t state)
 {
  HAL_GPIO_WritePin(COMPRESSOR_CTL_POS_GPIO_Port,COMPRESSOR_CTL_POS_Pin,(GPIO_PinState)state);  
 }
+
 /*12V输出控制*/
 void BSP_DC12V_TURN_ON_OFF(uint8_t dc12,bsp_state_t state)
 {
+ 
  if(dc12 & DC12V_1)
  {
  HAL_GPIO_WritePin(DC12V1_CTL_POS_GPIO_Port,DC12V1_CTL_POS_Pin,(GPIO_PinState)state);   
  }
  if(dc12 & DC12V_2)
  {
+#if defined(DC12V_2_CTL_TYPE) && (DC12V_2_CTL_TYPE == CTL_TYPE_IO)/*IO直接控制*/   
  HAL_GPIO_WritePin(DC12V2_CTL_POS_GPIO_Port,DC12V2_CTL_POS_Pin,(GPIO_PinState)state);   
+#elif defined(DC12V_2_CTL_TYPE) && (DC12V_2_CTL_TYPE == CTL_TYPE_PWM)/*PWM控制*/
+ if(state==DC12V_CTL_ON)
+ HAL_TIM_PWM_Start(&htim5,TIM_CHANNEL_1); 
+ else
+ HAL_TIM_PWM_Stop(&htim5,TIM_CHANNEL_1);   
+#endif 
  }
+ 
 }
 
 

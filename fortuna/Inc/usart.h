@@ -58,7 +58,7 @@
 #include "main.h"
 
 /* USER CODE BEGIN Includes */
-
+extern UART_HandleTypeDef huart2;
 /* USER CODE END Includes */
 
 extern UART_HandleTypeDef huart4;

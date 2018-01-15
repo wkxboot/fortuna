@@ -11,7 +11,7 @@
 
 osThreadId glass_pwr_task_hdl;
 
-void galss_pwr_task(void const * argument)
+void glass_pwr_task(void const * argument)
 {
  osEvent signal;
  uint32_t pre_time,cur_time,work_time=0;
