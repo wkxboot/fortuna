@@ -164,7 +164,7 @@ BOOL xMBMasterRunResTake( LONG lTimeOut )
  */
 BOOL vMBMasterRunResRelease( void )
 {
-     BOOL bOk=FALSE;
+   BOOL bOk=FALSE;
     /* release resource */
    if( xSemaphoreGive( arxSemaphorehdls[0].xSemaphore ) == pdTRUE )
    {

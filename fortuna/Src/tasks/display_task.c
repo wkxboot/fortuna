@@ -17,8 +17,8 @@ osThreadId display_task_hdl;
 osMessageQId display_task_msg_q_id;
 
 
-/*显示任务的数字buff*/
-dis_num_t dis_buff[DISPLAY_LED_POS_CNT];
+/*显示任务的数字buff指针*/
+dis_num_t *ptr_buff;
 
 
 
@@ -31,9 +31,11 @@ void display_task(void const * argument)
  while(1)
  {
   osDelayUntil(&PreviousWakeTime, DISPLAY_TASK_REFRESH_INTERVAL);
+  if(ptr_buff==NULL)
+    continue;/*还没有初始化 按键任务没有开始*/
   for(uint8_t i=0;i<DISPLAY_LED_POS_CNT;i++)
   {
-  display_led_dis_num(1<<i,dis_buff[i].num,dis_buff[i].dp);
+  display_led_dis_num(1<<i,ptr_buff[i].num,ptr_buff[i].dp);
   osDelay(DISPLAY_TASK_HOLD_ON_TIME_PER_POS);
   }
  }

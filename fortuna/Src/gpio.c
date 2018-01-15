@@ -99,7 +99,7 @@ void MX_GPIO_Init(void)
   HAL_GPIO_WritePin(GPIOB, DISPLAY_COM3_CTL_POS_Pin|DISPLAY_COM5_CTL_POS_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(DISPLAY_COM2_CTL_POS_GPIO_Port, DISPLAY_COM2_CTL_POS_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOD, DISPLAY_COM2_CTL_POS_Pin|RS485_RT_CTL_POS_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pins : PEPin PEPin PEPin PEPin */
   GPIO_InitStruct.Pin = DOOR_RED_LED_CTL_POS_Pin|DOOR_GREEN_LED_CTL_POS_Pin|DOOR_ORANGE_LED_CTL_POS_Pin|COMPRESSOR_CTL_POS_Pin;
@@ -153,11 +153,11 @@ void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
 
-  /*Configure GPIO pin : PtPin */
-  GPIO_InitStruct.Pin = DISPLAY_COM2_CTL_POS_Pin;
+  /*Configure GPIO pins : PDPin PDPin */
+  GPIO_InitStruct.Pin = DISPLAY_COM2_CTL_POS_Pin|RS485_RT_CTL_POS_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(DISPLAY_COM2_CTL_POS_GPIO_Port, &GPIO_InitStruct);
+  HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
 
   /*Configure GPIO pin : PtPin */
   GPIO_InitStruct.Pin = LOCK_STATE_POS_Pin;

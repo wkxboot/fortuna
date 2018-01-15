@@ -175,7 +175,7 @@ void MX_FREERTOS_Init(void) {
 
   /* Create the thread(s) */
   /* definition and creation of defaultTask */
-  osThreadDef(defaultTask, StartDefaultTask, osPriorityNormal, 0, 256);
+  osThreadDef(defaultTask, StartDefaultTask, osPriorityNormal, 0, 128);
   defaultTaskHandle = osThreadCreate(osThread(defaultTask), NULL);
 
   /* USER CODE BEGIN RTOS_THREADS */
@@ -215,7 +215,7 @@ static void create_user_tasks()
   osThreadDef(host_comm_task, host_comm_task, osPriorityNormal, 0, 128);
   host_comm_task_hdl = osThreadCreate(osThread(host_comm_task), NULL); 
   APP_ASSERT(host_comm_task_hdl);
-  /*创建电子秤功能任务*/
+  /*创建电子秤功能任�?*/
   osThreadDef(scale_func_task, scale_func_task, osPriorityNormal, 0, 128);
   scale_func_task_hdl = osThreadCreate(osThread(scale_func_task), NULL); 
   APP_ASSERT(scale_func_task_hdl);

@@ -17,7 +17,6 @@ bsp_state_t BSP_get_lock_sw_state()
 {
  return (bsp_state_t)HAL_GPIO_ReadPin(LOCK_SW_STATE_POS_GPIO_Port,LOCK_SW_STATE_POS_Pin);
 }
-
 #define  UPS_STATE_POS_GPIO_Port  GPIOB
 #define  UPS_STATE_POS_Pin        GPIO_PIN_10
 /*获取UPS状态*/
@@ -94,7 +93,15 @@ void BSP_LED_TURN_ON_OFF(uint8_t led,bsp_state_t state)
  HAL_GPIO_WritePin(DOOR_ORANGE_LED_CTL_POS_GPIO_Port,DOOR_ORANGE_LED_CTL_POS_Pin,(GPIO_PinState)state); 
  }
 }
-
+/*RS485接收和发送控制*/
+void BSP_RS485_RX_ENABLE()
+{
+ HAL_GPIO_WritePin(RS485_RT_CTL_POS_GPIO_Port,RS485_RT_CTL_POS_Pin,(GPIO_PinState)RS485_RX_CTL_ENABLE); 
+}
+void BSP_RS485_TX_ENABLE()
+{
+ HAL_GPIO_WritePin(RS485_RT_CTL_POS_GPIO_Port,RS485_RT_CTL_POS_Pin,(GPIO_PinState)RS485_TX_CTL_ENABLE);  
+}
 /*交流电操作*/
 void BSP_AC_TURN_ON_OFF(uint8_t ac,bsp_state_t state)
 {

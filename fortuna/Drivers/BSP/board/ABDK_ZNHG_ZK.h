@@ -31,6 +31,9 @@ typedef enum
  LED_CTL_OFF=GPIO_PIN_SET,
  LED_STATE_ON=GPIO_PIN_RESET,                     
  LED_STATE_OFF=GPIO_PIN_SET,
+ /*485 接收和发送使能控制*/
+ RS485_RX_CTL_ENABLE=GPIO_PIN_RESET,
+ RS485_TX_CTL_ENABLE=GPIO_PIN_SET,
  /*交流电*/
  AC_CTL_ON=GPIO_PIN_SET,
  AC_CTL_OFF=GPIO_PIN_RESET,
@@ -95,6 +98,10 @@ bsp_state_t BSP_get_glass_pwr_state();
 
 /*led灯控制*/
 void BSP_LED_TURN_ON_OFF(uint8_t led,bsp_state_t state);
+/*RS485接收控制*/
+void BSP_RS485_RX_ENABLE();
+/*RS485发送控制*/
+void BSP_RS485_TX_ENABLE();
 /*交流电控制*/
 void BSP_AC_TURN_ON_OFF(uint8_t ac,bsp_state_t state);
 /*锁控制*/

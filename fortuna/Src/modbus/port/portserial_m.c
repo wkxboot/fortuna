@@ -25,6 +25,7 @@
 #include "queue.h"
 #include "stm32f1xx.h"
 #include "usart.h"
+#include "ABDK_ZNHG_ZK.h"
 #define APP_LOG_MODULE_NAME   "[MB_M_SERIAL]"
 #define APP_LOG_MODULE_LEVEL   APP_LOG_LEVEL_INFO    
 #include "app_log.h"
@@ -86,9 +87,11 @@ void vMBMasterPortSerialEnable(BOOL xRxEnable, BOOL xTxEnable)
 {
  
     if(xRxEnable)
-    {
+    {   
+    /*RS485通信半双工模式 应该先置RS485为接收状态*/
+    BSP_RS485_RX_ENABLE(); 
     /* Enable the UART Data Register not empty Interrupt */
-    __HAL_UART_ENABLE_IT(ptr_master_modbus_uart_handle, UART_IT_RXNE);   
+    __HAL_UART_ENABLE_IT(ptr_master_modbus_uart_handle, UART_IT_RXNE);  
     APP_LOG_DEBUG("MODBUS主机使能接收.\r\n"); 
     }
     else
@@ -99,6 +102,8 @@ void vMBMasterPortSerialEnable(BOOL xRxEnable, BOOL xTxEnable)
     }
    if(xTxEnable)
     {
+    /*RS485通信半双工模式 应该先置RS485为发送状态*/
+    BSP_RS485_TX_ENABLE(); 
    /* Enable the UART Transmit data register empty Interrupt */
     __HAL_UART_ENABLE_IT(ptr_master_modbus_uart_handle, UART_IT_TXE);   
      APP_LOG_DEBUG("MODBUS主机使能发送.\r\n"); 
