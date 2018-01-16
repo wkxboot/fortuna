@@ -147,8 +147,8 @@ void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : PDPin PDPin PDPin */
-  GPIO_InitStruct.Pin = ROW_SW_STATE_POS_Pin|FUNC2_SW_STATE_POS_Pin|DOOR_STATE_UP_POS_Pin;
+  /*Configure GPIO pins : PDPin PDPin PDPin PDPin */
+  GPIO_InitStruct.Pin = W_SW_STATE_POS_Pin|FUNC2_SW_STATE_POS_Pin|CALIBRATE_SW_STATE_POS_Pin|DOOR_STATE_UP_POS_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);

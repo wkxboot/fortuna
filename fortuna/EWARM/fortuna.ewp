@@ -366,7 +366,7 @@
                     <state>$PROJ_DIR$/../Drivers/BSP/common</state>
                     <state>$PROJ_DIR$/../Drivers/BSP/components/ntc</state>
                     <state>$PROJ_DIR$/../Drivers/BSP/components/display_led</state>
-                <state /><state /><state /><state /><state /><state /><state /><state /><state /><state /><state /><state /><state /><state /><state /><state /><state /><state /><state /><state /><state /><state /><state /><state /><state /><state /><state /><state /><state /><state /><state /><state /></option>
+                <state /><state /><state /><state /><state /><state /><state /><state /></option>
                 <option>
                     <name>CCStdIncCheck</name>
                     <state>0</state>
@@ -1125,6 +1125,9 @@
             <group>
                 <name>tasks</name>
                 <file>
+                    <name>$PROJ_DIR$\..\Src\tasks\calibrate_memory_task.c</name>
+                </file>
+                <file>
                     <name>$PROJ_DIR$\..\Src\tasks\compressor_task.c</name>
                 </file>
                 <file>
@@ -1164,6 +1167,9 @@
                     <name>$PROJ_DIR$\..\Src\tasks\sys_led_task.c</name>
                 </file>
                 <file>
+                    <name>$PROJ_DIR$\..\Src\tasks\temperature_memory_task.c</name>
+                </file>
+                <file>
                     <name>$PROJ_DIR$\..\Src\tasks\temperature_task.c</name>
                 </file>
                 <file>
@@ -1172,9 +1178,15 @@
                 <file>
                     <name>$PROJ_DIR$\..\Src\tasks\watch_dog_task.c</name>
                 </file>
+                <file>
+                    <name>$PROJ_DIR$\..\Src\tasks\weight_memory_task.c</name>
+                </file>
             </group>
             <file>
                 <name>$PROJ_DIR$\..\Src\adc.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\Src\dma.c</name>
             </file>
             <file>
                 <name>$PROJ_DIR$\..\Src\freertos.c</name>
@@ -1200,9 +1212,7 @@
             <file>
                 <name>$PROJ_DIR$\..\Src\usart.c</name>
             </file>
-        <file>
-                <name>$PROJ_DIR$/../Src/dma.c</name>
-            </file></group>
+        </group>
     </group>
     <group>
         <name>Drivers</name>

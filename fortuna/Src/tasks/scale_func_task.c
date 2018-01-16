@@ -64,8 +64,8 @@ void scale_func_task(void const * argument)
      
  case  SCALE_FUNC_TASK_CLEAR_TARE_WEIGHT_MSG:
     APP_LOG_DEBUG("电子秤任务收到去皮指令消息.\r\n");
-    param[0]=SCALE_FUNC_TASK_AUTO_TARE_WEIGHT_VALUE>>16;
-    param[1]=SCALE_FUNC_TASK_AUTO_TARE_WEIGHT_VALUE&0xffff;
+    param[0]=SCALE_AUTO_TARE_WEIGHT_VALUE>>16;
+    param[1]=SCALE_AUTO_TARE_WEIGHT_VALUE&0xffff;
     for(scale=scale_start;scale<=scale_cnt;scale++)
     {
     APP_LOG_DEBUG("电子秤%d执行去皮.\r\n",scale);
@@ -249,7 +249,7 @@ void scale_func_task(void const * argument)
    break;  
  case  SCALE_FUNC_TASK_RESET_MSG:
     APP_LOG_DEBUG("电子秤功能任务收到复位指令消息.\r\n");
-    param[0]=SCALE_FUNC_TASK_RESET_VALUE;/*填入复位参数*/
+    param[0]=SCALE_RESET_VALUE;/*填入复位参数*/
     for(scale=scale_start;scale<=scale_cnt;scale++)
     {
     APP_LOG_DEBUG("电子秤%d执行复位指令.\r\n",scale);

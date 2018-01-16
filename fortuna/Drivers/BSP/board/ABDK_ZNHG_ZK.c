@@ -41,9 +41,15 @@ bsp_state_t BSP_get_wt_sw_state()
 return (bsp_state_t)HAL_GPIO_ReadPin(W_T_SW_STATE_POS_GPIO_Port,W_T_SW_STATE_POS_Pin);
 }
 /*获取货架层数切换按键状态*/
-bsp_state_t BSP_get_row_sw_state()
+bsp_state_t BSP_get_w_sw_state()
 {
-return (bsp_state_t)HAL_GPIO_ReadPin(ROW_SW_STATE_POS_GPIO_Port,ROW_SW_STATE_POS_Pin);
+return (bsp_state_t)HAL_GPIO_ReadPin(W_SW_STATE_POS_GPIO_Port,W_SW_STATE_POS_Pin);
+}
+
+/*获取校准按键按键状态*/
+bsp_state_t BSP_get_calibrate_sw_state()
+{
+return (bsp_state_t)HAL_GPIO_ReadPin(CALIBRATE_SW_STATE_POS_GPIO_Port,CALIBRATE_SW_STATE_POS_Pin);
 }
 /*获取功能按键1按键状态*/
 bsp_state_t BSP_get_func1_sw_state()

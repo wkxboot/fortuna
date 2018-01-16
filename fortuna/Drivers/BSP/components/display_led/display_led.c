@@ -8,10 +8,6 @@
 
 
 #if (DISPLAY_LED_TYPE == DISPLAY_LED_TYPE_COMMON_CATHODE)
-#define  DP_CODE                   (0x80)
-#define  NULL_CODE                 (0x00)
-#define  DISPLAY_COM_ON            GPIO_PIN_SET
-#define  DISPLAY_COM_OFF           GPIO_PIN_RESET
 static uint8_t const hex_code[]=
 {
 /*共阴数码管编码*/
@@ -21,10 +17,6 @@ static uint8_t const hex_code[]=
 0x7f,0x6f,0x77,0x7c,0x39,0x5e,0x79,0x71
 };
 #elif (DISPLAY_LED_TYPE == DISPLAY_LED_TYPE_COMMON_ANODE)
-#define  DP_CODE                   (-0x80)
-#define  NULL_CODE                 (0xff)
-#define  DISPLAY_COM_ON            GPIO_PIN_RESET
-#define  DISPLAY_COM_OFF           GPIO_PIN_SET
 static uint8_t const hex_code[]=
 {
 /*共阳数码管编码*/ 
@@ -103,6 +95,10 @@ uint8_t code;
 if(num==DISPLAY_LED_NULL_NUM)
 {
  code = NULL_CODE;
+}
+else if(num==DISPLAY_LED_NEGATIVE_NUM)
+{
+ code=NEGATIVE_CODE; 
 }
 else if(num > 0x0f)
 {

@@ -85,7 +85,9 @@ bsp_state_t BSP_get_door_dwn_state();
 /*获取W/T重量温度切换按键状态*/
 bsp_state_t BSP_get_wt_sw_state();
 /*获取货架层数切换按键状态*/
-bsp_state_t BSP_get_row_sw_state();
+bsp_state_t BSP_get_w_sw_state();
+/*获取货校准按键按键状态*/
+bsp_state_t BSP_get_calibrate_sw_state();
 /*获取功能按键1按键状态*/
 bsp_state_t BSP_get_func1_sw_state();
 /*获取功能按键2按键状态*/

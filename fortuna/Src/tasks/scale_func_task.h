@@ -32,14 +32,9 @@ void scale_func_task(void const * argument);
 #define  SCALE_FUNC_TASK_SET_BAUDRATE_MSG                  11
 #define  SCALE_FUNC_TASK_SET_FSM_FORMAT_MSG                12
 #define  SCALE_FUNC_TASK_SET_PROTOCOL_FORMAT_MSG           13
+#define  SCALE_FUNC_TASK_CLEAR_ZERO_WEIGHT_MSG             14/*清零*/
 
-/*电子秤操作值*/
-#define  SCALE_FUNC_TASK_UNLOCK_VALUE                      0x5AA5   
-#define  SCALE_FUNC_TASK_LOCK_VALUE                        0x0000/*其他任意值*/  
-#define  SCALE_FUNC_TASK_MAX_WEIGHT_VALUE                  30000/*30kg*/
-#define  SCALE_FUNC_TASK_DIVISION_VALUE                    0x0C/*1g*/
-#define  SCALE_FUNC_TASK_AUTO_TARE_WEIGHT_VALUE            0x7fffffff
-#define  SCALE_FUNC_TASK_RESET_VALUE                       0x55
+
 
 /*电子秤功能任务同步事件*/
 #define  SCALE_FUNC_TASK_SYNC_EVT                          (1<<1)

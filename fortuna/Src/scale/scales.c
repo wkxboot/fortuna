@@ -53,7 +53,7 @@ USHORT   usMRegHoldBuf[MB_MASTER_TOTAL_SLAVE_NUM][M_REG_HOLDING_NREGS];
 
 
 /*获取净重值*/
-fortuna_bool_t scale_get_net_weight(uint8_t scale,uint16_t *ptr_net_weight)
+fortuna_bool_t get_net_weight(uint8_t scale,uint16_t *ptr_net_weight)
 {
   if(ptr_net_weight==NULL || scale > SCALES_CNT_MAX)
   return FORTUNA_FALSE;

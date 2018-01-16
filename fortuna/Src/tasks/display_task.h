@@ -8,7 +8,7 @@ extern osMessageQId display_task_msg_q_id;
 /*显示任务的数字buff*/
 typedef struct 
 {
- uint8_t num;
+ uint8_t        num;
  fortuna_bool_t dp;
 }dis_num_t;
 

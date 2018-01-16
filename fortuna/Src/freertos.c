@@ -58,7 +58,7 @@
 #include "scale_func_task.h"
 #include "scale_comm_task.h"
 #include "lock_task.h"
-#include "display_task.h"
+#include "display_led.h"
 #include "switch_task.h"
 #include "display_task.h"
 #include "dc12v_task.h"
@@ -70,6 +70,9 @@
 #include "glass_pwr_task.h"
 #include "watch_dog_task.h"
 #include "ups_task.h"
+#include "weight_memory_task.h"
+#include "temperature_memory_task.h"
+#include "calibrate_memory_task.h"
 #include "debug_task.h"
 #define APP_LOG_MODULE_NAME   "[freertos]"
 #define APP_LOG_MODULE_LEVEL   APP_LOG_LEVEL_DEBUG    
@@ -175,7 +178,7 @@ void MX_FREERTOS_Init(void) {
 
   /* Create the thread(s) */
   /* definition and creation of defaultTask */
-  osThreadDef(defaultTask, StartDefaultTask, osPriorityNormal, 0, 128);
+  osThreadDef(defaultTask, StartDefaultTask, osPriorityNormal, 0, 256);
   defaultTaskHandle = osThreadCreate(osThread(defaultTask), NULL);
 
   /* USER CODE BEGIN RTOS_THREADS */
@@ -215,7 +218,7 @@ static void create_user_tasks()
   osThreadDef(host_comm_task, host_comm_task, osPriorityNormal, 0, 128);
   host_comm_task_hdl = osThreadCreate(osThread(host_comm_task), NULL); 
   APP_ASSERT(host_comm_task_hdl);
-  /*创建电子秤功能任�?*/
+  /*创建电子秤功能任务*/
   osThreadDef(scale_func_task, scale_func_task, osPriorityNormal, 0, 128);
   scale_func_task_hdl = osThreadCreate(osThread(scale_func_task), NULL); 
   APP_ASSERT(scale_func_task_hdl);
@@ -279,6 +282,22 @@ static void create_user_tasks()
   osThreadDef(ups_task, ups_task, osPriorityNormal, 0, 128);
   ups_task_hdl = osThreadCreate(osThread(ups_task), NULL); 
   APP_ASSERT(ups_task_hdl);
+  
+  /*创建重量缓存任务*/
+  osThreadDef(weight_memory_task, weight_memory_task, osPriorityNormal, 0, 128);
+  weight_memory_task_hdl = osThreadCreate(osThread(weight_memory_task), NULL); 
+  APP_ASSERT(weight_memory_task_hdl);
+    
+  /*创建温度缓存任务*/
+  osThreadDef(temperature_memory_task, temperature_memory_task, osPriorityNormal, 0, 128);
+  temperature_memory_task_hdl = osThreadCreate(osThread(temperature_memory_task), NULL); 
+  APP_ASSERT(temperature_memory_task_hdl);
+  
+/*创建校准缓存任务*/
+  osThreadDef(calibrate_memory_task, calibrate_memory_task, osPriorityNormal, 0, 128);
+  calibrate_memory_task_hdl = osThreadCreate(osThread(calibrate_memory_task), NULL); 
+  APP_ASSERT(calibrate_memory_task_hdl);
+
   APP_LOG_INFO("所有任务创建成功.\r\n"); 
 }
 /* USER CODE END Application */

@@ -2,7 +2,7 @@
 #define    __SCALES_H__
 #include "fortuna_common.h"
 
-fortuna_bool_t scale_get_net_weight(uint8_t sclae,uint16_t *ptr_net_weight);
+fortuna_bool_t get_net_weight(uint8_t sclae,uint16_t *ptr_net_weight);
 
 
 /*称重单元数量*/
@@ -10,6 +10,16 @@ fortuna_bool_t scale_get_net_weight(uint8_t sclae,uint16_t *ptr_net_weight);
 
 /*无效的重量值*/
 #define  SCLAE_NET_WEIGHT_INVALID_VALUE        0xffff
+
+/*电子秤操作值*/
+#define  SCALE_UNLOCK_VALUE                    0x5AA5   
+#define  SCALE_LOCK_VALUE                      0x0000/*其他任意值*/  
+#define  SCALE_MAX_WEIGHT_VALUE                30000/*30kg*/
+#define  SCALE_DIVISION_VALUE                  0x0C/*1g*/
+#define  SCALE_AUTO_TARE_WEIGHT_VALUE          0x7fffffff
+#define  SCALE_CLEAR_ZERO_VALUE                0x01                     
+#define  SCALE_RESET_VALUE                     0x55
+
 
 /*称重传感器寄存器地址*/
 #define  M_DISCRETE_INPUT_START                0

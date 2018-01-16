@@ -358,7 +358,7 @@ static comm_status_t comm_cmd03_process(uint8_t *ptr_param,uint8_t param_len,uin
  for(uint8_t i=0;i<COMM_VIRTUAL_SCALE_MAX;i++)
  {
  /*回填重量值*/
-  scale_get_net_weight(i+1,&weight);
+  get_net_weight(i+1,&weight);
   ptr_param[i*2]=weight>>8;
   ptr_param[i*2+1]=weight & 0xff;
  }
@@ -369,7 +369,7 @@ static comm_status_t comm_cmd03_process(uint8_t *ptr_param,uint8_t param_len,uin
  }
  else
  {
-  scale_get_net_weight(scale,&weight);
+  get_net_weight(scale,&weight);
   ptr_param[0]=weight>>8;
   ptr_param[1]=weight & 0xff;
   APP_LOG_DEBUG("获取称重值：%d\r\n",ptr_param[0]<<8|ptr_param[1]);

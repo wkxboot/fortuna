@@ -144,7 +144,7 @@ void debug_task(void const * argument)
  time=0;
  scale_msg.type=SCALE_FUNC_TASK_LOCK_MSG;
  scale_msg.scale=origin_addr;/*全部的电子秤*/
- scale_msg.param16=SCALE_FUNC_TASK_UNLOCK_VALUE;
+ scale_msg.param16=SCALE_UNLOCK_VALUE;
  /*向电子秤功能任务发送解锁消息*/
  while(time<DEBUG_TASK_CMD_UNLOCK_TIMEOUT)
  {
@@ -181,7 +181,7 @@ void debug_task(void const * argument)
  time=0;
  scale_msg.type=SCALE_FUNC_TASK_LOCK_MSG;
  scale_msg.scale=origin_addr;/*全部的电子秤*/
- scale_msg.param16=SCALE_FUNC_TASK_LOCK_VALUE;
+ scale_msg.param16=SCALE_LOCK_VALUE;
  /*向电子秤功能任务发送解锁消息*/
  while(time<DEBUG_TASK_CMD_LOCK_TIMEOUT)
  {
@@ -220,7 +220,7 @@ void debug_task(void const * argument)
  time=0;
  scale_msg.type=SCALE_FUNC_TASK_SET_MAX_WEIGHT_MSG;
  scale_msg.scale=origin_addr;/*电子秤地址*/
- scale_msg.param16=SCALE_FUNC_TASK_MAX_WEIGHT_VALUE;
+ scale_msg.param16=SCALE_MAX_WEIGHT_VALUE;
  /*向电子秤功能任务发送设置最大称重值消息*/
  while(time<DEBUG_TASK_CMD_SET_MAX_WEIGHT_TIMEOUT)
  {
@@ -258,7 +258,7 @@ void debug_task(void const * argument)
  time=0;
  scale_msg.type=SCALE_FUNC_TASK_SET_DIVISION_MSG;
  scale_msg.scale=origin_addr;/*电子秤地址*/
- scale_msg.param16=SCALE_FUNC_TASK_DIVISION_VALUE;
+ scale_msg.param16=SCALE_DIVISION_VALUE;
  /*向电子秤功能任务发送设置分度值消息*/
  while(time<DEBUG_TASK_CMD_SET_DIVISION_TIMEOUT)
  {

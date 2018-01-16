@@ -18,7 +18,7 @@ osMessageQId display_task_msg_q_id;
 
 
 /*显示任务的数字buff指针*/
-dis_num_t *ptr_buff;
+const dis_num_t *ptr_buff;
 
 
 

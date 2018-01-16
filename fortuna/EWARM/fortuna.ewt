@@ -1242,6 +1242,9 @@
             <group>
                 <name>tasks</name>
                 <file>
+                    <name>$PROJ_DIR$\..\Src\tasks\calibrate_memory_task.c</name>
+                </file>
+                <file>
                     <name>$PROJ_DIR$\..\Src\tasks\compressor_task.c</name>
                 </file>
                 <file>
@@ -1281,6 +1284,9 @@
                     <name>$PROJ_DIR$\..\Src\tasks\sys_led_task.c</name>
                 </file>
                 <file>
+                    <name>$PROJ_DIR$\..\Src\tasks\temperature_memory_task.c</name>
+                </file>
+                <file>
                     <name>$PROJ_DIR$\..\Src\tasks\temperature_task.c</name>
                 </file>
                 <file>
@@ -1289,9 +1295,15 @@
                 <file>
                     <name>$PROJ_DIR$\..\Src\tasks\watch_dog_task.c</name>
                 </file>
+                <file>
+                    <name>$PROJ_DIR$\..\Src\tasks\weight_memory_task.c</name>
+                </file>
             </group>
             <file>
                 <name>$PROJ_DIR$\..\Src\adc.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\Src\dma.c</name>
             </file>
             <file>
                 <name>$PROJ_DIR$\..\Src\freertos.c</name>

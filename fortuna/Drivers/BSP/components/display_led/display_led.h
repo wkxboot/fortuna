@@ -6,7 +6,23 @@
 #define  DISPLAY_LED_TYPE_COMMON_CATHODE     1
 #define  DISPLAY_LED_TYPE_COMMON_ANODE       2
 
-#define  DISPLAY_LED_TYPE                    DISPLAY_LED_TYPE_COMMON_ANODE
+#define  DISPLAY_LED_TYPE                   DISPLAY_LED_TYPE_COMMON_CATHODE
+
+#if (DISPLAY_LED_TYPE == DISPLAY_LED_TYPE_COMMON_CATHODE)/*共阴极*/
+#define  DP_CODE                           (0x80)
+#define  NULL_CODE                         (0x00)
+#define  NEGATIVE_CODE                     (0x40)
+#define  DISPLAY_COM_ON                    GPIO_PIN_RESET
+#define  DISPLAY_COM_OFF                   GPIO_PIN_SET
+#elif  (DISPLAY_LED_TYPE == DISPLAY_LED_TYPE_COMMON_ANODE)/*共阳极*/
+#define  DP_CODE                           (-0x80)
+#define  NULL_CODE                         (0xff)
+#define  NEGATIVE_CODE                     (0xbf)
+#define  DISPLAY_COM_ON                    GPIO_PIN_SET
+#define  DISPLAY_COM_OFF                   GPIO_PIN_RESET
+#else
+#error "没有定义DISPLAY_LED_TYPE类型@DISPLAY_LED_TYPE_COMMON_CATHODE@DISPLAY_LED_TYPE_COMMON_ANODE"
+#endif
 
 
 
@@ -28,7 +44,8 @@
 #define  DISPLAY_LED_DP            (1<<7)
 
 #define  DISPLAY_LED_POS_CNT        6
-#define  DISPLAY_LED_NULL_NUM      0xFF/*显示空白数字值*/
+#define  DISPLAY_LED_NULL_NUM       0xFF/*显示空白数字值*/
+#define  DISPLAY_LED_NEGATIVE_NUM   0xFE/*显示负号*/
 
 void display_led_dis_num(uint8_t pos,uint8_t num,fortuna_bool_t dp);
 
