@@ -16,6 +16,7 @@
 #include "light_task.h"
 #include "glass_pwr_task.h"
 #include "debug_task.h"
+#include "mb_m.h"
 #include "ABDK_ZNHG_ZK.h"
 #define APP_LOG_MODULE_NAME   "[debug]"
 #define APP_LOG_MODULE_LEVEL   APP_LOG_LEVEL_DEBUG    
@@ -35,8 +36,10 @@ uint16_t time;
 void debug_task(void const * argument)
 {
  uint8_t debug_enable=FORTUNA_TRUE;
- osEvent signal;
- scale_msg_t scale_msg;
+ uint8_t scale,scale_end,scale_start;
+ uint16_t param[2];
+ uint16_t reg_addr,reg_cnt;
+ eMBMasterReqErrCode err_code;
 
  APP_LOG_INFO("######调试任务开始.\r\n");
 
@@ -71,61 +74,60 @@ void debug_task(void const * argument)
   origin_addr-='0';
   new_addr-='0';
   APP_LOG_DEBUG("原地址：%2d设置为%2d.\r\n",origin_addr,new_addr); 
-  scale_msg.type=SCALE_FUNC_TASK_SET_ADDR_MSG;
-  scale_msg.scale=origin_addr;
-  scale_msg.param16=new_addr;
-  time=0;
-  while(time < DEBUG_TASK_CMD_SET_ADDR_TIMEOUT)
+
+  APP_LOG_DEBUG("%2d#电子秤设置地址...\r\n",origin_addr);
+  param[0]=new_addr;/*填入地址参数*/    
+  err_code=eMBMasterReqWriteMultipleHoldingRegister(origin_addr,DEVICE_ADDR_REG_ADDR,DEVICE_ADDR_REG_CNT,param,DEBUG_TASK_WAIT_TIMEOUT);
+    /*执行成功*/
+  if(err_code==MB_MRE_NO_ERR)
   {
-  APP_LOG_DEBUG("向电子秤功能任务发送设置地址消息.\r\n");
-  osMessagePut(scale_func_msg_q_id,*(uint32_t*)&scale_msg,0);
-  signal=osSignalWait(DEBUG_TASK_SET_ADDR_OK_SIGNAL,DEBUG_TASK_WAIT_TIMEOUT);
-  if(signal.status==osEventSignal && signal.value.signals & DEBUG_TASK_SET_ADDR_OK_SIGNAL)/*超时或者其他错误*/
-  break;
-  time+=DEBUG_TASK_WAIT_TIMEOUT;
+  APP_LOG_DEBUG("%2d#电子秤设置地址成功.\r\n",origin_addr);
   }
- if(time >=DEBUG_TASK_CMD_SET_ADDR_TIMEOUT)
- {
- APP_LOG_ERROR("设置地址超时错误.\r\n");  
- }
- continue;
+  APP_LOG_ERROR("%2d#电子秤设置地址失败.\r\n",scale); 
+  continue;
  }
 
   /*获取净重值*/
  cmd_len=strlen(DEBUG_TASK_CMD_OBTAIN_NET_WEIGHT);
  if(memcmp((const char*)cmd,DEBUG_TASK_CMD_OBTAIN_NET_WEIGHT,cmd_len)==0)
  {
- offset=cmd_len;
- origin_addr=cmd[offset];
- if(recv_len!=cmd_len+DEBUG_TASK_CMD_OBTAIN_NET_WEIGHT_PARAM_LEN || origin_addr > '9' || origin_addr <'0')
- {
+  offset=cmd_len;
+  origin_addr=cmd[offset];
+  if(recv_len!=cmd_len+DEBUG_TASK_CMD_OBTAIN_NET_WEIGHT_PARAM_LEN || origin_addr > '9' || origin_addr <'0')
+  {
   APP_LOG_ERROR("命令长度或者设备地址值非法.地址范围1-9.\r\n");
   continue;
- }
- origin_addr-='0';
- APP_LOG_DEBUG("电子秤%2d获取净重...\r\n",origin_addr);
- time=0;
- scale_msg.type=SCALE_FUNC_TASK_OBTAIN_NET_WEIGHT_MSG;
- scale_msg.scale=origin_addr;
- /*向电子秤功能任务发送获取净重消息*/
- while(time<DEBUG_TASK_CMD_OBTAIN_NET_WEIGHT_TIMEOUT)
- {
- APP_LOG_DEBUG("向电子秤功能任务发送获取净重消息.\r\n");
- osMessagePut(scale_func_msg_q_id,*(uint32_t*)&scale_msg,0);
- signal=osSignalWait(DEBUG_TASK_OBTAIN_NET_WEIGHT_OK_SIGNAL,DEBUG_TASK_WAIT_TIMEOUT);
- if(signal.status==osEventSignal && signal.value.signals & DEBUG_TASK_OBTAIN_NET_WEIGHT_OK_SIGNAL)/*超时或者其他错误*/
- break;
- time+=DEBUG_TASK_WAIT_TIMEOUT;
- }
- if(time >= DEBUG_TASK_CMD_OBTAIN_NET_WEIGHT_TIMEOUT)
- {
-  APP_LOG_ERROR("电子秤获取净重超时错误.\r\n");
- }
- else
- {
- APP_LOG_INFO("电子秤设备获取净重成功.\r\n");
- }
- continue; 
+  }
+  origin_addr-='0'; 
+  APP_LOG_DEBUG("获取净重...\r\n");
+  
+  if(origin_addr==0)/*对所有的称*/
+  {
+  scale_start=1;
+  scale_end=SCALES_CNT_MAX;
+  }
+  else
+  {
+  scale_start=origin_addr; 
+  scale_end=scale_start;  
+  }
+  for(scale=scale_start;scale<=scale_end;scale++)
+  {
+  APP_LOG_DEBUG("%2d#电子秤获取净重...\r\n",scale);
+  err_code=eMBMasterReqReadHoldingRegister(scale,DEVICE_NET_WEIGHT_REG_ADDR,DEVICE_NET_WEIGHT_REG_CNT,DEBUG_TASK_WAIT_TIMEOUT);
+  /*执行成功*/
+  if(err_code==MB_MRE_NO_ERR)
+  {
+  uint16_t net_weight;
+  get_net_weight(scale,&net_weight);
+  APP_LOG_DEBUG("%2d#电子秤获取净重成功.净重值：%dg.\r\n",net_weight);
+  }
+  else
+  {
+  APP_LOG_ERROR("%2d#电子秤获取净重失败.\r\n",scale);
+  }
+  }
+  continue;
  }
  /*设备解锁*/
  cmd_len=strlen(DEBUG_TASK_CMD_UNLOCK_DEVICE);
@@ -140,28 +142,31 @@ void debug_task(void const * argument)
  }
  origin_addr-='0';
  APP_LOG_DEBUG("电子秤设备解锁...\r\n");
- 
- time=0;
- scale_msg.type=SCALE_FUNC_TASK_LOCK_MSG;
- scale_msg.scale=origin_addr;/*全部的电子秤*/
- scale_msg.param16=SCALE_UNLOCK_VALUE;
- /*向电子秤功能任务发送解锁消息*/
- while(time<DEBUG_TASK_CMD_UNLOCK_TIMEOUT)
+
+ param[0]=SCALE_UNLOCK_VALUE;
+ if(origin_addr==0)/*对所有的称*/
  {
- APP_LOG_DEBUG("向电子秤功能任务发送解锁消息.\r\n");
- osMessagePut(scale_func_msg_q_id,*(uint32_t*)&scale_msg,0);
- signal=osSignalWait(DEBUG_TASK_UNLOCK_DEVICE_OK_SIGNAL,DEBUG_TASK_WAIT_TIMEOUT);
- if(signal.status==osEventSignal && signal.value.signals & DEBUG_TASK_UNLOCK_DEVICE_OK_SIGNAL)/*收到ok信号*/
- break;
- time+=DEBUG_TASK_WAIT_TIMEOUT;
- }
- if(time >= DEBUG_TASK_CMD_UNLOCK_TIMEOUT)
- {
-  APP_LOG_ERROR("电子秤解锁超时.\r\n");
+ scale_start=1;
+ scale_end=SCALES_CNT_MAX;
  }
  else
  {
- APP_LOG_INFO("电子秤设备解锁成功.\r\n");
+ scale_start=origin_addr; 
+ scale_end=scale_start;  
+ }
+ for(scale=scale_start;scale<=scale_end;scale++)
+ {
+ APP_LOG_DEBUG("%2d#电子秤解锁...\r\n",scale);
+ err_code=eMBMasterReqWriteMultipleHoldingRegister(scale,DEVICE_LOCK_REG_ADDR,DEVICE_LOCK_REG_CNT,param,DEBUG_TASK_WAIT_TIMEOUT);
+    /*执行成功*/
+ if(err_code==MB_MRE_NO_ERR)
+ {
+  APP_LOG_DEBUG("%2d#电子秤解锁成功.\r\n",scale);
+ }
+ else
+ {
+ APP_LOG_ERROR("%2d#电子秤解锁失败.\r\n",scale);
+ }
  }
  continue;
  }
@@ -178,31 +183,158 @@ void debug_task(void const * argument)
  }
  origin_addr-='0';
  APP_LOG_DEBUG("电子秤设备上锁...\r\n");
- time=0;
- scale_msg.type=SCALE_FUNC_TASK_LOCK_MSG;
- scale_msg.scale=origin_addr;/*全部的电子秤*/
- scale_msg.param16=SCALE_LOCK_VALUE;
- /*向电子秤功能任务发送解锁消息*/
- while(time<DEBUG_TASK_CMD_LOCK_TIMEOUT)
+
+ param[0]=SCALE_LOCK_VALUE;
+ if(origin_addr==0)/*对所有的称*/
  {
- APP_LOG_DEBUG("向电子秤功能任务发送上锁消息.\r\n");
- osMessagePut(scale_func_msg_q_id,*(uint32_t*)&scale_msg,0);
- signal=osSignalWait(DEBUG_TASK_LOCK_DEVICE_OK_SIGNAL,DEBUG_TASK_WAIT_TIMEOUT);
- if(signal.status==osEventSignal && signal.value.signals & DEBUG_TASK_LOCK_DEVICE_OK_SIGNAL)/*收到ok信号*/
- break;
- time+=DEBUG_TASK_WAIT_TIMEOUT;
- }
- if(time >= DEBUG_TASK_CMD_LOCK_TIMEOUT)
- {
-  APP_LOG_ERROR("电子秤上锁超时.");
+ scale_start=1;
+ scale_end=SCALES_CNT_MAX;
  }
  else
  {
-  APP_LOG_INFO("电子秤设备上锁成功.");
+ scale_start=origin_addr; 
+ scale_end=scale_start;  
+ }
+ for(scale=scale_start;scale<=scale_end;scale++)
+ {
+ APP_LOG_DEBUG("%2d#电子秤上锁...\r\n",scale);
+ err_code=eMBMasterReqWriteMultipleHoldingRegister(scale,DEVICE_LOCK_REG_ADDR,DEVICE_LOCK_REG_CNT,param,DEBUG_TASK_WAIT_TIMEOUT);
+    /*执行成功*/
+ if(err_code==MB_MRE_NO_ERR)
+ {
+  APP_LOG_DEBUG("%2d#电子秤上锁成功.\r\n",scale);
+ }
+ else
+ {
+ APP_LOG_ERROR("%2d#电子秤上锁失败.\r\n",scale);
+ }
  }
  continue;
  }
-
+ /*去皮*/
+ cmd_len=strlen(DEBUG_TASK_CMD_REMOVE_TARE_WEIGHT);
+ if(memcmp((const char*)cmd,DEBUG_TASK_CMD_REMOVE_TARE_WEIGHT,cmd_len)==0)
+ { 
+ offset=cmd_len;
+ origin_addr=cmd[offset];
+ if(recv_len != cmd_len +DEBUG_TASK_CMD_REMOVE_TARE_WEIGHT_PARAM_LEN || origin_addr > '9' || origin_addr <'0')
+ {
+  APP_LOG_ERROR("命令长度或者设备地址值非法.地址范围1-9.\r\n");
+  continue;
+ }
+ origin_addr-='0';
+ APP_LOG_DEBUG("电子秤去皮...\r\n");
+ param[0]=SCALE_AUTO_TARE_WEIGHT_VALUE>>16;
+ param[1]=SCALE_AUTO_TARE_WEIGHT_VALUE&0xffff;
+ if(origin_addr==0)/*对所有的称*/
+ {
+ scale_start=1;
+ scale_end=SCALES_CNT_MAX;
+ }
+ else
+ {
+ scale_start=origin_addr; 
+ scale_end=scale_start;  
+ }
+ for(scale=scale_start;scale<=scale_end;scale++)
+ {
+ APP_LOG_DEBUG("%2d#电子秤去皮...\r\n",scale);
+ err_code=eMBMasterReqWriteMultipleHoldingRegister(scale,DEVICE_TARE_WEIGHT_REG_ADDR,DEVICE_TARE_WEIGHT_REG_CNT,param,DEBUG_TASK_WAIT_TIMEOUT);
+ /*执行成功*/
+ if(err_code==MB_MRE_NO_ERR)
+ {
+  APP_LOG_DEBUG("%2d#电子秤去皮成功.\r\n",scale);
+ }
+ else
+ {
+ APP_LOG_ERROR("%2d#电子秤去皮失败.\r\n",scale);
+ }
+ }
+ continue;
+ }
+ /*设置手动清零范围*/
+ cmd_len=strlen(DEBUG_TASK_CMD_ZERO_RANGE_SET);
+ if(memcmp((const char*)cmd,DEBUG_TASK_CMD_ZERO_RANGE_SET,cmd_len)==0)
+ { 
+ offset=cmd_len;
+ origin_addr=cmd[offset];
+ if(recv_len != cmd_len +DEBUG_TASK_CMD_ZERO_RANGE_SET_PARAM_LEN || origin_addr > '9' || origin_addr <'0')
+ {
+  APP_LOG_ERROR("命令长度或者设备地址值非法.地址范围0-9.\r\n");
+  continue;
+ }
+ origin_addr-='0';
+ APP_LOG_DEBUG("电子秤设置清零范围...\r\n");
+ 
+ param[0]=SCALE_ZERO_RANGE_VALUE;
+ if(origin_addr==0)/*对所有的称*/
+ {
+ scale_start=1;
+ scale_end=SCALES_CNT_MAX;
+ }
+ else
+ {
+ scale_start=origin_addr; 
+ scale_end=scale_start;  
+ }
+ for(scale=scale_start;scale<=scale_end;scale++)
+ {
+ APP_LOG_DEBUG("%2d#电子秤设置清零范围...\r\n",scale);
+ err_code=eMBMasterReqWriteMultipleHoldingRegister(scale,DEVICE_MANUALLY_CLEAR_RANGE_REG_ADDR,DEVICE_MANUALLY_CLEAR_RANGE_REG_CNT,param,DEBUG_TASK_WAIT_TIMEOUT);
+ /*执行成功*/
+ if(err_code==MB_MRE_NO_ERR)
+ {
+  APP_LOG_DEBUG("%2d#电子秤设置清零范围成功.\r\n",scale);
+ }
+ else
+ {
+ APP_LOG_ERROR("%2d#电子秤设置清零范围失败.\r\n",scale);
+ }
+ }
+ continue;
+ }
+ /*手动清零*/
+ cmd_len=strlen(DEBUG_TASK_CMD_CLEAR_ZERO);
+ if(memcmp((const char*)cmd,DEBUG_TASK_CMD_CLEAR_ZERO,cmd_len)==0)
+ { 
+ offset=cmd_len;
+ origin_addr=cmd[offset];
+ if(recv_len != cmd_len +DEBUG_TASK_CMD_CLEAR_ZERO_PARAM_LEN || origin_addr > '9' || origin_addr <'0')
+ {
+  APP_LOG_ERROR("命令长度或者设备地址值非法.地址范围0-9.\r\n");
+  continue;
+ }
+ origin_addr-='0';
+ APP_LOG_DEBUG("电子秤清零...\r\n");
+ 
+ param[0]=SCALE_CLEAR_ZERO_VALUE;
+ if(origin_addr==0)/*对所有的称*/
+ {
+ scale_start=1;
+ scale_end=SCALES_CNT_MAX;
+ }
+ else
+ {
+ scale_start=origin_addr; 
+ scale_end=scale_start;  
+ }
+ for(scale=scale_start;scale<=scale_end;scale++)
+ {
+ APP_LOG_DEBUG("%2d#电子秤清零...\r\n",scale);
+ err_code=eMBMasterReqWriteMultipleHoldingRegister(scale,DEVICE_MANUALLY_CLEAR_REG_ADDR,DEVICE_MANUALLY_CLEAR_REG_CNT,param,DEBUG_TASK_WAIT_TIMEOUT);
+ /*执行成功*/
+ if(err_code==MB_MRE_NO_ERR)
+ {
+  APP_LOG_DEBUG("%2d#电子秤清零成功.\r\n",scale);
+ }
+ else
+ {
+ APP_LOG_ERROR("%2d#电子秤清零失败.\r\n",scale);
+ }
+ }
+ continue;
+ }
+ 
  /*设置最大称重值*/
  cmd_len=strlen(DEBUG_TASK_CMD_SET_MAX_WEIGHT);
  if(memcmp((const char*)cmd,DEBUG_TASK_CMD_SET_MAX_WEIGHT,cmd_len)==0)
@@ -217,30 +349,36 @@ void debug_task(void const * argument)
  origin_addr-='0';
  APP_LOG_DEBUG("电子秤设置最大称重值...\r\n");
  
- time=0;
- scale_msg.type=SCALE_FUNC_TASK_SET_MAX_WEIGHT_MSG;
- scale_msg.scale=origin_addr;/*电子秤地址*/
- scale_msg.param16=SCALE_MAX_WEIGHT_VALUE;
- /*向电子秤功能任务发送设置最大称重值消息*/
- while(time<DEBUG_TASK_CMD_SET_MAX_WEIGHT_TIMEOUT)
+ param[0]=0;
+ param[1]=SCALE_MAX_WEIGHT_VALUE;
+ 
+ if(origin_addr==0)/*对所有的称*/
  {
- APP_LOG_DEBUG("向电子秤功能任务发送设置最大值消息.\r\n");
- osMessagePut(scale_func_msg_q_id,*(uint32_t*)&scale_msg,0);
- signal=osSignalWait(DEBUG_TASK_SET_MAX_WEIGHT_OK_SIGNAL,DEBUG_TASK_WAIT_TIMEOUT);
- if(signal.status==osEventSignal && signal.value.signals & DEBUG_TASK_SET_MAX_WEIGHT_OK_SIGNAL)/*收到ok信号*/
- break;
- time+=DEBUG_TASK_WAIT_TIMEOUT;
- }
- if(time >= DEBUG_TASK_CMD_SET_MAX_WEIGHT_TIMEOUT)
- {
-  APP_LOG_ERROR("电子秤设置最大称重值超时.\r\n");
+ scale_start=1;
+ scale_end=SCALES_CNT_MAX;
  }
  else
  {
-  APP_LOG_INFO("电子秤设置最大称重值成功.\r\n");
+ scale_start=origin_addr; 
+ scale_end=scale_start;  
+ }
+ for(scale=scale_start;scale<=scale_end;scale++)
+ {
+ APP_LOG_DEBUG("%2d#电子秤设置最大称重值...\r\n",scale);
+ err_code=eMBMasterReqWriteMultipleHoldingRegister(scale,DEVICE_MAX_WEIGHT_REG_ADDR,DEVICE_MAX_WEIGHT_REG_CNT,param,DEBUG_TASK_WAIT_TIMEOUT);
+    /*执行成功*/
+ if(err_code==MB_MRE_NO_ERR)
+ {
+  APP_LOG_DEBUG("%2d#电子秤设置最大称重值成功.\r\n",scale);
+ }
+ else
+ {
+ APP_LOG_ERROR("%2d#电子秤设置最大称重值失败.\r\n",scale);
+ }
  }
  continue;
  }
+ 
  /*设置分度值*/
  cmd_len=strlen(DEBUG_TASK_CMD_SET_DIVISION);
  if(memcmp((const char*)cmd,DEBUG_TASK_CMD_SET_DIVISION,cmd_len)==0)
@@ -255,30 +393,35 @@ void debug_task(void const * argument)
  origin_addr-='0';
  APP_LOG_DEBUG("电子秤设置分度值...\r\n");
  
- time=0;
- scale_msg.type=SCALE_FUNC_TASK_SET_DIVISION_MSG;
- scale_msg.scale=origin_addr;/*电子秤地址*/
- scale_msg.param16=SCALE_DIVISION_VALUE;
- /*向电子秤功能任务发送设置分度值消息*/
- while(time<DEBUG_TASK_CMD_SET_DIVISION_TIMEOUT)
+ param[0]=SCALE_DIVISION_VALUE;
+ 
+ if(origin_addr==0)/*对所有的称*/
  {
- APP_LOG_DEBUG("向电子秤功能任务发送设置分度消息.\r\n");
- osMessagePut(scale_func_msg_q_id,*(uint32_t*)&scale_msg,0);
- signal=osSignalWait(DEBUG_TASK_SET_DIVISION_OK_SIGNAL,DEBUG_TASK_WAIT_TIMEOUT);
- if(signal.status==osEventSignal && signal.value.signals & DEBUG_TASK_SET_DIVISION_OK_SIGNAL)/*收到ok信号*/
- break;
- time+=DEBUG_TASK_WAIT_TIMEOUT;
- }
- if(time >= DEBUG_TASK_CMD_SET_DIVISION_TIMEOUT)
- {
-  APP_LOG_ERROR("电子秤设置分度值超时.\r\n");
+ scale_start=1;
+ scale_end=SCALES_CNT_MAX;
  }
  else
  {
-  APP_LOG_INFO("电子秤设置分度值成功.\r\n");
+ scale_start=origin_addr; 
+ scale_end=scale_start;  
+ }
+ for(scale=scale_start;scale<=scale_end;scale++)
+ {
+ APP_LOG_DEBUG("%2d#电子秤设置分度值...\r\n",scale);
+ err_code=eMBMasterReqWriteMultipleHoldingRegister(scale,DEVICE_DIVISION_REG_ADDR,DEVICE_DIVISION_REG_CNT,param,DEBUG_TASK_WAIT_TIMEOUT);
+    /*执行成功*/
+ if(err_code==MB_MRE_NO_ERR)
+ {
+  APP_LOG_DEBUG("%2d#电子秤设置分度值成功.\r\n",scale);
+ }
+ else
+ {
+ APP_LOG_ERROR("%2d#电子秤设置分度值失败.\r\n",scale);
+ }
  }
  continue;
  }
+ 
  /*设置校准值*/
  cmd_len=strlen(DEBUG_TASK_CMD_CALIBRATE_WEIGHT);
  if(memcmp((const char*)cmd,DEBUG_TASK_CMD_CALIBRATE_WEIGHT,cmd_len)==0)
@@ -302,32 +445,50 @@ void debug_task(void const * argument)
  }
  origin_addr=cmd[offset];
  value=cmd[offset+1]*10000+cmd[offset+2]*1000+cmd[offset+3]*100+cmd[offset+4]*10+cmd[offset+5];
- APP_LOG_DEBUG("电子秤设置校准值...\r\n");
- time=0;
- scale_msg.type=SCALE_FUNC_TASK_CALIBRATE_WEIGHT_MSG;
- scale_msg.scale=origin_addr;/*电子秤地址*/
- scale_msg.param16=value;
- /*向电子秤功能任务发送校准重量消息*/
- while(time<DEBUG_TASK_CMD_CALIBRATE_WEIGHT_TIMEOUT)
+ APP_LOG_DEBUG("电子秤校准...\r\n");
+ 
+ param[0]=0;
+ param[1]=value;
+ if(param[1]==0)
  {
- APP_LOG_DEBUG("向电子秤功能任务发送设置校准值消息.\r\n");
- osMessagePut(scale_func_msg_q_id,*(uint32_t*)&scale_msg,0);
- signal=osSignalWait(DEBUG_TASK_CALIBRATE_WEIGHT_OK_SIGNAL,DEBUG_TASK_WAIT_TIMEOUT);
- if(signal.status==osEventSignal && signal.value.signals & DEBUG_TASK_CALIBRATE_WEIGHT_OK_SIGNAL)/*收到ok信号*/
- break;
- time+=DEBUG_TASK_WAIT_TIMEOUT;
- }
- if(time >= DEBUG_TASK_CMD_CALIBRATE_WEIGHT_TIMEOUT)
- {
-  APP_LOG_ERROR("电子秤校准重量超时.\r\n");
+ reg_addr=DEVICE_ZERO_CALIBRATE_REG_ADDR;
+ reg_cnt=DEVICE_ZERO_CALIBRATE_REG_CNT;
+ APP_LOG_DEBUG("0点重量校准.\r\n");
  }
  else
  {
-  APP_LOG_INFO("电子秤校准重量成功.\r\n");
+ reg_addr=DEVICE_SPAN_CALIBRATE_REG_ADDR;
+ reg_cnt=DEVICE_SPAN_CALIBRATE_REG_CNT;
+ APP_LOG_DEBUG("非0点重量校准.\r\n");
+ }
+ if(origin_addr==0)/*对所有的称*/
+ {
+ scale_start=1;
+ scale_end=SCALES_CNT_MAX;
+ }
+ else
+ {
+ scale_start=origin_addr; 
+ scale_end=scale_start;  
+ }
+ for(scale=scale_start;scale<=scale_end;scale++)
+ {
+ APP_LOG_DEBUG("%2d#电子秤校准...\r\n",scale); 
+ err_code=eMBMasterReqWriteMultipleHoldingRegister(scale,reg_addr,reg_cnt,param,DEBUG_TASK_WAIT_TIMEOUT);
+    /*执行成功*/
+ if(err_code==MB_MRE_NO_ERR)
+ {
+  APP_LOG_DEBUG("%2d#电子秤校准成功.\r\n",scale);
+ }
+ else
+ {
+  APP_LOG_ERROR("%2d#电子秤校准失败.\r\n",scale);
+ }
  }
 err_handle:
  continue;
  }
+
  /*打开压缩机*/
  cmd_len=strlen(DEBUG_TASK_CMD_PWR_ON_COMPRESSOR);
  if(memcmp((const char*)cmd,DEBUG_TASK_CMD_PWR_ON_COMPRESSOR,cmd_len)==0)
@@ -453,12 +614,12 @@ err_handle:
  }
  int8_t t;
  offset=cmd_len;
- if(cmd[offset]!='0')/*0代表所有温度计平均值*/
-   t=get_average_temperature();
- else if(cmd[offset]!='1')
-   t=get_temperature(0);
- else if(cmd[offset]!='2')
-   t=get_temperature(1);
+ if(cmd[offset]=='0')/*0代表所有温度计平均值*/
+ t=get_average_temperature();
+ else if(cmd[offset]=='1')
+ t=get_temperature(0);
+ else if(cmd[offset]=='2')
+ t=get_temperature(1);
  else
  {
   APP_LOG_ERROR("温度命令参数%2d非法.0-1-2之一.\r\n",cmd[offset]);

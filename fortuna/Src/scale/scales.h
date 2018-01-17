@@ -19,6 +19,7 @@ fortuna_bool_t get_net_weight(uint8_t sclae,uint16_t *ptr_net_weight);
 #define  SCALE_AUTO_TARE_WEIGHT_VALUE          0x7fffffff
 #define  SCALE_CLEAR_ZERO_VALUE                0x01                     
 #define  SCALE_RESET_VALUE                     0x55
+#define  SCALE_ZERO_RANGE_VALUE                80/*%80最大量程值都可以手动清零*/
 
 
 /*称重传感器寄存器地址*/

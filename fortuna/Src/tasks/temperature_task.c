@@ -30,7 +30,7 @@ static void check_temperature()
  {
   if(temperature[i] == NTC_ERROR_T_VALUE)
  {
-  APP_LOG_ERROR("#%d 温度计断线或者短路错误.\r\n",i); 
+  APP_LOG_ERROR("#%d 温度计断线或者短路错误.\r\n",i+1); 
  }
  }
 }
@@ -39,7 +39,7 @@ int8_t get_temperature(uint8_t t_idx)
 {
  if(t_idx > TEMPERATURE_CNT-1)
  {
-  APP_LOG_ERROR("没有这个温度传感器.\r\n");
+  APP_LOG_ERROR("没有这个温度传感器-%d.\r\n",t_idx);
   return NTC_ERROR_T_VALUE;
  }
  return temperature[t_idx];

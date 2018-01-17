@@ -8,6 +8,9 @@ void debug_task(void const * argument);
 #define  DEBUG_TASK_CMD_EOL_LEN                         2/*调试时字符串结束符号长度*/
 
 #define  DEBUG_TASK_CMD_SET_ADDR_PARAM_LEN              2
+#define  DEBUG_TASK_CMD_REMOVE_TARE_WEIGHT_PARAM_LEN    1
+#define  DEBUG_TASK_CMD_ZERO_RANGE_SET_PARAM_LEN        1
+#define  DEBUG_TASK_CMD_CLEAR_ZERO_PARAM_LEN            1
 #define  DEBUG_TASK_CMD_OBTAIN_NET_WEIGHT_PARAM_LEN     1
 #define  DEBUG_TASK_CMD_UNLOCK_DEVICE_PARAM_LEN         1
 #define  DEBUG_TASK_CMD_LOCK_DEVICE_PARAM_LEN           1
@@ -36,6 +39,9 @@ void debug_task(void const * argument);
 #define  DEBUG_TASK_CMD_OBTAIN_NET_WEIGHT              "获取净重" 
 #define  DEBUG_TASK_CMD_UNLOCK_DEVICE                  "解锁设备"
 #define  DEBUG_TASK_CMD_LOCK_DEVICE                    "上锁设备" 
+#define  DEBUG_TASK_CMD_REMOVE_TARE_WEIGHT             "去皮"
+#define  DEBUG_TASK_CMD_ZERO_RANGE_SET                 "设置清零范围"
+#define  DEBUG_TASK_CMD_CLEAR_ZERO                     "清零"
 #define  DEBUG_TASK_CMD_SET_MAX_WEIGHT                 "设置最大值" 
 #define  DEBUG_TASK_CMD_SET_DIVISION                   "设置分度值"
 #define  DEBUG_TASK_CMD_CALIBRATE_WEIGHT               "校准重量"

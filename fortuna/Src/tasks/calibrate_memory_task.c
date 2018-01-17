@@ -72,7 +72,11 @@ static void calibrate_memory_task_init()
  calibrate.buff[i].idx_max=CALIBRATE_MEMORY_DISPLAY_NUM_MAX;
  calibrate.buff[i].idx=CALIBRATE_MEMORY_DISPLAY_NUM_MIN;
  }
-
+ /*显示缓存第一个表示称号 需要加上小数点*/
+ for(uint8_t i=0;i<DISPLAY_LED_POS_CNT;i++)
+ calibrate_dis_buff[i].dp=FORTUNA_FALSE;
+ 
+ calibrate_dis_buff[0].dp=FORTUNA_TRUE;
 }
 /*外部使用*/
 uint8_t get_calibrate_memory_calibrate_idx()
@@ -109,6 +113,8 @@ void calibrate_memory_task(void const * argument)
   /*开始校准 闪烁对应的位*/
   if(signal.value.signals & CALIBRATE_MEMORY_TASK_CALIBRATE_START_SIGNAL)
   {
+  /*设置进入校准时默认闪烁位置*/
+  calibrate.pos.idx=calibrate.pos.idx_min;
   /*更新闪烁标志*/
   calibrate.flash_flag=1<<(calibrate.pos.idx);
   calibrate.cur_flash_time=0;

@@ -42,12 +42,14 @@ comm_status_t comm_send_fsm(uint8_t *ptr_buff,uint8_t send_len);
 /*通信任务子函数信号*/
 #define  COMM_TASK_CLEAR_SCALE_TARE_WEIGHT_OK_SIGNAL  (1<<5)
 #define  COMM_TASK_CLEAR_SCALE_TARE_WEIGHT_ERR_SIGNAL (1<<6)
-#define  COMM_TASK_CALIBRATE_SCALE_WEIGHT_OK_SIGNAL   (1<<7)
-#define  COMM_TASK_CALIBRATE_SCALE_WEIGHT_ERR_SIGNAL  (1<<8)
-#define  COMM_TASK_UNLOCK_LOCK_OK_SIGNAL              (1<<9)
-#define  COMM_TASK_UNLOCK_LOCK_ERR_SIGNAL             (1<<10)
-#define  COMM_TASK_LOCK_LOCK_OK_SIGNAL                (1<<11)
-#define  COMM_TASK_LOCK_LOCK_ERR_SIGNAL               (1<<12)
+#define  COMM_TASK_CLEAR_ZERO_OK_SIGNAL               (1<<7)
+#define  COMM_TASK_CLEAR_ZERO_ERR_SIGNAL              (1<<8)
+#define  COMM_TASK_CALIBRATE_SCALE_WEIGHT_OK_SIGNAL   (1<<9)
+#define  COMM_TASK_CALIBRATE_SCALE_WEIGHT_ERR_SIGNAL  (1<<10)
+#define  COMM_TASK_UNLOCK_LOCK_OK_SIGNAL              (1<<11)
+#define  COMM_TASK_UNLOCK_LOCK_ERR_SIGNAL             (1<<12)
+#define  COMM_TASK_LOCK_LOCK_OK_SIGNAL                (1<<13)
+#define  COMM_TASK_LOCK_LOCK_ERR_SIGNAL               (1<<14)
 
 
 /*通信任务子函数超时时间*/
