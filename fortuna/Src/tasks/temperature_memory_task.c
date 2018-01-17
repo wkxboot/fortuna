@@ -27,21 +27,26 @@ void temperature_memory_task(void const * argument)
  {
  osDelay(TEMPERATURE_MEMORY_TASK_INTERVAL);
  t=get_average_temperature();
- if(t<0)
+ if(t<0 || t==TEMPERATURE_TASK_ERR_T_VALUE ||t >=100)/*只显示两位*/
  {
- t_dis_buff[0].num=DISPLAY_LED_NEGATIVE_NUM;
- t*=-1;/*需要变换成正数*/
+ t_dis_buff[0].num=0x0F;
+ t_dis_buff[0].dp=FORTUNA_TRUE;
+ t_dis_buff[1].num=0x0F;
+ t_dis_buff[1].dp=FORTUNA_TRUE;
  }
  else
- t_dis_buff[0].num=DISPLAY_LED_NULL_NUM;  
- 
- t_dis_buff[1].num=DISPLAY_LED_NULL_NUM;
+ {
+ t_dis_buff[0].num=t/10;  
+ t_dis_buff[0].dp=FORTUNA_FALSE;
+ t_dis_buff[1].num=t%10;  
+ t_dis_buff[1].dp=FORTUNA_FALSE;
+ }
  t_dis_buff[2].num=DISPLAY_LED_NULL_NUM;
  t_dis_buff[3].num=DISPLAY_LED_NULL_NUM;
- t_dis_buff[4].num=t/10;
- t_dis_buff[5].num=t%10;
- /*消0*/
- if(t_dis_buff[4].num==0)
  t_dis_buff[4].num=DISPLAY_LED_NULL_NUM;
+ t_dis_buff[5].num=DISPLAY_LED_NULL_NUM;
+ /*消0*/
+ if(t_dis_buff[0].num==0)
+ t_dis_buff[0].num=DISPLAY_LED_NULL_NUM;
  }
 }

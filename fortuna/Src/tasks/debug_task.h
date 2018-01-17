@@ -61,10 +61,10 @@ void debug_task(void const * argument);
 #define  DEBUG_TASK_CMD_PWR_ON_LOCK_LED                "打开门灯"
 #define  DEBUG_TASK_CMD_PWR_OFF_LOCK_LED               "关闭门灯"
 
-
+#define  DEBUG_TASK_WAIT_TIMEOUT                       100
 
 /*调试任务超时值定义*/
-#define  DEBUG_TASK_WAIT_TIMEOUT                       100
+/*
 #define  DEBUG_TASK_CMD_UNLOCK_TIMEOUT                 1000
 #define  DEBUG_TASK_CMD_LOCK_TIMEOUT                   1000
 #define  DEBUG_TASK_CMD_SET_ADDR_TIMEOUT               1000
@@ -72,8 +72,11 @@ void debug_task(void const * argument);
 #define  DEBUG_TASK_CMD_SET_MAX_WEIGHT_TIMEOUT         1000
 #define  DEBUG_TASK_CMD_SET_DIVISION_TIMEOUT           1000
 #define  DEBUG_TASK_CMD_CALIBRATE_WEIGHT_TIMEOUT       1000
+*/
 
 /*调试任务信号*/
+
+/*
 #define  DEBUG_TASK_SET_ADDR_OK_SIGNAL                (1<<0)
 #define  DEBUG_TASK_SET_ADDR_ERR_SIGNAL               (1<<1)
 #define  DEBUG_TASK_OBTAIN_NET_WEIGHT_OK_SIGNAL       (1<<2)
@@ -90,7 +93,7 @@ void debug_task(void const * argument);
 #define  DEBUG_TASK_CALIBRATE_WEIGHT_ERR_SIGNAL       (1<<13)
 #define  DEBUG_TASK_ALL_SIGNALS                       ((1<<14)-1)
 
-
+*/
 
 
 #endif

@@ -74,7 +74,7 @@ switch_mode_info_t switch_info=
 {
  /*按键模式信息初始化*/
 .idx=0,
-.idx_max=SWITCH_MODE_CNT,
+.idx_max=SWITCH_MODE_CNT-1,
 .mode[0]=SWITCH_MODE_NORMAL,
 .mode[1]=SWITCH_MODE_CALIBRATE,
 .ptr_dis_buff[0]=w_dis_buff,
@@ -133,7 +133,13 @@ static void w_sw_long_press_normal()
 /*校准状态下重量选择按键短按和长按功能函数*/
 static void w_sw_short_press_calibrate()
 {
- APP_LOG_DEBUG("重量选择按键校准状态下无短按功能.\r\n"); 
+ APP_LOG_DEBUG("重量选择按键校准状态下短按.放弃校准.\r\n"); 
+ if(switch_info.idx >=switch_info.idx_max)
+  switch_info.idx=0;
+ else
+  switch_info.idx++;
+ /*更新模式对应的显示缓存指针*/
+  ptr_buff=switch_info.ptr_dis_buff[switch_info.idx];
 }
 static void w_sw_long_press_calibrate()
 {
@@ -152,9 +158,11 @@ static void calibrate_sw_long_press_normal()
  eMBMasterReqErrCode err_code;
  uint16_t param[2];
  uint16_t reg_addr,reg_cnt;
- switch_info.idx++;
+ 
  if(switch_info.idx >=switch_info.idx_max)
   switch_info.idx=0;
+ else
+  switch_info.idx++;
 
  if(switch_info.mode[switch_info.idx]==SWITCH_MODE_NORMAL)
  {
@@ -363,8 +371,19 @@ void switch_task(void const * argument)
  sw[TARE_SWITCH_IDX].cur_state=BSP_get_func1_sw_state();
  sw[ZERO_SWITCH_IDX].cur_state=BSP_get_func2_sw_state();
  
- /*处理按键的状态*/
- for(uint8_t i=0;i<SWITCH_CNT;i++)
+/*重量和温度选择没有实体按键 特殊处理 只在正常状态下有效*/
+ if(sw[WT_SWITCH_IDX].cur_state==SW_STATE_PRESS)
+ {
+   if(ptr_buff==t_dis_buff)
+     ptr_buff=switch_info.ptr_dis_buff[switch_info.idx];
+ }
+ else
+ {
+   if(ptr_buff!=t_dis_buff)
+    ptr_buff=t_dis_buff;
+ }
+ /*除去温度和重量切换按键 处理其他按键的状态*/
+ for(uint8_t i=W_SWITCH_IDX;i<SWITCH_CNT;i++)
  {
  if(sw[i].pre_state!=sw[i].cur_state)
  {
@@ -378,11 +397,13 @@ void switch_task(void const * argument)
    if(sw[i].hold_time>=sw[i].long_press_time)/*长按释放*/
    {
     /*执行对应的长按功能*/
+    if(sw[i].long_press[switch_info.idx])
     sw[i].long_press[switch_info.idx](); 
    }
    else if(sw[i].hold_time>=sw[i].short_press_time)/*短按释放*/
    {
     /*执行对应短按的功能*/
+    if(sw[i].short_press[switch_info.idx])
     sw[i].short_press[switch_info.idx]();   
    }
    sw[i].hold_time=0;

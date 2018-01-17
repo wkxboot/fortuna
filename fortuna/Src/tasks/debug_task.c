@@ -29,14 +29,29 @@ osThreadId debug_task_hdl;
 uint8_t cmd[DEBUG_CMD_MAX_LEN];
 
 
-uint16_t data_cnt;
-uint8_t origin_addr,new_addr,offset,cmd_len,recv_len;
-uint16_t time;
+static uint16_t data_cnt;
+static uint8_t origin_addr,new_addr,offset,cmd_len,recv_len;
+static uint8_t scale,scale_end,scale_start;
+
+static void debug_task_check_addr(uint8_t origin_addr)
+{
+  if(origin_addr==0)/*对所有的称*/
+  {
+  scale_start=1;
+  scale_end=SCALES_CNT_MAX;
+  }
+  else
+  {
+  scale_start=origin_addr; 
+  scale_end=scale_start;  
+  }
+}
+
 /*RTT调试任务*/
 void debug_task(void const * argument)
 {
  uint8_t debug_enable=FORTUNA_TRUE;
- uint8_t scale,scale_end,scale_start;
+
  uint16_t param[2];
  uint16_t reg_addr,reg_cnt;
  eMBMasterReqErrCode err_code;
@@ -101,16 +116,7 @@ void debug_task(void const * argument)
   origin_addr-='0'; 
   APP_LOG_DEBUG("获取净重...\r\n");
   
-  if(origin_addr==0)/*对所有的称*/
-  {
-  scale_start=1;
-  scale_end=SCALES_CNT_MAX;
-  }
-  else
-  {
-  scale_start=origin_addr; 
-  scale_end=scale_start;  
-  }
+  debug_task_check_addr(origin_addr);
   for(scale=scale_start;scale<=scale_end;scale++)
   {
   APP_LOG_DEBUG("%2d#电子秤获取净重...\r\n",scale);
@@ -144,16 +150,7 @@ void debug_task(void const * argument)
  APP_LOG_DEBUG("电子秤设备解锁...\r\n");
 
  param[0]=SCALE_UNLOCK_VALUE;
- if(origin_addr==0)/*对所有的称*/
- {
- scale_start=1;
- scale_end=SCALES_CNT_MAX;
- }
- else
- {
- scale_start=origin_addr; 
- scale_end=scale_start;  
- }
+ debug_task_check_addr(origin_addr);
  for(scale=scale_start;scale<=scale_end;scale++)
  {
  APP_LOG_DEBUG("%2d#电子秤解锁...\r\n",scale);
@@ -185,16 +182,7 @@ void debug_task(void const * argument)
  APP_LOG_DEBUG("电子秤设备上锁...\r\n");
 
  param[0]=SCALE_LOCK_VALUE;
- if(origin_addr==0)/*对所有的称*/
- {
- scale_start=1;
- scale_end=SCALES_CNT_MAX;
- }
- else
- {
- scale_start=origin_addr; 
- scale_end=scale_start;  
- }
+ debug_task_check_addr(origin_addr);
  for(scale=scale_start;scale<=scale_end;scale++)
  {
  APP_LOG_DEBUG("%2d#电子秤上锁...\r\n",scale);
@@ -226,16 +214,7 @@ void debug_task(void const * argument)
  APP_LOG_DEBUG("电子秤去皮...\r\n");
  param[0]=SCALE_AUTO_TARE_WEIGHT_VALUE>>16;
  param[1]=SCALE_AUTO_TARE_WEIGHT_VALUE&0xffff;
- if(origin_addr==0)/*对所有的称*/
- {
- scale_start=1;
- scale_end=SCALES_CNT_MAX;
- }
- else
- {
- scale_start=origin_addr; 
- scale_end=scale_start;  
- }
+ debug_task_check_addr(origin_addr);
  for(scale=scale_start;scale<=scale_end;scale++)
  {
  APP_LOG_DEBUG("%2d#电子秤去皮...\r\n",scale);
@@ -267,16 +246,7 @@ void debug_task(void const * argument)
  APP_LOG_DEBUG("电子秤设置清零范围...\r\n");
  
  param[0]=SCALE_ZERO_RANGE_VALUE;
- if(origin_addr==0)/*对所有的称*/
- {
- scale_start=1;
- scale_end=SCALES_CNT_MAX;
- }
- else
- {
- scale_start=origin_addr; 
- scale_end=scale_start;  
- }
+ debug_task_check_addr(origin_addr);
  for(scale=scale_start;scale<=scale_end;scale++)
  {
  APP_LOG_DEBUG("%2d#电子秤设置清零范围...\r\n",scale);
@@ -308,16 +278,7 @@ void debug_task(void const * argument)
  APP_LOG_DEBUG("电子秤清零...\r\n");
  
  param[0]=SCALE_CLEAR_ZERO_VALUE;
- if(origin_addr==0)/*对所有的称*/
- {
- scale_start=1;
- scale_end=SCALES_CNT_MAX;
- }
- else
- {
- scale_start=origin_addr; 
- scale_end=scale_start;  
- }
+ debug_task_check_addr(origin_addr);
  for(scale=scale_start;scale<=scale_end;scale++)
  {
  APP_LOG_DEBUG("%2d#电子秤清零...\r\n",scale);
@@ -352,16 +313,7 @@ void debug_task(void const * argument)
  param[0]=0;
  param[1]=SCALE_MAX_WEIGHT_VALUE;
  
- if(origin_addr==0)/*对所有的称*/
- {
- scale_start=1;
- scale_end=SCALES_CNT_MAX;
- }
- else
- {
- scale_start=origin_addr; 
- scale_end=scale_start;  
- }
+ debug_task_check_addr(origin_addr);
  for(scale=scale_start;scale<=scale_end;scale++)
  {
  APP_LOG_DEBUG("%2d#电子秤设置最大称重值...\r\n",scale);
@@ -395,16 +347,7 @@ void debug_task(void const * argument)
  
  param[0]=SCALE_DIVISION_VALUE;
  
- if(origin_addr==0)/*对所有的称*/
- {
- scale_start=1;
- scale_end=SCALES_CNT_MAX;
- }
- else
- {
- scale_start=origin_addr; 
- scale_end=scale_start;  
- }
+ debug_task_check_addr(origin_addr);
  for(scale=scale_start;scale<=scale_end;scale++)
  {
  APP_LOG_DEBUG("%2d#电子秤设置分度值...\r\n",scale);
@@ -461,16 +404,7 @@ void debug_task(void const * argument)
  reg_cnt=DEVICE_SPAN_CALIBRATE_REG_CNT;
  APP_LOG_DEBUG("非0点重量校准.\r\n");
  }
- if(origin_addr==0)/*对所有的称*/
- {
- scale_start=1;
- scale_end=SCALES_CNT_MAX;
- }
- else
- {
- scale_start=origin_addr; 
- scale_end=scale_start;  
- }
+ debug_task_check_addr(origin_addr);
  for(scale=scale_start;scale<=scale_end;scale++)
  {
  APP_LOG_DEBUG("%2d#电子秤校准...\r\n",scale); 
