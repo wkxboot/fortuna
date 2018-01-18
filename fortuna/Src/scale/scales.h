@@ -15,12 +15,13 @@ fortuna_bool_t get_net_weight(uint8_t sclae,uint16_t *ptr_net_weight);
 #define  SCALE_UNLOCK_VALUE                    0x5AA5   
 #define  SCALE_LOCK_VALUE                      0x0000/*其他任意值*/  
 #define  SCALE_MAX_WEIGHT_VALUE                30000/*30kg*/
-#define  SCALE_DIVISION_VALUE                  0x0C/*1g*/
+#define  SCALE_DIVISION_VALUE                  0x03/*1g*/
 #define  SCALE_AUTO_TARE_WEIGHT_VALUE          0x7fffffff
+#define  SCALE_AUTO_CODE_VALUE                 0x7fffffff
 #define  SCALE_CLEAR_ZERO_VALUE                0x01                     
 #define  SCALE_RESET_VALUE                     0x55
 #define  SCALE_ZERO_RANGE_VALUE                80/*%80最大量程值都可以手动清零*/
-
+#define  SCALE_INVALID_WEIGHT_VALUE            0xFFFF
 
 /*称重传感器寄存器地址*/
 #define  M_DISCRETE_INPUT_START                0

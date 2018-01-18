@@ -126,7 +126,7 @@ void debug_task(void const * argument)
   {
   uint16_t net_weight;
   get_net_weight(scale,&net_weight);
-  APP_LOG_DEBUG("%2d#电子秤获取净重成功.净重值：%dg.\r\n",net_weight);
+  APP_LOG_DEBUG("%2d#电子秤获取净重成功.净重值：%dg.\r\n",scale,net_weight);
   }
   else
   {
@@ -143,7 +143,7 @@ void debug_task(void const * argument)
  origin_addr=cmd[offset];
  if(recv_len != cmd_len +DEBUG_TASK_CMD_UNLOCK_DEVICE_PARAM_LEN || origin_addr > '9' || origin_addr <'0')
  {
-  APP_LOG_ERROR("命令长度或者设备地址值非法.地址范围1-9.\r\n");
+  APP_LOG_ERROR("命令长度或者设备地址值非法.地址范围0-9.\r\n");
   continue;
  }
  origin_addr-='0';
@@ -175,7 +175,7 @@ void debug_task(void const * argument)
  origin_addr=cmd[offset];
  if(recv_len != cmd_len+DEBUG_TASK_CMD_LOCK_DEVICE_PARAM_LEN ||origin_addr > '9' || origin_addr <'0')
  {
-  APP_LOG_ERROR("命令长度或者设备地址值非法.地址范围1-9.\r\n");
+  APP_LOG_ERROR("命令长度或者设备地址值非法.地址范围0-9.\r\n");
   continue;
  }
  origin_addr-='0';
@@ -207,7 +207,7 @@ void debug_task(void const * argument)
  origin_addr=cmd[offset];
  if(recv_len != cmd_len +DEBUG_TASK_CMD_REMOVE_TARE_WEIGHT_PARAM_LEN || origin_addr > '9' || origin_addr <'0')
  {
-  APP_LOG_ERROR("命令长度或者设备地址值非法.地址范围1-9.\r\n");
+  APP_LOG_ERROR("命令长度或者设备地址值非法.地址范围0-9.\r\n");
   continue;
  }
  origin_addr-='0';
@@ -304,7 +304,7 @@ void debug_task(void const * argument)
  origin_addr=cmd[offset];
  if(recv_len !=cmd_len + DEBUG_TASK_CMD_SET_MAX_WEIGHT_PARAM_LEN || origin_addr > '9' || origin_addr <'0')
  {
-  APP_LOG_ERROR("命令长度或者设备地址值非法.地址范围1-9.\r\n");
+  APP_LOG_ERROR("命令长度或者设备地址值非法.地址范围0-9.\r\n");
   continue;
  }
  origin_addr-='0';
@@ -339,7 +339,7 @@ void debug_task(void const * argument)
  origin_addr=cmd[offset];
  if(recv_len != cmd_len +DEBUG_TASK_CMD_SET_DIVISION_PARAM_LEN || origin_addr > '9' || origin_addr <'0')
  {
-  APP_LOG_ERROR("命令长度或者设备地址值非法.地址范围1-9.\r\n");
+  APP_LOG_ERROR("命令长度或者设备地址值非法.地址范围0-9.\r\n");
   continue;
  }
  origin_addr-='0';
@@ -365,6 +365,121 @@ void debug_task(void const * argument)
  continue;
  }
  
+/*设置内码值*/
+ cmd_len=strlen(DEBUG_TASK_CMD_CALIBRATE_CODE);
+ if(memcmp((const char*)cmd,DEBUG_TASK_CMD_CALIBRATE_CODE,cmd_len)==0)
+ { 
+ uint16_t value;
+ if(recv_len !=cmd_len+DEBUG_TASK_CMD_CALIBRATE_CODE_PARAM_LEN)
+ APP_LOG_ERROR("内码命令长度非法.\r\n");
+ value=0;
+ offset=cmd_len;
+ for(uint8_t i=0;i<DEBUG_TASK_CMD_CALIBRATE_CODE_PARAM_LEN;i++)
+ {
+ if(cmd[offset+i] <= '9' && cmd[offset+i] >='0')
+ {
+ cmd[offset+i]-='0';
+ }
+ else /*发生了错误*/
+ {
+ APP_LOG_ERROR("内码值或者设备地址值非法.进制范围1-9.\r\n");
+ goto err_handle0;
+ }
+ }
+ origin_addr=cmd[offset];
+ value=cmd[offset+1];
+ APP_LOG_DEBUG("电子秤校准...\r\n");
+ 
+
+ param[0]=SCALE_AUTO_CODE_VALUE>>16;
+ param[1]=SCALE_AUTO_CODE_VALUE&0xffff;
+ if(value==0)/*0点内码*/
+ {
+ reg_addr=DEVICE_ZERO_CODE_REG_ADDR;
+ reg_cnt=DEVICE_ZERO_CODE_REG_CNT;
+ APP_LOG_DEBUG("0点自动内码.\r\n");
+ }
+ else/*增益点内码*/
+ {
+ reg_addr=DEVICE_SPAN_CODE_REG_ADDR;
+ reg_cnt=DEVICE_SPAN_CODE_REG_CNT;
+ APP_LOG_DEBUG("增益自动内码.\r\n");
+ }
+ debug_task_check_addr(origin_addr);
+ for(scale=scale_start;scale<=scale_end;scale++)
+ {
+ APP_LOG_DEBUG("%2d#电子秤设置内码...\r\n",scale); 
+ err_code=eMBMasterReqWriteMultipleHoldingRegister(scale,reg_addr,reg_cnt,param,DEBUG_TASK_WAIT_TIMEOUT);
+    /*执行成功*/
+ if(err_code==MB_MRE_NO_ERR)
+ {
+  APP_LOG_DEBUG("%2d#电子秤设置内码成功.\r\n",scale);
+ }
+ else
+ {
+  APP_LOG_ERROR("%2d#电子秤设置内码失败.\r\n",scale);
+ }
+ }
+err_handle0:
+ continue;
+ }
+ /*设置标定测量值*/
+ cmd_len=strlen(DEBUG_TASK_CMD_CALIBRATE_MEASUREMENT);
+ if(memcmp((const char*)cmd,DEBUG_TASK_CMD_CALIBRATE_MEASUREMENT,cmd_len)==0)
+ { 
+ uint16_t value;
+ if(recv_len !=cmd_len+DEBUG_TASK_CMD_CALIBRATE_MEASUREMENT_PARAM_LEN)
+ APP_LOG_ERROR("测量值标定命令长度非法.\r\n");
+ value=0;
+ offset=cmd_len;
+ for(uint8_t i=0;i<DEBUG_TASK_CMD_CALIBRATE_MEASUREMENT_PARAM_LEN;i++)
+ {
+ if(cmd[offset+i] <= '9' && cmd[offset+i] >='0')
+ {
+ cmd[offset+i]-='0';
+ }
+ else /*发生了错误*/
+ {
+ APP_LOG_ERROR("测量值或者设备地址值非法.进制范围0-9.\r\n");
+ goto err_handle1;
+ }
+ }
+ origin_addr=cmd[offset];
+ value=cmd[offset+1]*10000+cmd[offset+2]*1000+cmd[offset+3]*100+cmd[offset+4]*10+cmd[offset+5];
+ APP_LOG_DEBUG("电子秤测量值标定...\r\n");
+ 
+ param[0]=0;
+ param[1]=value;
+ if(param[1]==0)
+ {
+ reg_addr=DEVICE_ZERO_MEASUREMENT_REG_ADDR;
+ reg_cnt=DEVICE_ZERO_MEASUREMENT_REG_CNT;
+ APP_LOG_DEBUG("0点测量值标定.\r\n");
+ }
+ else
+ {
+ reg_addr=DEVICE_SPAN_MEASUREMENT_REG_ADDR;
+ reg_cnt=DEVICE_SPAN_MEASUREMENT_REG_CNT;
+ APP_LOG_DEBUG("非0点测量值标定.\r\n");
+ }
+ debug_task_check_addr(origin_addr);
+ for(scale=scale_start;scale<=scale_end;scale++)
+ {
+ APP_LOG_DEBUG("%2d#电子秤标定...\r\n",scale); 
+ err_code=eMBMasterReqWriteMultipleHoldingRegister(scale,reg_addr,reg_cnt,param,DEBUG_TASK_WAIT_TIMEOUT);
+    /*执行成功*/
+ if(err_code==MB_MRE_NO_ERR)
+ {
+  APP_LOG_DEBUG("%2d#电子秤标定成功.\r\n",scale);
+ }
+ else
+ {
+  APP_LOG_ERROR("%2d#电子秤标定失败.\r\n",scale);
+ }
+ }
+err_handle1:
+ continue;
+ }
  /*设置校准值*/
  cmd_len=strlen(DEBUG_TASK_CMD_CALIBRATE_WEIGHT);
  if(memcmp((const char*)cmd,DEBUG_TASK_CMD_CALIBRATE_WEIGHT,cmd_len)==0)
@@ -383,7 +498,7 @@ void debug_task(void const * argument)
  else /*发生了错误*/
  {
  APP_LOG_ERROR("重量值或者设备地址值非法.进制范围1-9.\r\n");
- goto err_handle;
+ goto err_handle2;
  }
  }
  origin_addr=cmd[offset];
@@ -419,7 +534,7 @@ void debug_task(void const * argument)
   APP_LOG_ERROR("%2d#电子秤校准失败.\r\n",scale);
  }
  }
-err_handle:
+err_handle2:
  continue;
  }
 

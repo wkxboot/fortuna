@@ -14,9 +14,11 @@ void debug_task(void const * argument);
 #define  DEBUG_TASK_CMD_OBTAIN_NET_WEIGHT_PARAM_LEN     1
 #define  DEBUG_TASK_CMD_UNLOCK_DEVICE_PARAM_LEN         1
 #define  DEBUG_TASK_CMD_LOCK_DEVICE_PARAM_LEN           1
-#define  DEBUG_TASK_CMD_SET_MAX_WEIGHT_PARAM_LEN        6
+#define  DEBUG_TASK_CMD_SET_MAX_WEIGHT_PARAM_LEN        1
 #define  DEBUG_TASK_CMD_SET_DIVISION_PARAM_LEN          1
 #define  DEBUG_TASK_CMD_CALIBRATE_WEIGHT_PARAM_LEN      6
+#define  DEBUG_TASK_CMD_CALIBRATE_MEASUREMENT_PARAM_LEN 6    
+#define  DEBUG_TASK_CMD_CALIBRATE_CODE_PARAM_LEN        2
 #define  DEBUG_TASK_CMD_PWR_ON_COMPRESSOR_PARAM_LEN     0
 #define  DEBUG_TASK_CMD_PWR_OFF_COMPRESSOR_PARAM_LEN    0
 #define  DEBUG_TASK_CMD_PWR_ON_LIGHT_PARAM_LEN          0
@@ -45,6 +47,8 @@ void debug_task(void const * argument);
 #define  DEBUG_TASK_CMD_SET_MAX_WEIGHT                 "设置最大值" 
 #define  DEBUG_TASK_CMD_SET_DIVISION                   "设置分度值"
 #define  DEBUG_TASK_CMD_CALIBRATE_WEIGHT               "校准重量"
+#define  DEBUG_TASK_CMD_CALIBRATE_MEASUREMENT          "校准测量值"
+#define  DEBUG_TASK_CMD_CALIBRATE_CODE                 "校准内码值"
 #define  DEBUG_TASK_CMD_PWR_ON_COMPRESSOR              "打开压缩机"
 #define  DEBUG_TASK_CMD_PWR_OFF_COMPRESSOR             "关闭压缩机"
 #define  DEBUG_TASK_CMD_PWR_ON_LIGHT                   "打开灯带"
@@ -61,7 +65,7 @@ void debug_task(void const * argument);
 #define  DEBUG_TASK_CMD_PWR_ON_LOCK_LED                "打开门灯"
 #define  DEBUG_TASK_CMD_PWR_OFF_LOCK_LED               "关闭门灯"
 
-#define  DEBUG_TASK_WAIT_TIMEOUT                       100
+#define  DEBUG_TASK_WAIT_TIMEOUT                       550
 
 /*调试任务超时值定义*/
 /*

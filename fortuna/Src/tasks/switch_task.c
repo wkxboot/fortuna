@@ -84,7 +84,7 @@ switch_mode_info_t switch_info=
 static switch_state_t sw[SWITCH_CNT];
 /*
  *1.重量温度切换键
- *2.重量切换键
+ *2.重量切换键(校准时为取消校准)
  *3.校准键（长按2秒进入。校准时短按循环位移，长按为OK）
  *4.去皮（校准时为+）
  *5.清零（校准时为-）
@@ -181,7 +181,7 @@ static void calibrate_sw_long_press_normal()
   {
   reg_addr=DEVICE_SPAN_CALIBRATE_REG_ADDR;  
   reg_cnt=DEVICE_SPAN_CALIBRATE_REG_CNT;
-  APP_LOG_DEBUG("按键任务校准指令消息.\r\n");
+  APP_LOG_DEBUG("按键任务增益校准指令消息.校准重量：%d\r\n",calibrate_w);
   }
   APP_LOG_DEBUG("按键任务执行校准.\r\n");
   err_code=eMBMasterReqWriteMultipleHoldingRegister(calibrate_idx,reg_addr,reg_cnt,param,SWITCH_TASK_WAIT_TIMEOUT);
@@ -269,7 +269,6 @@ static void zero_sw_short_press_normal()
  
  w_idx=get_weight_memory_idx();
  param[0]=SCALE_CLEAR_ZERO_VALUE;
- param[1]=0;
  APP_LOG_DEBUG("按键任务执行清零.\r\n");
  err_code=eMBMasterReqWriteMultipleHoldingRegister(w_idx,DEVICE_MANUALLY_CLEAR_REG_ADDR,DEVICE_MANUALLY_CLEAR_REG_CNT,param,SWITCH_TASK_WAIT_TIMEOUT);
  if(err_code==MB_MRE_NO_ERR)

@@ -27,7 +27,7 @@
 #include "usart.h"
 #include "ABDK_ZNHG_ZK.h"
 #define APP_LOG_MODULE_NAME   "[MB_M_SERIAL]"
-#define APP_LOG_MODULE_LEVEL   APP_LOG_LEVEL_INFO    
+#define APP_LOG_MODULE_LEVEL   APP_LOG_LEVEL_DEBUG    
 #include "app_log.h"
 #include "app_error.h"
 /* ----------------------- Defines ------------------------------------------*/
@@ -88,14 +88,15 @@ void vMBMasterPortSerialEnable(BOOL xRxEnable, BOOL xTxEnable)
  
     if(xRxEnable)
     {   
-    /*RS485通信半双工模式 应该先置RS485为接收状态*/
-    BSP_RS485_RX_ENABLE(); 
+     BSP_RS485_RX_ENABLE(); 
     /* Enable the UART Data Register not empty Interrupt */
     __HAL_UART_ENABLE_IT(ptr_master_modbus_uart_handle, UART_IT_RXNE);  
     APP_LOG_DEBUG("MODBUS主机使能接收.\r\n"); 
     }
     else
     {
+    /*RS485通信半双工模式 应该置RS485为发送状态*/
+    BSP_RS485_TX_ENABLE(); 
     /* Enable the UART Transmit data register empty Interrupt */
     __HAL_UART_DISABLE_IT(ptr_master_modbus_uart_handle, UART_IT_RXNE);  
     APP_LOG_DEBUG("MODBUS主机禁止接收.\r\n");  
@@ -104,14 +105,13 @@ void vMBMasterPortSerialEnable(BOOL xRxEnable, BOOL xTxEnable)
     {
     /*RS485通信半双工模式 应该先置RS485为发送状态*/
     BSP_RS485_TX_ENABLE(); 
-   /* Enable the UART Transmit data register empty Interrupt */
-    __HAL_UART_ENABLE_IT(ptr_master_modbus_uart_handle, UART_IT_TXE);   
+    __HAL_UART_ENABLE_IT(ptr_master_modbus_uart_handle, /*UART_IT_TXE*/UART_IT_TC);
      APP_LOG_DEBUG("MODBUS主机使能发送.\r\n"); 
     }
     else
     {
      /* Enable the UART Data Register not empty Interrupt */
-    __HAL_UART_DISABLE_IT(ptr_master_modbus_uart_handle, UART_IT_TXE);   
+    __HAL_UART_DISABLE_IT(ptr_master_modbus_uart_handle, /*UART_IT_TXE*/UART_IT_TC);   
     APP_LOG_DEBUG("MODBUS主机禁止发送.\r\n");
     }
 }
@@ -124,12 +124,14 @@ void vMBMasterPortClose(void)
 BOOL xMBMasterPortSerialPutByte(CHAR ucByte)
 {
   ptr_master_modbus_uart_handle->Instance->DR = ucByte;
+  APP_LOG_ARRAY("%2X.\r\n",ucByte);
   return TRUE;
 }
 
 BOOL xMBMasterPortSerialGetByte(CHAR * pucByte)
 {
   *pucByte = (uint8_t)(ptr_master_modbus_uart_handle->Instance->DR & (uint8_t)0x00FF);
+  APP_LOG_ARRAY("%2X.\r\n",*pucByte);
   return TRUE;
 }
 
@@ -145,12 +147,13 @@ uint32_t tmp_flag = 0, tmp_it_source = 0;
     pxMBMasterFrameCBByteReceived();
   }
 
-  tmp_flag = __HAL_UART_GET_FLAG(ptr_master_modbus_uart_handle, UART_FLAG_TXE);
-  tmp_it_source = __HAL_UART_GET_IT_SOURCE(ptr_master_modbus_uart_handle, UART_IT_TXE);
+  tmp_flag = __HAL_UART_GET_FLAG(ptr_master_modbus_uart_handle, /*UART_FLAG_TXE*/UART_FLAG_TC);
+  tmp_it_source = __HAL_UART_GET_IT_SOURCE(ptr_master_modbus_uart_handle, /*UART_IT_TXE*/UART_IT_TC);
   /* UART in mode Transmitter ------------------------------------------------*/
   if((tmp_flag != RESET) && (tmp_it_source != RESET))
   {
     pxMBMasterFrameCBTransmitterEmpty();
   }  
+
 }
 #endif

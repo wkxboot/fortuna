@@ -8,8 +8,9 @@ void scale_poll_task(void const * argument);
 
 
 /*电子秤轮询任务单次超时时间*/
-#define  SCALE_POLL_TASK_WAIT_TIMEOUT                            80
+#define  SCALE_POLL_TASK_WAIT_TIMEOUT                            500
 
+#define  SCALE_POLL_TASK_INTERVAL                                100
 /*解锁/上锁设备超时时间*/
 #define  SCALE_POLL_TASK_LOCK_TIMEOUT                            2000
 /*设置最大称重值超时时间*/

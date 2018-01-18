@@ -40,6 +40,7 @@ void scale_poll_task(void const * argument)
 /*净重量轮询*/
  APP_LOG_INFO("电子秤循环获取净重值...\r\n");
  /*临时调试暂停*/
+ 
  while(1)
  {
   osDelay(100);
@@ -56,10 +57,12 @@ void scale_poll_task(void const * argument)
  APP_LOG_DEBUG("向电子秤功能任务发送获取净重值消息.\r\n");
  osMessagePut(scale_func_msg_q_id,*(uint32_t*)&scale_msg,0);
  signal=osSignalWait(SCALE_POLL_TASK_OBTAIN_NET_WEIGHT_OK_SIGNAL,SCALE_POLL_TASK_WAIT_TIMEOUT);
- if(signal.status==osEventSignal && signal.value.signals & SCALE_POLL_TASK_OBTAIN_NET_WEIGHT_OK_SIGNAL)/*超时或者其他错误*/
+ if(signal.status==osEventSignal && (signal.value.signals & SCALE_POLL_TASK_OBTAIN_NET_WEIGHT_OK_SIGNAL))/*超时或者其他错误*/
  break;
  time+=SCALE_POLL_TASK_WAIT_TIMEOUT;
+ osDelay(SCALE_POLL_TASK_INTERVAL);
  }
+ 
  if(time >= SCALE_POLL_TASK_OBTAIN_NET_WEIGHT_TIMEOUT)
  {
  APP_LOG_ERROR("电子秤获取净重超时.再次尝试.\r\n");
@@ -68,5 +71,6 @@ void scale_poll_task(void const * argument)
  {
  APP_LOG_INFO("电子秤获取净重值成功.\r\n");
  }
+ osDelay(SCALE_POLL_TASK_INTERVAL);
  }
 }

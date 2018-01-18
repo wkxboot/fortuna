@@ -101,7 +101,7 @@ eMBMasterRTUStart( void )
      * modbus protocol stack until the bus is free.
      */
     eRcvState = STATE_M_RX_INIT;
-    vMBMasterPortSerialEnable( TRUE, FALSE );
+    vMBMasterPortSerialEnable( /*TRUE*/FALSE, FALSE );
     vMBMasterPortTimersT35Enable();
 
     EXIT_CRITICAL_SECTION();
@@ -271,7 +271,7 @@ xMBMasterRTUTransmitFSM( void )
          * idle state.  */
     case STATE_M_TX_IDLE:
         /* enable receiver/disable transmitter. */
-        vMBMasterPortSerialEnable( TRUE, FALSE );
+        vMBMasterPortSerialEnable( /*TRUE*/FALSE, FALSE );
         break;
 
     case STATE_M_TX_XMIT:
@@ -359,6 +359,8 @@ xMBMasterRTUTimerExpired(void)
 	eSndState = STATE_M_TX_IDLE;
 
 	vMBMasterPortTimersDisable();
+    /*wkxboot*/
+    vMBMasterPortSerialEnable( FALSE, FALSE );
 	/* If timer mode is convert delay, the master event then turns EV_MASTER_EXECUTE status. */
 	if (eMasterCurTimerMode == MB_TMODE_CONVERT_DELAY) {
 		xNeedPoll = xMBMasterPortEventPost( EV_MASTER_EXECUTE );

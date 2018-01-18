@@ -66,10 +66,20 @@ void weight_memory_task(void const * argument)
   }
  }
  get_net_weight(weight_info.idx,&net_weight);
+
+ 
  /*1显示层数*/
  w_dis_buff[0].num=weight_info.idx;
  w_dis_buff[0].dp=FORTUNA_TRUE;
  /*2-6显示重量*/
+ if(net_weight==SCALE_INVALID_WEIGHT_VALUE)
+ {
+    APP_LOG_DEBUG("重量值非法.\r\n");
+   for(uint8_t i=1;i<DISPLAY_LED_POS_CNT;i++)
+   w_dis_buff[i].num=DISPLAY_LED_NEGATIVE_NUM;
+ }
+ else
+ {
  w_dis_buff[1].num=net_weight/10000;
  net_weight=net_weight%10000;
  w_dis_buff[2].num=net_weight/1000;
@@ -91,6 +101,7 @@ void weight_memory_task(void const * argument)
    /*证明最左边0已经找到 退出*/
    break; 
   }   
+ }
  }
  
  }

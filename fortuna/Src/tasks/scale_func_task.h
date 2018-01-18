@@ -17,7 +17,7 @@ extern osMessageQId scale_func_msg_q_id;
 void scale_func_task(void const * argument);
 
 /*电子秤功能执行超时时间*/
-#define  SCALE_FUNC_TASK_WAIT_TIMEOUT                      50
+#define  SCALE_FUNC_TASK_WAIT_TIMEOUT                      80
 /*电子秤任务消息*/
 #define  SCALE_FUNC_TASK_CLEAR_TARE_WEIGHT_MSG             1
 #define  SCALE_FUNC_TASK_CLEAR_ZERO_WEIGHT_MSG             2/*清零*/

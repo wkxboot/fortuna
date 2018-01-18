@@ -55,19 +55,30 @@ USHORT   usMRegHoldBuf[MB_MASTER_TOTAL_SLAVE_NUM][M_REG_HOLDING_NREGS];
 /*获取净重值*/
 fortuna_bool_t get_net_weight(uint8_t scale,uint16_t *ptr_net_weight)
 {
+  int32_t net_weight;
+  uint8_t scale_start,scale_end;
   if(ptr_net_weight==NULL || scale > SCALES_CNT_MAX)
   return FORTUNA_FALSE;
 
  /*所有的称重量*/
   if(scale==0)
   {
-  for(uint8_t i=0;i<SCALES_CNT_MAX;i++)
-  *ptr_net_weight++=usMRegHoldBuf[i][DEVICE_NET_WEIGHT_REG_ADDR];
+  scale_start=1;
+  scale_end=SCALES_CNT_MAX;
   }
   else
   {
-  *ptr_net_weight=usMRegHoldBuf[scale-1][DEVICE_NET_WEIGHT_REG_ADDR];
+  scale_start=scale;
+  scale_end=scale_start; 
   }
+  for(uint8_t i=scale_start;i<=scale_end;i++)
+  {
+  net_weight=usMRegHoldBuf[i-1][DEVICE_NET_WEIGHT_REG_ADDR]<<16|usMRegHoldBuf[i-1][DEVICE_NET_WEIGHT_REG_ADDR+1];
+  if(net_weight<0 ||net_weight>99999)
+  net_weight=SCALE_INVALID_WEIGHT_VALUE;
+  *ptr_net_weight++=net_weight;
+  }
+
  return FORTUNA_TRUE;
 }
 
