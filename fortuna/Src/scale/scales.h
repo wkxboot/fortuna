@@ -2,14 +2,18 @@
 #define    __SCALES_H__
 #include "fortuna_common.h"
 
-fortuna_bool_t get_net_weight(uint8_t sclae,uint16_t *ptr_net_weight);
+fortuna_bool_t get_net_weight(uint8_t sclae,int32_t *ptr_net_weight);
+
+#define  SCALE_WAIT_TIMEOUT                    110
+#define  SCALE_OPERATION_INTERVAL              10
 
 
 /*称重单元数量*/
 #define  SCALES_CNT_MAX                        4
 
 /*无效的重量值*/
-#define  SCLAE_NET_WEIGHT_INVALID_VALUE        0xffff
+#define  SCLAE_NET_WEIGHT_INVALID_VALUE          99999
+#define  SCLAE_NET_WEIGHT_INVALID_VALUE_NEGATIVE (-9999)
 
 /*电子秤操作值*/
 #define  SCALE_UNLOCK_VALUE                    0x5AA5   
@@ -99,8 +103,31 @@ fortuna_bool_t get_net_weight(uint8_t sclae,uint16_t *ptr_net_weight);
 #define  DEVICE_AUTO_CLEAR_TIME_REG_CNT        1
 
 
+/*电子秤手动清零范围设置*/
+fortuna_bool_t scale_manully_zero_range(uint8_t scale,uint32_t scale_param);
+/*电子秤清零操作*/
+fortuna_bool_t scale_clear_zero(uint8_t scale,uint32_t scale_param);
+/*电子秤去皮操作*/
+fortuna_bool_t scale_remove_tare(uint8_t scale,uint32_t scale_param);
 
-
+/*电子秤内码值校准操作*/
+fortuna_bool_t scale_calibrate_code(uint8_t scale,uint32_t scale_param);
+/*电子秤测量值校准操作*/
+fortuna_bool_t scale_calibrate_measurement(uint8_t scale,uint32_t scale_param);
+/*电子秤测量值校准操作*/
+fortuna_bool_t scale_calibrate_measurement(uint8_t scale,uint32_t scale_param);
+/*电子秤重量校准操作*/
+fortuna_bool_t scale_calibrate_weight(uint8_t scale,uint32_t scale_param);
+/*电子秤获取净重操作*/
+fortuna_bool_t scale_obtain_net_weight(uint8_t scale,uint32_t scale_param);
+/*电子秤获取固件版本操作*/
+fortuna_bool_t scale_obtain_firmware_version(uint8_t scale,uint32_t scale_param);
+/*电子秤设置最大称重值操作*/
+fortuna_bool_t scale_set_max_weight(uint8_t scale,uint32_t scale_param);
+/*电子秤设置分度值操作*/
+fortuna_bool_t scale_set_division(uint8_t scale,uint32_t scale_param);
+/*电子秤设备锁操作*/
+fortuna_bool_t scale_lock_operation(uint8_t scale,uint32_t scale_param);
 
 
 

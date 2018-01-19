@@ -48,7 +48,7 @@ uint8_t get_weight_memory_idx()
 void weight_memory_task(void const * argument)
 {
  osEvent signal;
- static uint16_t net_weight;
+ int32_t net_weight;
  APP_LOG_INFO("######重量显示缓存任务开始.\r\n");
  while(1)
  {
@@ -72,11 +72,37 @@ void weight_memory_task(void const * argument)
  w_dis_buff[0].num=weight_info.idx;
  w_dis_buff[0].dp=FORTUNA_TRUE;
  /*2-6显示重量*/
- if(net_weight==SCALE_INVALID_WEIGHT_VALUE)
+ if(net_weight>SCLAE_NET_WEIGHT_INVALID_VALUE || net_weight<SCLAE_NET_WEIGHT_INVALID_VALUE_NEGATIVE)
  {
-    APP_LOG_DEBUG("重量值非法.\r\n");
+    APP_LOG_DEBUG("重量值超量程.\r\n");
    for(uint8_t i=1;i<DISPLAY_LED_POS_CNT;i++)
    w_dis_buff[i].num=DISPLAY_LED_NEGATIVE_NUM;
+ }
+ else if(net_weight<0)
+ {
+ net_weight*=-1;
+ w_dis_buff[1].num=DISPLAY_LED_NULL_NUM;
+ w_dis_buff[2].num=net_weight/1000;
+ net_weight=net_weight%1000;
+ w_dis_buff[3].num=net_weight/100; 
+ net_weight=net_weight%100;
+ w_dis_buff[4].num=net_weight/10;
+ net_weight=net_weight%10;
+ w_dis_buff[5].num=net_weight;
+ 
+ for(uint8_t i=2;i<DISPLAY_LED_POS_CNT;i++)
+ {
+  if(w_dis_buff[i].num==0)/*消0显示*/
+  {
+  w_dis_buff[i].num=DISPLAY_LED_NULL_NUM;
+  }
+  else
+  {
+   /*证明最左边0已经找到 退出*/
+   w_dis_buff[i-1].num=DISPLAY_LED_NEGATIVE_NUM;
+   break; 
+  }   
+ }
  }
  else
  {

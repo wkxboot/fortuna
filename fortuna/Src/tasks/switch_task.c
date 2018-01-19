@@ -153,11 +153,9 @@ static void calibrate_sw_short_press_normal()
 static void calibrate_sw_long_press_normal()
 {
  APP_LOG_DEBUG("校准按键切换模式...\r\n"); 
+ fortuna_bool_t ret;
  uint8_t  calibrate_idx; 
  uint32_t calibrate_w;
- eMBMasterReqErrCode err_code;
- uint16_t param[2];
- uint16_t reg_addr,reg_cnt;
  
  if(switch_info.idx >=switch_info.idx_max)
   switch_info.idx=0;
@@ -166,35 +164,33 @@ static void calibrate_sw_long_press_normal()
 
  if(switch_info.mode[switch_info.idx]==SWITCH_MODE_NORMAL)
  {
-  /*从校准模式退出时 需要等待校准完成*/
+  /*从校准模式退出时 需要等待标定完成*/
   calibrate_idx=get_calibrate_memory_calibrate_idx();
   calibrate_w =get_calibrate_memory_calibrate_weight();
-  param[0]=calibrate_w>>16;
-  param[1]=calibrate_w&0xffff;
-  if(calibrate_w==0)
+  
+  APP_LOG_DEBUG("按键任务执行校准...\r\n");
+  ret=scale_calibrate_code(calibrate_idx,calibrate_w);
+  /*执行成功*/
+  if(ret==FORTUNA_TRUE)
   {
-  reg_addr=DEVICE_ZERO_CALIBRATE_REG_ADDR;
-  reg_cnt=DEVICE_ZERO_CALIBRATE_REG_CNT;
-  APP_LOG_DEBUG("按键任务0点校准指令消息.\r\n");
-  }
-  else
+   ret=scale_calibrate_measurement(calibrate_idx,calibrate_w);
+   if(ret==FORTUNA_TRUE)
   {
-  reg_addr=DEVICE_SPAN_CALIBRATE_REG_ADDR;  
-  reg_cnt=DEVICE_SPAN_CALIBRATE_REG_CNT;
-  APP_LOG_DEBUG("按键任务增益校准指令消息.校准重量：%d\r\n",calibrate_w);
-  }
-  APP_LOG_DEBUG("按键任务执行校准.\r\n");
-  err_code=eMBMasterReqWriteMultipleHoldingRegister(calibrate_idx,reg_addr,reg_cnt,param,SWITCH_TASK_WAIT_TIMEOUT);
-  if(err_code==MB_MRE_NO_ERR)
-  {
-  APP_LOG_DEBUG("按键任务执行校准成功.\r\n");
+  APP_LOG_DEBUG("按键任务校准成功.\r\n");
   osSignalSet(calibrate_memory_task_hdl,CALIBRATE_MEMORY_TASK_CALIBRATE_OK_SIGNAL);
   }
   else
   {
-  APP_LOG_DEBUG("按键任务执行校准失败.\r\n");
+  APP_LOG_DEBUG("按键任务校准失败.\r\n");
+  osSignalSet(calibrate_memory_task_hdl,CALIBRATE_MEMORY_TASK_CALIBRATE_ERR_SIGNAL); 
+  }
+  }
+  else
+  {
+  APP_LOG_DEBUG("按键任务校准失败.\r\n");
   osSignalSet(calibrate_memory_task_hdl,CALIBRATE_MEMORY_TASK_CALIBRATE_ERR_SIGNAL);
   }
+  
   osDelay(SWITCH_TASK_CALIBRATE_EXIT_WAIT_TIME);
   APP_LOG_DEBUG("切换为正常模式.\r\n");
   }
@@ -225,15 +221,13 @@ static void tare_sw_short_press_normal()
 {
  /*去皮按键*/
  uint8_t w_idx;
- uint16_t param[2];
- eMBMasterReqErrCode err_code;
- 
+ fortuna_bool_t ret;
  w_idx=get_weight_memory_idx();
- param[0]=SCALE_AUTO_TARE_WEIGHT_VALUE>>16;
- param[1]=SCALE_AUTO_TARE_WEIGHT_VALUE&0xffff;
+ 
  APP_LOG_DEBUG("按键任务执行去皮.\r\n");
- err_code=eMBMasterReqWriteMultipleHoldingRegister(w_idx,DEVICE_TARE_WEIGHT_REG_ADDR,DEVICE_TARE_WEIGHT_REG_CNT,param,SWITCH_TASK_WAIT_TIMEOUT);
- if(err_code==MB_MRE_NO_ERR)
+ ret=scale_remove_tare(w_idx,SCALE_AUTO_TARE_WEIGHT_VALUE);
+  /*执行成功*/
+ if(ret==FORTUNA_TRUE)
  {
  APP_LOG_DEBUG("按键任务执行去皮成功.\r\n");
  }
@@ -264,16 +258,21 @@ static void zero_sw_short_press_normal()
 {
  /*清零按键*/
  uint8_t w_idx;
- uint16_t param[2];
- eMBMasterReqErrCode err_code;
- 
+ fortuna_bool_t ret;
  w_idx=get_weight_memory_idx();
- param[0]=SCALE_CLEAR_ZERO_VALUE;
- APP_LOG_DEBUG("按键任务执行清零.\r\n");
- err_code=eMBMasterReqWriteMultipleHoldingRegister(w_idx,DEVICE_MANUALLY_CLEAR_REG_ADDR,DEVICE_MANUALLY_CLEAR_REG_CNT,param,SWITCH_TASK_WAIT_TIMEOUT);
- if(err_code==MB_MRE_NO_ERR)
+ ret=scale_remove_tare(w_idx,0);/*首先设置皮重为0*/
+ if(ret==FORTUNA_TRUE)
+ {
+ ret=scale_clear_zero(w_idx,0);
+  /*执行成功*/
+ if(ret==FORTUNA_TRUE)
  {
  APP_LOG_DEBUG("按键任务执行清零成功.\r\n");
+ }
+ else
+ {
+ APP_LOG_DEBUG("按键任务执行清零失败.\r\n");
+ }
  }
  else
  {

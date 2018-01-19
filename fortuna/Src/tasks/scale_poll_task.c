@@ -20,9 +20,7 @@ extern EventGroupHandle_t task_sync_evt_group_hdl;
  */
 void scale_poll_task(void const * argument)
 {
- osEvent signal;
- scale_msg_t scale_msg;
- uint16_t time;
+ fortuna_bool_t ret;
  APP_LOG_INFO("######电子秤轮询任务开始.\r\n");
  /*创建自己的消息队列*/
  osMessageQDef(scale_poll_task_msg,6,uint32_t);
@@ -40,37 +38,30 @@ void scale_poll_task(void const * argument)
 /*净重量轮询*/
  APP_LOG_INFO("电子秤循环获取净重值...\r\n");
  /*临时调试暂停*/
- 
+ /*
  while(1)
  {
   osDelay(100);
  }
- 
+ */
  while(1)
  {
- time=0;
- scale_msg.type=SCALE_FUNC_TASK_OBTAIN_NET_WEIGHT_MSG;
- scale_msg.scale=0;/*全部的电子秤*/
- /*向电子秤功能任务发送净重值消息*/
- while(time<SCALE_POLL_TASK_OBTAIN_NET_WEIGHT_TIMEOUT)
- {
- APP_LOG_DEBUG("向电子秤功能任务发送获取净重值消息.\r\n");
- osMessagePut(scale_func_msg_q_id,*(uint32_t*)&scale_msg,0);
- signal=osSignalWait(SCALE_POLL_TASK_OBTAIN_NET_WEIGHT_OK_SIGNAL,SCALE_POLL_TASK_WAIT_TIMEOUT);
- if(signal.status==osEventSignal && (signal.value.signals & SCALE_POLL_TASK_OBTAIN_NET_WEIGHT_OK_SIGNAL))/*超时或者其他错误*/
- break;
- time+=SCALE_POLL_TASK_WAIT_TIMEOUT;
- osDelay(SCALE_POLL_TASK_INTERVAL);
- }
- 
- if(time >= SCALE_POLL_TASK_OBTAIN_NET_WEIGHT_TIMEOUT)
- {
- APP_LOG_ERROR("电子秤获取净重超时.再次尝试.\r\n");
- }
- else
- {
- APP_LOG_INFO("电子秤获取净重值成功.\r\n");
- }
- osDelay(SCALE_POLL_TASK_INTERVAL);
+  ret= scale_obtain_net_weight(0,0);
+   /*全部执行成功*/
+  if(ret==FORTUNA_TRUE)
+  {
+  APP_LOG_DEBUG("电子秤获取净重成功.\r\n");
+  }
+  else
+  {
+  APP_LOG_ERROR("获取净重失败.\r\n");
+  } 
+  osDelay(SCALE_POLL_TASK_INTERVAL);
  }
 }
+   
+   
+   
+   
+   
+   

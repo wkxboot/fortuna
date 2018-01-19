@@ -32,58 +32,64 @@ comm_status_t comm_receive_fsm(uint8_t **ptr_buff,uint8_t *ptr_recv_len);
 /*发送一帧数据*/
 comm_status_t comm_send_fsm(uint8_t *ptr_buff,uint8_t send_len);
 
-#define  BUFF_SIZE_MAX                              64
+#define  BUFF_SIZE_MAX                                    64
 
 
 /*通信协议部分*/
-#define  COMM_SERIAL_PDU_SIZE_MIN                     2
-#define  COMM_PDU_SIZE_MIN                            1
+#define  COMM_SERIAL_PDU_SIZE_MIN                          2
+#define  COMM_PDU_SIZE_MIN                                 1
 
 /*通信任务子函数信号*/
-#define  COMM_TASK_CLEAR_SCALE_TARE_WEIGHT_OK_SIGNAL  (1<<5)
-#define  COMM_TASK_CLEAR_SCALE_TARE_WEIGHT_ERR_SIGNAL (1<<6)
-#define  COMM_TASK_CLEAR_ZERO_OK_SIGNAL               (1<<7)
-#define  COMM_TASK_CLEAR_ZERO_ERR_SIGNAL              (1<<8)
-#define  COMM_TASK_CALIBRATE_SCALE_WEIGHT_OK_SIGNAL   (1<<9)
-#define  COMM_TASK_CALIBRATE_SCALE_WEIGHT_ERR_SIGNAL  (1<<10)
-#define  COMM_TASK_UNLOCK_LOCK_OK_SIGNAL              (1<<11)
-#define  COMM_TASK_UNLOCK_LOCK_ERR_SIGNAL             (1<<12)
-#define  COMM_TASK_LOCK_LOCK_OK_SIGNAL                (1<<13)
-#define  COMM_TASK_LOCK_LOCK_ERR_SIGNAL               (1<<14)
+#define  COMM_TASK_CLEAR_SCALE_TARE_WEIGHT_OK_SIGNAL       (1<<5)
+#define  COMM_TASK_CLEAR_SCALE_TARE_WEIGHT_ERR_SIGNAL      (1<<6)
+#define  COMM_TASK_CLEAR_ZERO_OK_SIGNAL                    (1<<7)
+#define  COMM_TASK_CLEAR_ZERO_ERR_SIGNAL                   (1<<8)
+#define  COMM_TASK_CALIBRATE_SCALE_CODE_OK_SIGNAL          (1<<9)
+#define  COMM_TASK_CALIBRATE_SCALE_CODE_ERR_SIGNAL         (1<<10)
+#define  COMM_TASK_CALIBRATE_SCALE_MEASUREMENT_OK_SIGNAL   (1<<11)
+#define  COMM_TASK_CALIBRATE_SCALE_MEASUREMENT_ERR_SIGNAL  (1<<12)
+#define  COMM_TASK_CALIBRATE_SCALE_WEIGHT_OK_SIGNAL        (1<<13)
+#define  COMM_TASK_CALIBRATE_SCALE_WEIGHT_ERR_SIGNAL       (1<<14)
+#define  COMM_TASK_UNLOCK_LOCK_OK_SIGNAL                   (1<<15)
+#define  COMM_TASK_UNLOCK_LOCK_ERR_SIGNAL                  (1<<16)
+#define  COMM_TASK_LOCK_LOCK_OK_SIGNAL                     (1<<17)
+#define  COMM_TASK_LOCK_LOCK_ERR_SIGNAL                    (1<<18)
 
 
 /*通信任务子函数超时时间*/
-#define  COMM_TASK_CLEAR_SCALE_TARE_WEIGHT_TIMEOUT     100
-#define  COMM_TASK_CALIBRATE_SCALE_WEIGHT_TIMEOUT      100
-#define  COMM_TASK_UNLOCK_LOCK_TIMEOUT                 100
-#define  COMM_TASK_LOCK_LOCK_TIMEOUT                   100
+#define  COMM_TASK_CALIBRATE_SCALE_CODE_TIMEOUT             250
+#define  COMM_TASK_CALIBRATE_SCALE_MEASUREMENT_TIMEOUT      250
+#define  COMM_TASK_CLEAR_SCALE_TARE_WEIGHT_TIMEOUT          250
+#define  COMM_TASK_CALIBRATE_SCALE_WEIGHT_TIMEOUT           250
+#define  COMM_TASK_UNLOCK_LOCK_TIMEOUT                      100
+#define  COMM_TASK_LOCK_LOCK_TIMEOUT                        100
 
 /*通信协议部分*/
-#define  COMM_CMD_CNT                         11
+#define  COMM_CMD_CNT                                       11
 
 
-#define  COMM_ADDR_OFFSET                     0
-#define  COMM_ADDR_SIZE                       1
-#define  COMM_CMD_OFFSET                      1
-#define  COMM_CMD_SIZE                        1
-#define  COMM_PARAM_OFFSET                    2
+#define  COMM_ADDR_OFFSET                                   0
+#define  COMM_ADDR_SIZE                                     1
+#define  COMM_CMD_OFFSET                                    1
+#define  COMM_CMD_SIZE                                      1
+#define  COMM_PARAM_OFFSET                                   2
 
 /*目前实际只有4个称重单元*/
-#define  COMM_CMD_PARAM_SCALE_MAX             SCALES_CNT_MAX
+#define  COMM_CMD_PARAM_SCALE_MAX                       SCALES_CNT_MAX
 /*最大可接入的称重单元数量*/
-#define  COMM_VIRTUAL_SCALE_MAX               20
+#define  COMM_VIRTUAL_SCALE_MAX                         20
 /*参数部分的长度大小*/
-#define  COMM_CMD01_PARAM_SIZE                1
-#define  COMM_CMD02_PARAM_SIZE                3
-#define  COMM_CMD03_PARAM_SIZE                1
-#define  COMM_CMD04_PARAM_SIZE                0
-#define  COMM_CMD11_PARAM_SIZE                0
-#define  COMM_CMD21_PARAM_SIZE                0
-#define  COMM_CMD22_PARAM_SIZE                0
-#define  COMM_CMD23_PARAM_SIZE                0
-#define  COMM_CMD31_PARAM_SIZE                0
-#define  COMM_CMD41_PARAM_SIZE                0
-#define  COMM_CMD51_PARAM_SIZE                0
+#define  COMM_CMD01_PARAM_SIZE                          1
+#define  COMM_CMD02_PARAM_SIZE                          3
+#define  COMM_CMD03_PARAM_SIZE                          1
+#define  COMM_CMD04_PARAM_SIZE                          0
+#define  COMM_CMD11_PARAM_SIZE                          0
+#define  COMM_CMD21_PARAM_SIZE                          0
+#define  COMM_CMD22_PARAM_SIZE                          0
+#define  COMM_CMD23_PARAM_SIZE                          0
+#define  COMM_CMD31_PARAM_SIZE                          0
+#define  COMM_CMD41_PARAM_SIZE                          0
+#define  COMM_CMD51_PARAM_SIZE                          0
 /*固定的执行结果值*/
 #define  COMM_CMD01_EXECUTE_RESULT_SUCCESS              1 
 #define  COMM_CMD01_EXECUTE_RESULT_FAIL                 0

@@ -16,6 +16,10 @@
  * modify by wkxboot 2017.7.11 
  * *****************************************************************************
  */
+#include "FreeRTOS.h"
+#include "task.h"
+#include "cmsis_os.h"
+#include "fortuna_common.h"   
 #include "mbconfig_m.h"
 #include "mbutils_m.h"
 #include "mbport_m.h"
@@ -53,7 +57,7 @@ USHORT   usMRegHoldBuf[MB_MASTER_TOTAL_SLAVE_NUM][M_REG_HOLDING_NREGS];
 
 
 /*获取净重值*/
-fortuna_bool_t get_net_weight(uint8_t scale,uint16_t *ptr_net_weight)
+fortuna_bool_t get_net_weight(uint8_t scale,int32_t *ptr_net_weight)
 {
   int32_t net_weight;
   uint8_t scale_start,scale_end;
@@ -74,8 +78,6 @@ fortuna_bool_t get_net_weight(uint8_t scale,uint16_t *ptr_net_weight)
   for(uint8_t i=scale_start;i<=scale_end;i++)
   {
   net_weight=usMRegHoldBuf[i-1][DEVICE_NET_WEIGHT_REG_ADDR]<<16|usMRegHoldBuf[i-1][DEVICE_NET_WEIGHT_REG_ADDR+1];
-  if(net_weight<0 ||net_weight>99999)
-  net_weight=SCALE_INVALID_WEIGHT_VALUE;
   *ptr_net_weight++=net_weight;
   }
 
@@ -334,3 +336,421 @@ eMB_MASTER_ErrorCode eMBMasterRegDiscreteCB( UCHAR * pucRegBuffer, USHORT usAddr
     return eStatus;
 }
 #endif
+
+/*计算电子秤数量*/
+void check_scale_cnt(uint8_t scale,uint8_t *ptr_scale_start,uint8_t *ptr_scale_end)
+{
+ if(scale==0)/*对所有的称*/
+ {
+  *ptr_scale_start=1;
+  *ptr_scale_end=SCALES_CNT_MAX;
+ }
+ else
+ {
+  *ptr_scale_start=scale; 
+  *ptr_scale_end= *ptr_scale_start;  
+ }
+}
+/*电子秤手动清零范围设置*/
+fortuna_bool_t scale_manully_zero_range(uint8_t scale,uint32_t scale_param)
+{
+ uint8_t scale_end,scale_start;
+ uint16_t param[DEVICE_MANUALLY_CLEAR_RANGE_REG_CNT];
+ fortuna_bool_t ret=FORTUNA_TRUE;
+ eMBMasterReqErrCode err_code;
+ /*计算电子秤数量*/
+ check_scale_cnt(scale,&scale_start,&scale_end);
+ (void)scale_param;
+ for(uint8_t i=0;i<DEVICE_MANUALLY_CLEAR_RANGE_REG_CNT;i++)
+ {
+ param[i]=SCALE_ZERO_RANGE_VALUE>>((DEVICE_MANUALLY_CLEAR_RANGE_REG_CNT-1-i)*16);
+ }
+/*操作电子秤*/
+ for(scale=scale_start;scale<=scale_end;scale++)
+ {
+  APP_LOG_DEBUG("%2d#电子秤设置手动置零范围...\r\n",scale);
+  err_code=eMBMasterReqWriteMultipleHoldingRegister(scale,DEVICE_MANUALLY_CLEAR_RANGE_REG_ADDR,DEVICE_MANUALLY_CLEAR_RANGE_REG_CNT,param,SCALE_WAIT_TIMEOUT);
+  if(err_code!=MB_MRE_NO_ERR)
+  {
+  ret=FORTUNA_FALSE;
+  APP_LOG_ERROR("%2d#电子秤设置手动置零范围失败.\r\n",scale);
+  }
+  else
+  {
+  APP_LOG_DEBUG("%2d#电子秤设置手动置零范围成功.\r\n",scale);
+  }
+  osDelay(SCALE_OPERATION_INTERVAL);
+ }
+ return ret;
+}
+/*电子秤清零*/
+fortuna_bool_t scale_clear_zero(uint8_t scale,uint32_t scale_param)
+{
+ uint8_t scale_end,scale_start;
+ uint16_t param[DEVICE_MANUALLY_CLEAR_REG_CNT];
+ fortuna_bool_t ret=FORTUNA_TRUE;
+ eMBMasterReqErrCode err_code;
+ /*计算电子秤数量*/
+ check_scale_cnt(scale,&scale_start,&scale_end);
+ (void)scale_param;
+ for(uint8_t i=0;i<DEVICE_MANUALLY_CLEAR_REG_CNT;i++)
+ {
+ param[i]=SCALE_CLEAR_ZERO_VALUE>>((DEVICE_MANUALLY_CLEAR_REG_CNT-1-i)*16);
+ }
+/*操作电子秤*/
+ for(scale=scale_start;scale<=scale_end;scale++)
+ {
+  APP_LOG_DEBUG("%2d#电子秤清零...\r\n",scale);
+  err_code=eMBMasterReqWriteMultipleHoldingRegister(scale,DEVICE_MANUALLY_CLEAR_REG_ADDR,DEVICE_MANUALLY_CLEAR_REG_CNT,param,SCALE_WAIT_TIMEOUT);
+  if(err_code!=MB_MRE_NO_ERR)
+  {
+  ret=FORTUNA_FALSE;
+  APP_LOG_ERROR("%2d#电子秤清零失败.\r\n",scale);
+  }
+  else
+  {
+  APP_LOG_DEBUG("%2d#电子秤清零成功.\r\n",scale);
+  }
+  osDelay(SCALE_OPERATION_INTERVAL);
+ }
+ return ret;
+}
+
+/*电子秤去皮/设置皮重值*/
+fortuna_bool_t scale_remove_tare(uint8_t scale,uint32_t scale_param)
+{
+ uint8_t scale_end,scale_start;
+ uint16_t param[DEVICE_TARE_WEIGHT_REG_CNT];
+ fortuna_bool_t ret=FORTUNA_TRUE;
+ eMBMasterReqErrCode err_code;
+ /*计算电子秤数量*/
+ check_scale_cnt(scale,&scale_start,&scale_end);
+ ;
+ for(uint8_t i=0;i<DEVICE_TARE_WEIGHT_REG_CNT;i++)
+ {
+ param[i]=scale_param>>((DEVICE_TARE_WEIGHT_REG_CNT-1-i)*16);
+ }
+/*操作电子秤*/
+ for(scale=scale_start;scale<=scale_end;scale++)
+ {
+  APP_LOG_DEBUG("%2d#电子秤去皮...\r\n",scale);
+  err_code=eMBMasterReqWriteMultipleHoldingRegister(scale,DEVICE_TARE_WEIGHT_REG_ADDR,DEVICE_TARE_WEIGHT_REG_CNT,param,SCALE_WAIT_TIMEOUT);
+  if(err_code!=MB_MRE_NO_ERR)
+  {
+  ret=FORTUNA_FALSE;
+  APP_LOG_ERROR("%2d#电子秤去皮失败.\r\n",scale);
+  }
+  else
+  {
+  APP_LOG_DEBUG("%2d#电子秤去皮成功.\r\n",scale);
+  }
+  osDelay(SCALE_OPERATION_INTERVAL);
+ }
+ return ret;
+}
+
+
+/*电子秤标定内码值*/
+fortuna_bool_t scale_calibrate_code(uint8_t scale,uint32_t scale_param)
+{
+ uint8_t scale_end,scale_start;
+ uint16_t param[DEVICE_ZERO_CODE_REG_CNT];
+ uint16_t reg_addr,reg_cnt;
+ fortuna_bool_t ret=FORTUNA_TRUE;
+ eMBMasterReqErrCode err_code;
+ 
+ if(scale_param==0)
+ {
+ reg_addr=DEVICE_ZERO_CODE_REG_ADDR;
+ reg_cnt=DEVICE_ZERO_CODE_REG_CNT;
+ APP_LOG_DEBUG("收到0点内码值标定消息.\r\n");
+ }
+ else
+ {
+ reg_addr=DEVICE_SPAN_CODE_REG_ADDR;
+ reg_cnt=DEVICE_SPAN_CODE_REG_CNT;
+ APP_LOG_DEBUG("收到非零点内码值标定消息.\r\n");
+ }
+ /*计算电子秤数量*/
+ check_scale_cnt(scale,&scale_start,&scale_end);
+ for(uint8_t i=0;i<DEVICE_ZERO_CODE_REG_CNT;i++)
+ {
+ param[i]=SCALE_AUTO_CODE_VALUE>>((DEVICE_ZERO_CODE_REG_CNT-1-i)*16);
+ }
+ 
+/*操作电子秤*/
+ for(scale=scale_start;scale<=scale_end;scale++)
+ {
+  APP_LOG_DEBUG("%2d#电子秤内码值标定...\r\n",scale);
+  err_code=eMBMasterReqWriteMultipleHoldingRegister(scale,reg_addr,reg_cnt,param,SCALE_WAIT_TIMEOUT);
+  if(err_code!=MB_MRE_NO_ERR)
+  {
+  ret=FORTUNA_FALSE;
+  APP_LOG_ERROR("%2d#电子秤内码值标定失败.\r\n",scale);
+  }
+  else
+  {
+  APP_LOG_DEBUG("%2d#电子秤内码值标定成功.\r\n",scale);
+  }
+  osDelay(SCALE_OPERATION_INTERVAL);
+ }
+ return ret;
+}
+
+
+/*电子秤标定测量值*/
+fortuna_bool_t scale_calibrate_measurement(uint8_t scale,uint32_t scale_param)
+{
+ uint8_t scale_end,scale_start;
+ uint16_t param[DEVICE_ZERO_MEASUREMENT_REG_CNT];
+ uint16_t reg_addr,reg_cnt;
+ fortuna_bool_t ret=FORTUNA_TRUE;
+ eMBMasterReqErrCode err_code;
+ 
+ if(scale_param==0)
+ {
+ reg_addr=DEVICE_ZERO_MEASUREMENT_REG_ADDR;
+ reg_cnt=DEVICE_ZERO_MEASUREMENT_REG_CNT;
+ APP_LOG_DEBUG("收到0点测量值标定消息.\r\n");
+ }
+ else
+ {
+ reg_addr=DEVICE_SPAN_MEASUREMENT_REG_ADDR;
+ reg_cnt=DEVICE_SPAN_MEASUREMENT_REG_CNT;
+ APP_LOG_DEBUG("收到非0点测量值标定消息.\r\n");
+ }
+ /*计算电子秤数量*/
+ check_scale_cnt(scale,&scale_start,&scale_end);
+ for(uint8_t i=0;i<DEVICE_ZERO_MEASUREMENT_REG_CNT;i++)
+ {
+ param[i]=scale_param>>((DEVICE_ZERO_MEASUREMENT_REG_CNT-1-i)*16);
+ }
+ 
+/*操作电子秤*/
+ for(scale=scale_start;scale<=scale_end;scale++)
+ {
+  APP_LOG_DEBUG("%2d#电子秤测量值标定...\r\n",scale);
+  err_code=eMBMasterReqWriteMultipleHoldingRegister(scale,reg_addr,reg_cnt,param,SCALE_WAIT_TIMEOUT);
+  if(err_code!=MB_MRE_NO_ERR)
+  {
+  ret=FORTUNA_FALSE;
+  APP_LOG_ERROR("%2d#电子秤测量值标定失败.\r\n",scale);
+  }
+  else
+  {
+  APP_LOG_DEBUG("%2d#电子秤测量值标定成功.\r\n",scale);
+  }
+  osDelay(SCALE_OPERATION_INTERVAL);
+ }
+ return ret;
+}
+
+/*电子秤重量校准*/
+fortuna_bool_t scale_calibrate_weight(uint8_t scale,uint32_t scale_param)
+{
+ uint8_t scale_end,scale_start;
+ uint16_t param[DEVICE_ZERO_CALIBRATE_REG_CNT];
+ uint16_t reg_addr,reg_cnt;
+ fortuna_bool_t ret=FORTUNA_TRUE;
+ eMBMasterReqErrCode err_code;
+ 
+ if(scale_param==0)
+ {
+ reg_addr=DEVICE_ZERO_CALIBRATE_REG_ADDR;
+ reg_cnt=DEVICE_ZERO_CALIBRATE_REG_CNT;
+ APP_LOG_DEBUG("收到0点重量值标定消息.\r\n");
+ }
+ else
+ {
+ reg_addr=DEVICE_SPAN_CALIBRATE_REG_ADDR;
+ reg_cnt=DEVICE_SPAN_CALIBRATE_REG_CNT;
+ APP_LOG_DEBUG("收到重量值标定消息.\r\n");
+ }
+ /*计算电子秤数量*/
+ check_scale_cnt(scale,&scale_start,&scale_end);
+ for(uint8_t i=0;i<DEVICE_ZERO_CALIBRATE_REG_CNT;i++)
+ {
+ param[i]=scale_param>>((DEVICE_ZERO_CALIBRATE_REG_CNT-1-i)*16);
+ }
+ 
+/*操作电子秤*/
+ for(scale=scale_start;scale<=scale_end;scale++)
+ {
+  APP_LOG_DEBUG("%2d#电子秤重量值标定...\r\n",scale);
+  err_code=eMBMasterReqWriteMultipleHoldingRegister(scale,reg_addr,reg_cnt,param,SCALE_WAIT_TIMEOUT);
+  if(err_code!=MB_MRE_NO_ERR)
+  {
+  ret=FORTUNA_FALSE;
+  APP_LOG_ERROR("%2d#电子秤重量值标定失败.\r\n",scale);
+  }
+  else
+  {
+  APP_LOG_DEBUG("%2d#电子秤重量值标定成功.\r\n",scale);
+  }
+  osDelay(SCALE_OPERATION_INTERVAL);
+ }
+ return ret;
+}
+
+/*电子秤获取净重*/
+fortuna_bool_t scale_obtain_net_weight(uint8_t scale,uint32_t scale_param)
+{
+ uint8_t scale_end,scale_start;
+ fortuna_bool_t ret=FORTUNA_TRUE;
+ eMBMasterReqErrCode err_code;
+ /*计算电子秤数量*/
+ check_scale_cnt(scale,&scale_start,&scale_end);
+ (void)scale_param;
+/*操作电子秤*/
+ for(scale=scale_start;scale<=scale_end;scale++)
+ {
+  APP_LOG_DEBUG("%2d#电子秤获取净重...\r\n",scale);
+  err_code=eMBMasterReqReadHoldingRegister(scale,DEVICE_NET_WEIGHT_REG_ADDR,DEVICE_NET_WEIGHT_REG_CNT,SCALE_WAIT_TIMEOUT);
+  if(err_code!=MB_MRE_NO_ERR)
+  {
+  ret=FORTUNA_FALSE;
+  APP_LOG_ERROR("%2d#电子秤获取净重失败.\r\n",scale);
+  }
+  else
+  {
+  APP_LOG_DEBUG("%2d#电子秤获取净重成功.\r\n",scale);
+  }
+  osDelay(SCALE_OPERATION_INTERVAL);
+ }
+ return ret;
+}
+
+/*电子秤获取固件版本*/
+fortuna_bool_t scale_obtain_firmware_version(uint8_t scale,uint32_t scale_param)
+{
+ uint8_t scale_end,scale_start;
+ fortuna_bool_t ret=FORTUNA_TRUE;
+ eMBMasterReqErrCode err_code;
+ /*计算电子秤数量*/
+ check_scale_cnt(scale,&scale_start,&scale_end);
+ (void)scale_param;
+/*操作电子秤*/
+ for(scale=scale_start;scale<=scale_end;scale++)
+ {
+  APP_LOG_DEBUG("%2d#电子秤获取固件版本...\r\n",scale);
+  err_code=eMBMasterReqReadHoldingRegister(scale,DEVICE_FIRMWARE_VERTION_REG_ADDR,DEVICE_FIRMWARE_VERTION_REG_CNT,SCALE_WAIT_TIMEOUT);
+  if(err_code!=MB_MRE_NO_ERR)
+  {
+  ret=FORTUNA_FALSE;
+  APP_LOG_ERROR("%2d#电子秤获取固件版本失败.\r\n",scale);
+  }
+  else
+  {
+  APP_LOG_DEBUG("%2d#电子秤获取固件版本成功.\r\n",scale);
+  }
+  osDelay(SCALE_OPERATION_INTERVAL);
+ }
+ return ret;
+}
+
+/*电子秤设置最大称重值*/
+fortuna_bool_t scale_set_max_weight(uint8_t scale,uint32_t scale_param)
+{
+ uint8_t scale_end,scale_start;
+ uint16_t param[DEVICE_MAX_WEIGHT_REG_CNT];
+ fortuna_bool_t ret=FORTUNA_TRUE;
+ eMBMasterReqErrCode err_code;
+ /*计算电子秤数量*/
+ check_scale_cnt(scale,&scale_start,&scale_end);
+ for(uint8_t i=0;i<DEVICE_MAX_WEIGHT_REG_CNT;i++)
+ {
+ param[i]=scale_param>>((DEVICE_MAX_WEIGHT_REG_CNT-1-i)*16);
+ }
+/*操作电子秤*/
+ for(scale=scale_start;scale<=scale_end;scale++)
+ {
+  APP_LOG_DEBUG("%2d#电子秤设置最大称重值...\r\n",scale);
+   err_code=eMBMasterReqWriteMultipleHoldingRegister(scale,DEVICE_MAX_WEIGHT_REG_ADDR,DEVICE_MAX_WEIGHT_REG_CNT,param,SCALE_WAIT_TIMEOUT);
+  if(err_code!=MB_MRE_NO_ERR)
+  {
+  ret=FORTUNA_FALSE;
+  APP_LOG_ERROR("%2d#电子秤设置最大称重值失败.\r\n",scale);
+  }
+  else
+  {
+  APP_LOG_DEBUG("%2d#电子秤设置最大称重值成功.\r\n",scale);
+  }
+  osDelay(SCALE_OPERATION_INTERVAL);
+ }
+ return ret;
+}
+
+/*电子秤设置分度值*/
+fortuna_bool_t scale_set_division(uint8_t scale,uint32_t scale_param)
+{
+ uint8_t scale_end,scale_start;
+ uint16_t param[DEVICE_DIVISION_REG_CNT];
+ fortuna_bool_t ret=FORTUNA_TRUE;
+ eMBMasterReqErrCode err_code;
+ /*计算电子秤数量*/
+ check_scale_cnt(scale,&scale_start,&scale_end);
+ for(uint8_t i=0;i<DEVICE_DIVISION_REG_CNT;i++)
+ {
+ param[i]=scale_param>>((DEVICE_DIVISION_REG_CNT-1-i)*16);
+ }
+/*操作电子秤*/
+ for(scale=scale_start;scale<=scale_end;scale++)
+ {
+  APP_LOG_DEBUG("%2d#电子秤设置分度值...\r\n",scale);
+  err_code=eMBMasterReqWriteMultipleHoldingRegister(scale,DEVICE_DIVISION_REG_ADDR,DEVICE_DIVISION_REG_CNT,param,SCALE_WAIT_TIMEOUT);
+  if(err_code!=MB_MRE_NO_ERR)
+  {
+  ret=FORTUNA_FALSE;
+  APP_LOG_ERROR("%2d#电子秤设置分度值失败.\r\n",scale);
+  }
+  else
+  {
+  APP_LOG_DEBUG("%2d#电子秤设置分度值成功.\r\n",scale);
+  }
+  osDelay(SCALE_OPERATION_INTERVAL);
+ }
+ return ret;
+}
+
+/*电子秤设备锁*/
+fortuna_bool_t scale_lock_operation(uint8_t scale,uint32_t scale_param)
+{
+ uint8_t scale_end,scale_start;
+ uint16_t param[DEVICE_LOCK_REG_CNT];
+ fortuna_bool_t ret=FORTUNA_TRUE;
+ eMBMasterReqErrCode err_code;
+ /*计算电子秤数量*/
+ check_scale_cnt(scale,&scale_start,&scale_end);
+ if(scale_param==SCALE_UNLOCK_VALUE)
+ {
+ APP_LOG_DEBUG("解锁操作.\r\n");
+ }
+ else
+ {
+ APP_LOG_DEBUG("上锁操作.\r\n");
+ }
+ for(uint8_t i=0;i<DEVICE_LOCK_REG_CNT;i++)
+ {
+ param[i]=scale_param>>((DEVICE_LOCK_REG_CNT-1-i)*16);
+ }
+/*操作电子秤*/
+ for(scale=scale_start;scale<=scale_end;scale++)
+ {
+  APP_LOG_DEBUG("%2d#电子秤锁操作...\r\n",scale);
+  err_code=eMBMasterReqWriteMultipleHoldingRegister(scale,DEVICE_LOCK_REG_ADDR,DEVICE_LOCK_REG_CNT,param,SCALE_WAIT_TIMEOUT);
+  if(err_code!=MB_MRE_NO_ERR)
+  {
+  ret=FORTUNA_FALSE;
+  APP_LOG_ERROR("%2d#电子秤锁操作失败.\r\n",scale);
+  }
+  else
+  {
+  APP_LOG_DEBUG("%2d#电子秤锁操作成功.\r\n",scale);
+  }
+  osDelay(SCALE_OPERATION_INTERVAL);
+ }
+ return ret;
+}
+
+
+

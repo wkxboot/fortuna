@@ -45,7 +45,7 @@ static uint8_t lock_task_update_door_state()
 {
   bsp_state_t state_up,state_dwn;
   state_up=BSP_get_door_up_state();
-  state_dwn=BSP_get_door_up_state();
+  state_dwn=BSP_get_door_dwn_state();
   if(state_up==state_dwn && state_up==LOCK_STATE_OPEN)
     lock_state=LOCK_TASK_STATE_UNLOCKED ;
   else

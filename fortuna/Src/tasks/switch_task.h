@@ -10,7 +10,7 @@ extern osThreadId switch_task_hdl;
 
 #define  SWITCH_TASK_INIT_DISPLAY_HOLD_ON_TIME     250/*初始化显示时数据保持时间*/
 
-#define  SWITCH_TASK_WAIT_TIMEOUT                  550/*按键任务操作电子秤等待超时时间*/
+#define  SWITCH_TASK_WAIT_TIMEOUT                  120/*按键任务操作电子秤等待超时时间*/
 #define  SWITCH_TASK_CALIBRATE_EXIT_WAIT_TIME      2000/*等待校准退出的时间*/
 
 
