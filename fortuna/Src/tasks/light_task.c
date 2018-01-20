@@ -15,6 +15,9 @@ void light_task(void const * argument)
 {
  osEvent signal;
  APP_LOG_INFO("######灯条任务开始.\r\n");
+ /*暂时定义自己打开自己*/
+ osSignalSet(light_task_hdl,LIGHT_TASK_LIGHT_1_PWR_ON_SIGNAL|LIGHT_TASK_LIGHT_2_PWR_ON_SIGNAL);
+ 
  while(1)
  {
  signal=osSignalWait(LIGHT_TASK_ALL_SIGNALS,LIGHT_TASK_INTERVAL);

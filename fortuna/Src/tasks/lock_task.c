@@ -65,6 +65,8 @@ void lock_task(void const * argument)
  lock_task_msg_q_id=osMessageCreate(osMessageQ(lock_task_msg),lock_task_hdl);
  APP_ASSERT(lock_task_msg_q_id);
  
+ /*关闭门上灯*/
+ BSP_LED_TURN_ON_OFF(DOOR_ORANGE_LED|DOOR_GREEN_LED|DOOR_RED_LED,LED_CTL_OFF); 
  while(1)
  {
   msg=osMessageGet(lock_task_msg_q_id,LOCK_TASK_INTERVAL);
@@ -96,6 +98,10 @@ void lock_task(void const * argument)
     }
     if(lock_state==LOCK_TASK_STATE_UNLOCKED)
     {
+    /*关闭门上其余灯*/
+    BSP_LED_TURN_ON_OFF(DOOR_ORANGE_LED,LED_CTL_OFF); 
+    /*打开门上蓝色指示灯*/
+    BSP_LED_TURN_ON_OFF(DOOR_GREEN_LED|DOOR_RED_LED,LED_CTL_ON);
     APP_LOG_DEBUG("向通信任务发送开锁成功信号.\r\n");
     osSignalSet(host_comm_task_hdl,COMM_TASK_UNLOCK_LOCK_OK_SIGNAL); 
     }
@@ -119,6 +125,10 @@ void lock_task(void const * argument)
     }
     if(lock_state==LOCK_TASK_STATE_LOCKED)
     {
+    /*关闭门上其余灯*/
+    BSP_LED_TURN_ON_OFF(DOOR_GREEN_LED|DOOR_RED_LED,LED_CTL_OFF); 
+    /*打开门上橙色指示灯*/
+    BSP_LED_TURN_ON_OFF(DOOR_ORANGE_LED,LED_CTL_ON);
     APP_LOG_DEBUG("向通信任务发送关锁成功信号.\r\n");
     osSignalSet(host_comm_task_hdl,COMM_TASK_LOCK_LOCK_OK_SIGNAL); 
     }

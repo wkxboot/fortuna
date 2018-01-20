@@ -169,28 +169,28 @@ static void calibrate_sw_long_press_normal()
   calibrate_w =get_calibrate_memory_calibrate_weight();
   
   APP_LOG_DEBUG("按键任务执行校准...\r\n");
+  /*校准时应该把皮重值清零*/
+  ret=scale_remove_tare(calibrate_idx,0);
+  if(ret==FORTUNA_FALSE)
+  goto calibrate_err_handle;
+  /*标定内码值*/
   ret=scale_calibrate_code(calibrate_idx,calibrate_w);
-  /*执行成功*/
-  if(ret==FORTUNA_TRUE)
-  {
-   ret=scale_calibrate_measurement(calibrate_idx,calibrate_w);
-   if(ret==FORTUNA_TRUE)
-  {
+  if(ret==FORTUNA_FALSE)
+  goto calibrate_err_handle;
+   /*标定测量值*/
+  ret=scale_calibrate_measurement(calibrate_idx,calibrate_w);
+  if(ret==FORTUNA_FALSE)
+  goto calibrate_err_handle;
+ /*执行成功*/
   APP_LOG_DEBUG("按键任务校准成功.\r\n");
   osSignalSet(calibrate_memory_task_hdl,CALIBRATE_MEMORY_TASK_CALIBRATE_OK_SIGNAL);
-  }
-  else
-  {
-  APP_LOG_DEBUG("按键任务校准失败.\r\n");
-  osSignalSet(calibrate_memory_task_hdl,CALIBRATE_MEMORY_TASK_CALIBRATE_ERR_SIGNAL); 
-  }
-  }
-  else
-  {
+  goto calibrate_ok_handle;
+  
+ calibrate_err_handle:/*校准失败handle*/ 
   APP_LOG_DEBUG("按键任务校准失败.\r\n");
   osSignalSet(calibrate_memory_task_hdl,CALIBRATE_MEMORY_TASK_CALIBRATE_ERR_SIGNAL);
-  }
   
+ calibrate_ok_handle:
   osDelay(SWITCH_TASK_CALIBRATE_EXIT_WAIT_TIME);
   APP_LOG_DEBUG("切换为正常模式.\r\n");
   }
@@ -261,23 +261,19 @@ static void zero_sw_short_press_normal()
  fortuna_bool_t ret;
  w_idx=get_weight_memory_idx();
  ret=scale_remove_tare(w_idx,0);/*首先设置皮重为0*/
- if(ret==FORTUNA_TRUE)
- {
+ if(ret==FORTUNA_FALSE)
+ goto zero_err_handle;
  ret=scale_clear_zero(w_idx,0);
   /*执行成功*/
- if(ret==FORTUNA_TRUE)
- {
+ if(ret==FORTUNA_FALSE)
+ goto zero_err_handle;
+ 
  APP_LOG_DEBUG("按键任务执行清零成功.\r\n");
- }
- else
- {
+ return;
+ 
+zero_err_handle:
  APP_LOG_DEBUG("按键任务执行清零失败.\r\n");
- }
- }
- else
- {
- APP_LOG_DEBUG("按键任务执行清零失败.\r\n");
- }
+
 }
 static void zero_sw_long_press_normal()
 {

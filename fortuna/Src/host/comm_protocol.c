@@ -263,6 +263,7 @@ static comm_status_t comm_cmd01_process(uint8_t *ptr_param,uint8_t param_len,uin
   }
   msg.type=SCALE_FUNC_TASK_CLEAR_TARE_WEIGHT_MSG;
   msg.scale=scale;
+  msg.param16=1;/*非0代表当前毛重为皮重值*/
   /*向电子秤任务发送去除皮重消息*/
   APP_LOG_DEBUG("向电子秤任务发送去除皮重消息.\r\n");
   osMessagePut(scale_func_msg_q_id,*(uint32_t*)&msg,0);
@@ -308,45 +309,54 @@ static comm_status_t comm_cmd02_process(uint8_t *ptr_param,uint8_t param_len,uin
   APP_LOG_ERROR("命令0x02参数%d非法.\r\n",scale);
   return COMM_ERR;
  }
+/*向电子秤任务发送校准消息*/
+ APP_LOG_DEBUG("向电子秤任务发送校准消息.\r\n");
+ APP_LOG_DEBUG("第一步发送设置皮重为0消息.\r\n");
+  /*设置皮重为0*/
+ msg.type=SCALE_FUNC_TASK_CLEAR_TARE_WEIGHT_MSG;
+ msg.scale=scale;
+ msg.param16=0;
+ osMessagePut(scale_func_msg_q_id,*(uint32_t*)&msg,0);
+  /*等待处理返回*/
+ APP_LOG_DEBUG("等待电子秤任务返回设置0皮重结果...\r\n");
+ signal=osSignalWait(COMM_TASK_CLEAR_SCALE_TARE_WEIGHT_OK_SIGNAL|COMM_TASK_CLEAR_SCALE_TARE_WEIGHT_ERR_SIGNAL,COMM_TASK_CLEAR_SCALE_TARE_WEIGHT_TIMEOUT);
+ if(!(signal.status==osEventSignal && (signal.value.signals & COMM_TASK_CLEAR_SCALE_TARE_WEIGHT_OK_SIGNAL)))
+ goto comm_calibrate_err_handle;
+ 
+ APP_LOG_DEBUG("第二步发送标定内码消息.\r\n");
+ /*标定内码*/
  msg.type=SCALE_FUNC_TASK_CALIBRATE_CODE_MSG;
  msg.scale=scale;
  msg.param16=weight;
- /*向电子秤任务发送校准消息*/
- APP_LOG_DEBUG("向电子秤任务发送校准消息.\r\n");
- APP_LOG_DEBUG("第一步发送标定内码消息.\r\n");
  osMessagePut(scale_func_msg_q_id,*(uint32_t*)&msg,0);
  /*等待处理返回*/
  APP_LOG_DEBUG("等待电子秤任务返回标定内码结果...\r\n");
  signal=osSignalWait(COMM_TASK_CALIBRATE_SCALE_CODE_OK_SIGNAL|COMM_TASK_CALIBRATE_SCALE_CODE_ERR_SIGNAL,COMM_TASK_CALIBRATE_SCALE_CODE_TIMEOUT);
- if(signal.status==osEventSignal && (signal.value.signals & COMM_TASK_CALIBRATE_SCALE_CODE_OK_SIGNAL))
- {
+ if(!(signal.status==osEventSignal && (signal.value.signals & COMM_TASK_CALIBRATE_SCALE_CODE_OK_SIGNAL)))
+ goto comm_calibrate_err_handle;
+ 
+ APP_LOG_DEBUG("第三步发送标定测量值消息.\r\n");
  msg.type=SCALE_FUNC_TASK_CALIBRATE_MEASUREMENT_MSG;
  msg.scale=scale;
  msg.param16=weight;
- APP_LOG_DEBUG("第二步发送标定测量值消息.\r\n");
  osMessagePut(scale_func_msg_q_id,*(uint32_t*)&msg,0);
  /*等待处理返回*/
  APP_LOG_DEBUG("等待电子秤任务返回标定测量值结果...\r\n");
  signal=osSignalWait(COMM_TASK_CALIBRATE_SCALE_MEASUREMENT_OK_SIGNAL|COMM_TASK_CALIBRATE_SCALE_MEASUREMENT_ERR_SIGNAL,COMM_TASK_CALIBRATE_SCALE_MEASUREMENT_TIMEOUT);
- if(signal.status==osEventSignal && (signal.value.signals & COMM_TASK_CALIBRATE_SCALE_MEASUREMENT_OK_SIGNAL))
- { 
-  /*回填操作结果*/
-  ptr_param[0]=COMM_CMD02_EXECUTE_RESULT_SUCCESS; 
-  APP_LOG_DEBUG("命令0x02执行成功.\r\n");
- }
- else
- {
-  /*回填操作结果*/
-  ptr_param[0]=COMM_CMD02_EXECUTE_RESULT_FAIL;
-  APP_LOG_ERROR("命令0x02执行失败.\r\n");
- }
- }
- else
- {
+ if(!(signal.status==osEventSignal && (signal.value.signals & COMM_TASK_CALIBRATE_SCALE_MEASUREMENT_OK_SIGNAL)))
+ goto comm_calibrate_err_handle;
+ 
+ /*回填操作结果*/
+ ptr_param[0]=COMM_CMD02_EXECUTE_RESULT_SUCCESS; 
+ APP_LOG_DEBUG("命令0x02执行成功.\r\n");
+ goto comm_calibrate_ok_handle;
+  
+comm_calibrate_err_handle:
   /*回填操作结果*/
   ptr_param[0]=COMM_CMD02_EXECUTE_RESULT_FAIL;
   APP_LOG_ERROR("命令0x02执行失败.\r\n");
- }
+  
+comm_calibrate_ok_handle:
  /*更新需要发送的数据长度*/
  *ptr_send_len+=COMM_CMD02_EXECUTE_RESULT_SIZE;
   return COMM_OK;
@@ -377,28 +387,46 @@ static comm_status_t comm_cmd03_process(uint8_t *ptr_param,uint8_t param_len,uin
  {
  /*回填重量值*/
   get_net_weight(i+1,&weight);
-  if(weight>SCLAE_NET_WEIGHT_INVALID_VALUE ||weight<0)
+  if(weight>0x7fff)
   {
-  ptr_param[i*2]=0xff;
+  ptr_param[i*2]=0x7f;
   ptr_param[i*2+1]=0xff;
+  }
+  else if(weight<(-0x8000))
+  {
+  ptr_param[i*2]=0x80;
+  ptr_param[i*2+1]=00;
   }
   else
   {
   ptr_param[i*2]=weight>>8;
-  ptr_param[i*2+1]=weight & 0xff;
+  ptr_param[i*2+1]=weight; 
   }
  }
- APP_LOG_DEBUG("获取称重值：#1:%dg #2:%dg #3:%dg #4:%dg\r\n",ptr_param[0]<<8|ptr_param[1],\
-   ptr_param[2]<<8|ptr_param[3],ptr_param[4]<<8|ptr_param[5],ptr_param[6]<<8|ptr_param[7]);
+ APP_LOG_DEBUG("获取称重值：#1:%dg #2:%dg #3:%dg #4:%dg\r\n",(int16_t)(ptr_param[0]<<8|ptr_param[1]),\
+  (int16_t)(ptr_param[2]<<8|ptr_param[3]),(int16_t)(ptr_param[4]<<8|ptr_param[5]),(int16_t)(ptr_param[6]<<8|ptr_param[7]));
  /*更新需要发送的数据长度*/
  *ptr_send_len+=COMM_CMD03_EXECUTE_RESULT_ALL_SCALES_SIZE;
  }
  else
  {
   get_net_weight(scale,&weight);
+  if(weight>0x7fff)
+  {
+  ptr_param[0]=0x7f;
+  ptr_param[1]=0xff;
+  }
+  else if(weight<(-0x8000))
+  {
+  ptr_param[0]=0x80;
+  ptr_param[1]=00;
+  }
+  else
+  {
   ptr_param[0]=weight>>8;
   ptr_param[1]=weight & 0xff;
-  APP_LOG_DEBUG("获取称重值：%d\r\n",ptr_param[0]<<8|ptr_param[1]);
+  }
+  APP_LOG_DEBUG("获取称重值：%d\r\n",(int16_t)(ptr_param[0]<<8|ptr_param[1]));
   /*更新需要发送的数据长度*/
   *ptr_send_len+=COMM_CMD03_EXECUTE_RESULT_ONE_SCALE_SIZE;
  }

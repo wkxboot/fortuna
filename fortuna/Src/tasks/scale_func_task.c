@@ -63,7 +63,9 @@ void scale_func_task(void const * argument)
    }
  case  SCALE_FUNC_TASK_CLEAR_TARE_WEIGHT_MSG:
     APP_LOG_DEBUG("收到去皮指令消息.\r\n");
-
+   if(scale_msg.param16==0)/*设置皮重为0*/
+   ret=scale_remove_tare(scale_msg.scale,0); 
+   else/*自动取当前毛重值为皮重*/
    ret=scale_remove_tare(scale_msg.scale,SCALE_AUTO_TARE_WEIGHT_VALUE); 
     /*全部执行成功*/
    if(ret==FORTUNA_TRUE)

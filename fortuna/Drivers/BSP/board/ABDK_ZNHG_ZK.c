@@ -17,12 +17,16 @@ bsp_state_t BSP_get_lock_sw_state()
 {
  return (bsp_state_t)HAL_GPIO_ReadPin(LOCK_SW_STATE_POS_GPIO_Port,LOCK_SW_STATE_POS_Pin);
 }
-#define  UPS_STATE_POS_GPIO_Port  GPIOB
-#define  UPS_STATE_POS_Pin        GPIO_PIN_10
-/*获取UPS状态*/
-bsp_state_t BSP_get_ups_state()
+
+/*获取UPS 1状态*/
+bsp_state_t BSP_get_ups1_state()
 {
- return (bsp_state_t)HAL_GPIO_ReadPin(UPS_STATE_POS_GPIO_Port,UPS_STATE_POS_Pin);
+ return (bsp_state_t)HAL_GPIO_ReadPin(UPS_1_STATE_POS_GPIO_Port,UPS_1_STATE_POS_Pin);
+}
+/*获取UPS 状态*/
+bsp_state_t BSP_get_ups2_state()
+{
+ return (bsp_state_t)HAL_GPIO_ReadPin(UPS_2_STATE_POS_GPIO_Port,UPS_2_STATE_POS_Pin);
 }
 
 /*获取门上部传感器状态*/

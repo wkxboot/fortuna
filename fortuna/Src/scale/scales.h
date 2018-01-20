@@ -5,15 +5,13 @@
 fortuna_bool_t get_net_weight(uint8_t sclae,int32_t *ptr_net_weight);
 
 #define  SCALE_WAIT_TIMEOUT                    110
-#define  SCALE_OPERATION_INTERVAL              10
+#define  SCALE_OPERATION_INTERVAL              1
 
 
 /*称重单元数量*/
 #define  SCALES_CNT_MAX                        4
 
-/*无效的重量值*/
-#define  SCLAE_NET_WEIGHT_INVALID_VALUE          99999
-#define  SCLAE_NET_WEIGHT_INVALID_VALUE_NEGATIVE (-9999)
+
 
 /*电子秤操作值*/
 #define  SCALE_UNLOCK_VALUE                    0x5AA5   

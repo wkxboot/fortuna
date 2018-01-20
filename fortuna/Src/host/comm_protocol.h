@@ -57,10 +57,10 @@ comm_status_t comm_send_fsm(uint8_t *ptr_buff,uint8_t send_len);
 
 
 /*通信任务子函数超时时间*/
-#define  COMM_TASK_CALIBRATE_SCALE_CODE_TIMEOUT             250
-#define  COMM_TASK_CALIBRATE_SCALE_MEASUREMENT_TIMEOUT      250
-#define  COMM_TASK_CLEAR_SCALE_TARE_WEIGHT_TIMEOUT          250
-#define  COMM_TASK_CALIBRATE_SCALE_WEIGHT_TIMEOUT           250
+#define  COMM_TASK_CALIBRATE_SCALE_CODE_TIMEOUT             160
+#define  COMM_TASK_CALIBRATE_SCALE_MEASUREMENT_TIMEOUT      400
+#define  COMM_TASK_CLEAR_SCALE_TARE_WEIGHT_TIMEOUT          160
+#define  COMM_TASK_CALIBRATE_SCALE_WEIGHT_TIMEOUT           400
 #define  COMM_TASK_UNLOCK_LOCK_TIMEOUT                      100
 #define  COMM_TASK_LOCK_LOCK_TIMEOUT                        100
 
@@ -72,7 +72,7 @@ comm_status_t comm_send_fsm(uint8_t *ptr_buff,uint8_t send_len);
 #define  COMM_ADDR_SIZE                                     1
 #define  COMM_CMD_OFFSET                                    1
 #define  COMM_CMD_SIZE                                      1
-#define  COMM_PARAM_OFFSET                                   2
+#define  COMM_PARAM_OFFSET                                  2
 
 /*目前实际只有4个称重单元*/
 #define  COMM_CMD_PARAM_SCALE_MAX                       SCALES_CNT_MAX

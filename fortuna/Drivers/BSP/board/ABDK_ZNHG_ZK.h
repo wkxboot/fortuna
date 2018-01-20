@@ -76,8 +76,10 @@ typedef enum
 bsp_state_t BSP_get_lock_state();
 /*获取开锁按键状态*/
 bsp_state_t BSP_get_lock_sw_state();
-/*获取UPS状态*/
-bsp_state_t BSP_get_ups_state();
+/*获取UPS1状态*/
+bsp_state_t BSP_get_ups1_state();
+/*获取UPS2状态*/
+bsp_state_t BSP_get_ups2_state();
 /*获取门上部传感器状态*/
 bsp_state_t BSP_get_door_up_state();
 /*获取门下部传感器状态*/

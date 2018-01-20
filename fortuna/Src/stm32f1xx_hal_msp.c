@@ -82,9 +82,9 @@ void HAL_MspInit(void)
   /* SysTick_IRQn interrupt configuration */
   HAL_NVIC_SetPriority(SysTick_IRQn, 15, 0);
 
-    /**ENABLE: Full SWJ (JTAG-DP + SW-DP): Reset State 
+    /**NOJTAG: JTAG-DP Disabled and SW-DP Enabled 
     */
-  __HAL_AFIO_REMAP_SWJ_ENABLE();
+  __HAL_AFIO_REMAP_SWJ_NOJTAG();
 
   /* USER CODE BEGIN MspInit 1 */
 

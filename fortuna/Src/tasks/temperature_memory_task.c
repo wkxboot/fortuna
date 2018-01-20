@@ -27,19 +27,28 @@ void temperature_memory_task(void const * argument)
  {
  osDelay(TEMPERATURE_MEMORY_TASK_INTERVAL);
  t=get_average_temperature();
- if(t<0 || t==TEMPERATURE_TASK_ERR_T_VALUE ||t >=100)/*只显示两位*/
+ /*判断温度值范围 只有2位显示区域*/
+ if(t==TEMPERATURE_TASK_ERR_T_VALUE || t > TEMPERATURE_INVALID_VALUE ||t < TEMPERATURE_INVALID_VALUE_NEGATIVE)
  {
- t_dis_buff[0].num=0x0F;
- t_dis_buff[0].dp=FORTUNA_TRUE;
- t_dis_buff[1].num=0x0F;
- t_dis_buff[1].dp=FORTUNA_TRUE;
+ /*超量程或者错误*/
+ t_dis_buff[0].num=DISPLAY_LED_NEGATIVE_NUM;
+ t_dis_buff[0].dp=FORTUNA_FALSE;
+ t_dis_buff[1].num=DISPLAY_LED_NEGATIVE_NUM;
+ t_dis_buff[1].dp=FORTUNA_FALSE;
  }
- else
+ else if(t>=0)/*正数范围*/
  {
  t_dis_buff[0].num=t/10;  
  t_dis_buff[0].dp=FORTUNA_FALSE;
  t_dis_buff[1].num=t%10;  
  t_dis_buff[1].dp=FORTUNA_FALSE;
+ }
+ else /*负数范围*/
+ {
+ t_dis_buff[0].num=DISPLAY_LED_NEGATIVE_NUM;  
+ t_dis_buff[0].dp=FORTUNA_FALSE;
+ t_dis_buff[1].num=t%10;  
+ t_dis_buff[1].dp=FORTUNA_FALSE;  
  }
  t_dis_buff[2].num=DISPLAY_LED_NULL_NUM;
  t_dis_buff[3].num=DISPLAY_LED_NULL_NUM;

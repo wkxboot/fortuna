@@ -25,10 +25,11 @@ return ups_state;
 
 static void update_ups_state()
 {
-bsp_state_t state;
-state=BSP_get_ups_state();
+bsp_state_t state1,state2;
+state1=BSP_get_ups1_state();
+state2=BSP_get_ups2_state();
 /*如果UPS连接了主电源*/
-if(state==UPS_PWR_STATE_ON)
+if(state1==state2 && state2==UPS_PWR_STATE_ON)
 ups_state=UPS_TASK_STATE_PWR_ON;
 else
 ups_state=UPS_TASK_STATE_PWR_OFF;

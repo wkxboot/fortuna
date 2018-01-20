@@ -14,8 +14,8 @@ void temperature_memory_task(void const * argument);
 #define  TEMPERATURE_MEMORY_TASK_INTERVAL          1000
 
 
-
-
+#define  TEMPERATURE_INVALID_VALUE                 99
+#define  TEMPERATURE_INVALID_VALUE_NEGATIVE        (-9)
 
 
 #endif

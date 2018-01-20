@@ -374,6 +374,7 @@ fortuna_bool_t scale_manully_zero_range(uint8_t scale,uint32_t scale_param)
   {
   ret=FORTUNA_FALSE;
   APP_LOG_ERROR("%2d#电子秤设置手动置零范围失败.\r\n",scale);
+  return ret;/*只要有一个称出现错误就立即返回 减少响应时间*/
   }
   else
   {
@@ -406,6 +407,7 @@ fortuna_bool_t scale_clear_zero(uint8_t scale,uint32_t scale_param)
   {
   ret=FORTUNA_FALSE;
   APP_LOG_ERROR("%2d#电子秤清零失败.\r\n",scale);
+  return ret;/*只要有一个称出现错误就立即返回 减少响应时间*/
   }
   else
   {
@@ -425,7 +427,7 @@ fortuna_bool_t scale_remove_tare(uint8_t scale,uint32_t scale_param)
  eMBMasterReqErrCode err_code;
  /*计算电子秤数量*/
  check_scale_cnt(scale,&scale_start,&scale_end);
- ;
+
  for(uint8_t i=0;i<DEVICE_TARE_WEIGHT_REG_CNT;i++)
  {
  param[i]=scale_param>>((DEVICE_TARE_WEIGHT_REG_CNT-1-i)*16);
@@ -439,6 +441,7 @@ fortuna_bool_t scale_remove_tare(uint8_t scale,uint32_t scale_param)
   {
   ret=FORTUNA_FALSE;
   APP_LOG_ERROR("%2d#电子秤去皮失败.\r\n",scale);
+  return ret;/*只要有一个称出现错误就立即返回 减少响应时间*/
   }
   else
   {
@@ -487,6 +490,7 @@ fortuna_bool_t scale_calibrate_code(uint8_t scale,uint32_t scale_param)
   {
   ret=FORTUNA_FALSE;
   APP_LOG_ERROR("%2d#电子秤内码值标定失败.\r\n",scale);
+  return ret;/*只要有一个称出现错误就立即返回 减少响应时间*/
   }
   else
   {
@@ -535,6 +539,7 @@ fortuna_bool_t scale_calibrate_measurement(uint8_t scale,uint32_t scale_param)
   {
   ret=FORTUNA_FALSE;
   APP_LOG_ERROR("%2d#电子秤测量值标定失败.\r\n",scale);
+  return ret;/*只要有一个称出现错误就立即返回 减少响应时间*/
   }
   else
   {
@@ -582,6 +587,7 @@ fortuna_bool_t scale_calibrate_weight(uint8_t scale,uint32_t scale_param)
   {
   ret=FORTUNA_FALSE;
   APP_LOG_ERROR("%2d#电子秤重量值标定失败.\r\n",scale);
+  return ret;/*只要有一个称出现错误就立即返回 减少响应时间*/
   }
   else
   {
@@ -610,6 +616,7 @@ fortuna_bool_t scale_obtain_net_weight(uint8_t scale,uint32_t scale_param)
   {
   ret=FORTUNA_FALSE;
   APP_LOG_ERROR("%2d#电子秤获取净重失败.\r\n",scale);
+  return ret;/*只要有一个称出现错误就立即返回 减少响应时间*/
   }
   else
   {
@@ -638,6 +645,7 @@ fortuna_bool_t scale_obtain_firmware_version(uint8_t scale,uint32_t scale_param)
   {
   ret=FORTUNA_FALSE;
   APP_LOG_ERROR("%2d#电子秤获取固件版本失败.\r\n",scale);
+  return ret;/*只要有一个称出现错误就立即返回 减少响应时间*/
   }
   else
   {
@@ -670,6 +678,7 @@ fortuna_bool_t scale_set_max_weight(uint8_t scale,uint32_t scale_param)
   {
   ret=FORTUNA_FALSE;
   APP_LOG_ERROR("%2d#电子秤设置最大称重值失败.\r\n",scale);
+  return ret;/*只要有一个称出现错误就立即返回 减少响应时间*/
   }
   else
   {
@@ -702,6 +711,7 @@ fortuna_bool_t scale_set_division(uint8_t scale,uint32_t scale_param)
   {
   ret=FORTUNA_FALSE;
   APP_LOG_ERROR("%2d#电子秤设置分度值失败.\r\n",scale);
+  return ret;/*只要有一个称出现错误就立即返回 减少响应时间*/
   }
   else
   {
@@ -742,6 +752,7 @@ fortuna_bool_t scale_lock_operation(uint8_t scale,uint32_t scale_param)
   {
   ret=FORTUNA_FALSE;
   APP_LOG_ERROR("%2d#电子秤锁操作失败.\r\n",scale);
+  return ret;/*只要有一个称出现错误就立即返回 减少响应时间*/
   }
   else
   {
