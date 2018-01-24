@@ -4,6 +4,7 @@
 #include "lock_task.h"
 #include "comm_protocol.h"
 #include "host_comm_task.h"
+#include "glass_pwr_task.h"
 #include "ABDK_ZNHG_ZK.h"
 #define APP_LOG_MODULE_NAME   "[lock]"
 #define APP_LOG_MODULE_LEVEL   APP_LOG_LEVEL_DEBUG    
@@ -130,7 +131,9 @@ void lock_task(void const * argument)
     /*打开门上橙色指示灯*/
     BSP_LED_TURN_ON_OFF(DOOR_ORANGE_LED,LED_CTL_ON);
     APP_LOG_DEBUG("向通信任务发送关锁成功信号.\r\n");
-    osSignalSet(host_comm_task_hdl,COMM_TASK_LOCK_LOCK_OK_SIGNAL); 
+    osSignalSet(host_comm_task_hdl,COMM_TASK_LOCK_LOCK_OK_SIGNAL);
+    APP_LOG_DEBUG("玻璃加热任务发送加热信号.\r\n");
+    osSignalSet(glass_pwr_task_hdl,GLASS_PWR_TASK_ON_SIGNAL);
     }
     else
     {

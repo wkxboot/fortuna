@@ -101,6 +101,7 @@ void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 void configureTimerForRunTimeStats(void);
 unsigned long getRunTimeCounterValue(void);
 void vApplicationIdleHook(void);
+void vApplicationTickHook(void);
 void vApplicationStackOverflowHook(xTaskHandle xTask, signed char *pcTaskName);
 void vApplicationMallocFailedHook(void);
 
@@ -132,12 +133,25 @@ __weak void vApplicationIdleHook( void )
 }
 /* USER CODE END 2 */
 
+/* USER CODE BEGIN 3 */
+__weak void vApplicationTickHook( void )
+{
+   /* This function will be called by each tick interrupt if
+   configUSE_TICK_HOOK is set to 1 in FreeRTOSConfig.h. User code can be
+   added here, but the tick hook is called from an interrupt context, so
+   code must not attempt to block, and only the interrupt safe FreeRTOS API
+   functions can be used (those that end in FromISR()). */
+}
+/* USER CODE END 3 */
+
 /* USER CODE BEGIN 4 */
 __weak void vApplicationStackOverflowHook(xTaskHandle xTask, signed char *pcTaskName)
 {
    /* Run time stack overflow checking is performed if
    configCHECK_FOR_STACK_OVERFLOW is defined to 1 or 2. This hook function is
    called if a stack overflow is detected. */
+  APP_LOG_ERROR("系统任务栈溢出.\r\n");
+  APP_ERROR_HANDLER(0);
 }
 /* USER CODE END 4 */
 
@@ -154,6 +168,8 @@ __weak void vApplicationMallocFailedHook(void)
    FreeRTOSConfig.h, and the xPortGetFreeHeapSize() API function can be used
    to query the size of free heap space that remains (although it does not
    provide information on how the remaining heap might be fragmented). */
+  APP_LOG_ERROR("系统任务内存分配失败.\r\n");
+  APP_ERROR_HANDLER(0);
 }
 /* USER CODE END 5 */
 
@@ -210,7 +226,7 @@ void StartDefaultTask(void const * argument)
 /* USER CODE BEGIN Application */
 static void create_user_tasks()
 {
- /*创建任务同步事件�?*/
+ /*创建任务同步事件组*/
   task_sync_evt_group_hdl=xEventGroupCreate();
   APP_ASSERT(task_sync_evt_group_hdl);
   
@@ -218,20 +234,20 @@ static void create_user_tasks()
   osThreadDef(host_comm_task, host_comm_task, osPriorityNormal, 0, 128);
   host_comm_task_hdl = osThreadCreate(osThread(host_comm_task), NULL); 
   APP_ASSERT(host_comm_task_hdl);
-  /*创建电子秤功能任�?*/
+  /*创建电子秤功能任务*/
   osThreadDef(scale_func_task, scale_func_task, osPriorityNormal, 0, 128);
   scale_func_task_hdl = osThreadCreate(osThread(scale_func_task), NULL); 
   APP_ASSERT(scale_func_task_hdl);
-  /*创建电子秤轮询任�?*/
+  /*创建电子秤轮询任务*/
   osThreadDef(scale_poll_task, scale_poll_task, osPriorityNormal, 0, 128);
   scale_poll_task_hdl = osThreadCreate(osThread(scale_poll_task), NULL); 
   APP_ASSERT(scale_poll_task_hdl);
-  /*创建电子秤�?�信任务*/
+  /*创建电子秤通信任务*/
   osThreadDef(scale_comm_task, scale_comm_task, osPriorityNormal, 0, 128);
   scale_comm_task_hdl = osThreadCreate(osThread(scale_comm_task), NULL); 
   APP_ASSERT(scale_comm_task_hdl);
 
-  /*创建看门狗任�?*/
+  /*创建看门狗任务*/
   osThreadDef(watch_dog_task, watch_dog_task, osPriorityNormal, 0, 128);
   watch_dog_task_hdl = osThreadCreate(osThread(watch_dog_task), NULL); 
   APP_ASSERT(watch_dog_task_hdl);
@@ -246,7 +262,7 @@ static void create_user_tasks()
   osThreadDef(lock_task, lock_task, osPriorityNormal, 0, 128);
   lock_task_hdl = osThreadCreate(osThread(lock_task), NULL); 
   APP_ASSERT(lock_task_hdl);
-  /*创建数码管显示任�?*/
+  /*创建数码管显示任务*/
   osThreadDef(display_task, display_task, osPriorityNormal, 0, 128);
   display_task_hdl = osThreadCreate(osThread(display_task), NULL); 
   APP_ASSERT(display_task_hdl);
@@ -254,7 +270,7 @@ static void create_user_tasks()
   osThreadDef(switch_task,switch_task, osPriorityNormal, 0, 128);
   switch_task_hdl = osThreadCreate(osThread(switch_task), NULL); 
   APP_ASSERT(switch_task_hdl);
-  /*创建压缩机任�?*/
+  /*创建压缩机任务*/
   osThreadDef(compressor_task, compressor_task, osPriorityNormal, 0, 128);
   compressor_task_hdl = osThreadCreate(osThread(compressor_task), NULL); 
   APP_ASSERT(compressor_task_hdl);
@@ -298,7 +314,7 @@ static void create_user_tasks()
   calibrate_memory_task_hdl = osThreadCreate(osThread(calibrate_memory_task), NULL); 
   APP_ASSERT(calibrate_memory_task_hdl);
 
-  APP_LOG_INFO("�?有任务创建成�?.\r\n"); 
+  APP_LOG_INFO("所有任务创建成功.\r\n"); 
 }
 /* USER CODE END Application */
 

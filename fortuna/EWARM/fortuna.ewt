@@ -1433,6 +1433,12 @@
             </file>
         </group>
         <group>
+            <name>cpu</name>
+            <file>
+                <name>$PROJ_DIR$\..\libraries\CPU\cpu_utils.c</name>
+            </file>
+        </group>
+        <group>
             <name>segger_rtt</name>
             <group>
                 <name>rtt</name>

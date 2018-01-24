@@ -17,6 +17,7 @@
 #include "glass_pwr_task.h"
 #include "ups_task.h"
 #include "debug_task.h"
+#include "cpu_utils.h"
 #include "mb_m.h"
 #include "ABDK_ZNHG_ZK.h"
 #define APP_LOG_MODULE_NAME   "[debug]"
@@ -678,6 +679,19 @@ err_handle2:
  continue;
  }
  
+  /*cpu负载查询*/
+ cmd_len=strlen(DEBUG_TASK_CMD_CPU_LOAD);
+ if(memcmp((const char*)cmd,DEBUG_TASK_CMD_CPU_LOAD,cmd_len)==0)
+ { 
+ if(recv_len !=cmd_len+DEBUG_TASK_CMD_CPU_LOAD_PARAM_LEN)
+ {
+  APP_LOG_ERROR("查询cpu负载命令长度非法.\r\n");
+  continue;
+ }
+ 
+ APP_LOG_DEBUG("CPU负载：%d %%.\r\n",osGetCPUUsage());
+ continue;
+ }
  
  }
  }
