@@ -48,10 +48,10 @@ void debug_task(void const * argument)
  {
   osDelay(DEBUG_TASK_WAIT_TIMEOUT); 
   data_cnt=SEGGER_RTT_HasData(0);
-  /*buff0没有数据*/
+  /*buff0没有数据或者有超出最大数量值的数据*/
   if(data_cnt==0)
     continue;  
-  data_cnt=SEGGER_RTT_Read(0,cmd,data_cnt);
+  data_cnt=SEGGER_RTT_Read(0,cmd,DEBUG_CMD_MAX_LEN);
   if(debug_enable!=FORTUNA_TRUE)
     continue;
   APP_LOG_DEBUG("读的字节数：%d\r\n",data_cnt);  
