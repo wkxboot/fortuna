@@ -27,10 +27,12 @@
 #include "semphr.h"
 #include "event_groups.h"
 #define APP_LOG_MODULE_NAME   "[MB_M_EVT]"
-#define APP_LOG_MODULE_LEVEL   APP_LOG_LEVEL_INFO    
+#define APP_LOG_MODULE_LEVEL   APP_LOG_LEVEL_ERROR    
 #include "app_log.h"
 
 #define  EVENT_WAIT_FOREVER      0xFFFFFFFF
+
+extern  volatile uint32_t mb_response_time;
  // Declare a variable to hold the created event group.
 EventGroupHandle_t xMasterOsEvent;
 
@@ -149,10 +151,11 @@ BOOL xMBMasterRunResTake( LONG lTimeOut )
   {
     bOk=TRUE;
     APP_LOG_DEBUG("MODBUS主机获取信号量成功.\r\n" );
+    mb_response_time=ticks;/*根据实际情况赋值回应参数*/
   }
   else
   {
-   APP_LOG_ERROR("MODBUS主机获取信号量成功.\r\n" );
+   APP_LOG_ERROR("MODBUS主机获取信号量失败.\r\n" );
   }
   
     return bOk ;

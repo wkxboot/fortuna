@@ -3,7 +3,7 @@
 #include "cmsis_os.h"
 #include "ntc_3950.h"
 #define APP_LOG_MODULE_NAME   "[NTC]"
-#define APP_LOG_MODULE_LEVEL   APP_LOG_LEVEL_OFF    
+#define APP_LOG_MODULE_LEVEL   APP_LOG_LEVEL_ERROR    
 #include "app_log.h"
 
 static const int32_t r_t_map[81][2]={

@@ -5,7 +5,7 @@
 #include "display_led.h"
 #include "display_task.h"
 #define APP_LOG_MODULE_NAME   "[display]"
-#define APP_LOG_MODULE_LEVEL   APP_LOG_LEVEL_DEBUG    
+#define APP_LOG_MODULE_LEVEL   APP_LOG_LEVEL_INFO    
 #include "app_log.h"
 #include "app_error.h"
 

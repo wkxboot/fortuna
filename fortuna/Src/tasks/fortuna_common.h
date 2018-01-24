@@ -29,7 +29,7 @@ typedef enum
 /*长虹id*/
 #define  VENDOR_ID_CHANGHONG                  0x11
 /*固件版本号v1.0*/
-#define  FIRMWARE_VERSION                     0x10
+#define  FIRMWARE_VERSION                     0x01
 
 
 

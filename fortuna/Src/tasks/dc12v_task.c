@@ -15,6 +15,10 @@ void dc12v_task(void const * argument)
 {
  osEvent signal;
  APP_LOG_INFO("######12V任务开始.\r\n");
+ 
+ /*给自己发送打开12V电源信号*/
+ osSignalSet(dc12v_task_hdl,DC12V_TASK_12V_1_PWR_ON_SIGNAL|DC12V_TASK_12V_2_PWR_ON_SIGNAL);
+ 
  while(1)
  {
  signal=osSignalWait(DC12V_TASK_ALL_SIGNALS,DC12V_TASK_INTERVAL);

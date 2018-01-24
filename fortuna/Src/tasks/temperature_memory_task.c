@@ -9,7 +9,7 @@
 #include "temperature_task.h"
 #include "temperature_memory_task.h"
 #define APP_LOG_MODULE_NAME   "[t_mem]"
-#define APP_LOG_MODULE_LEVEL   APP_LOG_LEVEL_DEBUG    
+#define APP_LOG_MODULE_LEVEL   APP_LOG_LEVEL_INFO    
 #include "app_log.h"
 #include "app_error.h"
 

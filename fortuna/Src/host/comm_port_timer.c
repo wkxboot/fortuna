@@ -6,7 +6,7 @@
 #include "host_comm_task.h"
 #include "comm_port_timer.h"
 #define APP_LOG_MODULE_NAME   "[port_timer]"
-#define APP_LOG_MODULE_LEVEL   APP_LOG_LEVEL_DEBUG    
+#define APP_LOG_MODULE_LEVEL   APP_LOG_LEVEL_ERROR    
 #include "app_log.h"
 #include "app_error.h"
 
@@ -24,7 +24,7 @@ comm_status_t xcomm_port_serial_timer_init(uint16_t time)
 }
 void xcomm_port_serial_timer_start()
 {
- APP_LOG_DEBUG("启动HOST通信定时器.\r\n");
+ APP_LOG_DEBUG("HOST timer.\r\n");
  osTimerStart(host_comm_timer_id,timeout);
 }
 void xcomm_port_serial_timer_stop()

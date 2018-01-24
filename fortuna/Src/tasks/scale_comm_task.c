@@ -8,7 +8,7 @@
 #include "scale_poll_task.h"
 #include "mb_m.h"
 #define APP_LOG_MODULE_NAME   "[modbus_master]"
-#define APP_LOG_MODULE_LEVEL   APP_LOG_LEVEL_DEBUG    
+#define APP_LOG_MODULE_LEVEL   APP_LOG_LEVEL_INFO    
 #include "app_log.h"
 #include "app_error.h"
 
@@ -27,6 +27,8 @@ void scale_comm_task(void const * argument)
   eMBMasterEnable();
   /*等待MODBUS初始化完毕*/
   osDelay(10);
+  /*电子秤初始化*/
+  scale_init();
   APP_LOG_INFO("MODBUS主机任务等待同步...\r\n");
   xEventGroupSync(task_sync_evt_group_hdl,SCALE_COMM_TASK_SYNC_EVT,SCALE_POLL_TASK_SYNC_EVT |\
                                                                    SCALE_FUNC_TASK_SYNC_EVT |\

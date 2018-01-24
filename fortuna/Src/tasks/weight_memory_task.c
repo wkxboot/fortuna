@@ -8,7 +8,7 @@
 #include "switch_task.h"
 #include "weight_memory_task.h"
 #define APP_LOG_MODULE_NAME   "[w_mem]"
-#define APP_LOG_MODULE_LEVEL   APP_LOG_LEVEL_DEBUG    
+#define APP_LOG_MODULE_LEVEL   APP_LOG_LEVEL_INFO    
 #include "app_log.h"
 #include "app_error.h"
 
@@ -74,7 +74,7 @@ void weight_memory_task(void const * argument)
  /*2-6显示重量*/
  if(net_weight>SCLAE_NET_WEIGHT_INVALID_VALUE || net_weight<SCLAE_NET_WEIGHT_INVALID_VALUE_NEGATIVE)
  {
-    APP_LOG_DEBUG("重量值超量程.\r\n");
+    APP_LOG_ERROR("重量值超量程.\r\n");
    for(uint8_t i=1;i<DISPLAY_LED_POS_CNT;i++)
    w_dis_buff[i].num=DISPLAY_LED_NEGATIVE_NUM;
  }

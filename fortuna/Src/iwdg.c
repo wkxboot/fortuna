@@ -51,9 +51,6 @@
 #include "iwdg.h"
 
 /* USER CODE BEGIN 0 */
-#define APP_LOG_MODULE_NAME   "[iwdg]"
-#define APP_LOG_MODULE_LEVEL   APP_LOG_LEVEL_DEBUG    
-#include "app_log.h"
 #include "app_error.h"
 /* USER CODE END 0 */
 

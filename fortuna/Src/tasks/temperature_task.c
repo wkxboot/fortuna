@@ -7,7 +7,7 @@
 #include "ABDK_ZNHG_ZK.h"
 #include "adc.h"
 #define APP_LOG_MODULE_NAME   "[temperature]"
-#define APP_LOG_MODULE_LEVEL   APP_LOG_LEVEL_OFF    
+#define APP_LOG_MODULE_LEVEL   APP_LOG_LEVEL_INFO    
 #include "app_log.h"
 #include "app_error.h"
 
@@ -46,7 +46,7 @@ int8_t get_temperature(uint8_t t_idx)
 }
 int8_t get_average_temperature()
 {
-  int8_t t=0,temp;
+  int16_t t=0,temp;
   /*有多个温度计 我们只获取平均值*/
   for(uint8_t i=0;i<TEMPERATURE_CNT;i++)
   {
@@ -55,6 +55,10 @@ int8_t get_average_temperature()
   return TEMPERATURE_TASK_ERR_T_VALUE;
   t+=temp;
   }
+ t/=TEMPERATURE_CNT;
+ if(t >= (0x80) || t< (-0x80))/*8位有符号数*/
+ t=TEMPERATURE_TASK_ERR_T_VALUE;
+ 
  return t;
 }
 

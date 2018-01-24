@@ -4,7 +4,7 @@
 
 
 #define  LOCK_TASK_INTERVAL                    10/*锁和门的状态更新间隔*/
-#define  LOCK_TASK_LOCK_TIMEOUT                80/*开锁的时间*/
+#define  LOCK_TASK_LOCK_TIMEOUT                10/*开锁的时间 只开一次 jd要求*/
 
 typedef struct
 {

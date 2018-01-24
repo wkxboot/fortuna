@@ -34,6 +34,9 @@ void debug_task(void const * argument);
 #define  DEBUG_TASK_CMD_PWR_OFF_AC_PARAM_LEN            0
 #define  DEBUG_TASK_CMD_PWR_ON_LOCK_LED_PARAM_LEN       0
 #define  DEBUG_TASK_CMD_PWR_OFF_LOCK_LED_PARAM_LEN      0
+#define  DEBUG_TASK_CMD_GET_UPS_STATE_PARAM_LEN         0
+#define  DEBUG_TASK_CMD_GET_LOCK_STATE_PARAM_LEN        0
+#define  DEBUG_TASK_CMD_GET_DOOR_STATE_PARAM_LEN        0
 
 
 /*调试任务命令值定义*/
@@ -64,6 +67,9 @@ void debug_task(void const * argument);
 #define  DEBUG_TASK_CMD_PWR_OFF_AC                     "关闭交流电"
 #define  DEBUG_TASK_CMD_PWR_ON_LOCK_LED                "打开门灯"
 #define  DEBUG_TASK_CMD_PWR_OFF_LOCK_LED               "关闭门灯"
+#define  DEBUG_TASK_CMD_GET_UPS_STATE                  "UPS状态"
+#define  DEBUG_TASK_CMD_GET_LOCK_STATE                 "锁状态"
+#define  DEBUG_TASK_CMD_GET_DOOR_STATE                 "门状态"
 
 #define  DEBUG_TASK_WAIT_TIMEOUT                       550
 

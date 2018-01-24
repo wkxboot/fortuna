@@ -26,9 +26,9 @@
 #include "mb_m.h"
 #include "scales.h"
 #define APP_LOG_MODULE_NAME   "[scales]"
-#define APP_LOG_MODULE_LEVEL   APP_LOG_LEVEL_DEBUG    
+#define APP_LOG_MODULE_LEVEL   APP_LOG_LEVEL_ERROR    
 #include "app_log.h"
-
+#include "app_error.h"
 /*-----------------------Master mode use these variables----------------------*/
 #if MB_MASTER_RTU_ENABLED > 0 || MB_MASTER_ASCII_ENABLED > 0
 
@@ -56,9 +56,133 @@ USHORT   usMRegHoldStart                            = M_REG_HOLDING_START;
 USHORT   usMRegHoldBuf[MB_MASTER_TOTAL_SLAVE_NUM][M_REG_HOLDING_NREGS];
 
 
+typedef struct 
+{
+  uint8_t timeout_cnt;
+  uint8_t scale;
+}scale_timeout_t;
+
+scale_timeout_t w_timeout[SCALES_CNT_MAX];
+
+
+#if SCALE_NET_WEIGHT_MUTEX_ENABLE > 0
+osMutexId net_weight_rw_mutex_id;
+#endif
+
+static fortuna_bool_t check_timeout_cnt(uint8_t scale);
+static fortuna_bool_t check_net_weight(uint8_t scale);
+/*设置净重值*/
+fortuna_bool_t set_net_weight(uint8_t scale,int32_t net_weight);
+
+
+/*定义一个互斥体 对净重进行互斥操作*/  
+/*暂时不需要*/
+
+void scale_init()
+{
+#if SCALE_NET_WEIGHT_MUTEX_ENABLE > 0
+  osMutexDef(net_weight_rw);
+  net_weight_rw_mutex_id=osMutexCreate(osMutex(net_weight_rw));
+  APP_ASSERT(net_weight_rw_mutex_id);
+  osMutexRelease(net_weight_rw_mutex_id);
+#endif
+}
+
+
+
+static fortuna_bool_t check_timeout_cnt(uint8_t scale)
+{
+ if(scale==0 || scale>SCALES_CNT_MAX)
+   return FORTUNA_FALSE;
+ 
+ w_timeout[scale-1].timeout_cnt++;
+ 
+ if(w_timeout[scale-1].timeout_cnt>SCALE_NET_WEIGHT_TIMEOUT_CNT)
+ {
+   set_net_weight(scale,SCALE_NET_WEIGHT_ERR_VALUE);
+   w_timeout[scale-1].timeout_cnt=0;
+   APP_LOG_DEBUG("%d#称timeout.\r\n",scale);
+ }
+  
+ return FORTUNA_TRUE;
+}
+static fortuna_bool_t check_net_weight(uint8_t scale)
+{
+ int32_t net_weight;
+ if(scale==0 || scale>SCALES_CNT_MAX)
+ return FORTUNA_FALSE;
+ w_timeout[scale-1].timeout_cnt=0;
+ 
+ get_net_weight(scale,&net_weight); 
+ if(net_weight==SCALE_NET_WEIGHT_SPECIAL_NEGATIVE_VALUE)
+ {
+   set_net_weight(scale,SCALE_NET_WEIGHT_SPECIAL_REPLACE_VALUE);
+   APP_LOG_DEBUG("%d#称==-1.\r\n",scale);
+ }
+ else if(net_weight >=SCALE_NET_WEIGHT_OVERLOAD_VALUE) 
+ {
+  set_net_weight(scale,SCALE_NET_WEIGHT_OVERLOAD_VALUE); 
+  APP_LOG_DEBUG("%d#称正过载.\r\n",scale);
+ }
+ else if(net_weight <=SCALE_NET_WEIGHT_OVERLOAD_NEGATIVE_VALUE) 
+ {
+  set_net_weight(scale,SCALE_NET_WEIGHT_OVERLOAD_NEGATIVE_VALUE);
+  APP_LOG_DEBUG("%d#称负过载.\r\n",scale);
+ }
+ return FORTUNA_TRUE;
+}
+
+
+
+
+
+
+
+/*设置净重值*/
+fortuna_bool_t set_net_weight(uint8_t scale,int32_t net_weight)
+{
+#if SCALE_NET_WEIGHT_MUTEX_ENABLE > 0  
+  osStatus mutex_status;
+#endif
+  uint8_t scale_start,scale_end;
+  /*所有的称重量*/
+  if(scale==0)
+  {
+  scale_start=1;
+  scale_end=SCALES_CNT_MAX;
+  }
+  else
+  {
+  scale_start=scale;
+  scale_end=scale_start; 
+  }
+  
+#if SCALE_NET_WEIGHT_MUTEX_ENABLE > 0
+  mutex_status=osMutexWait(net_weight_rw_mutex_id,SCALE_NET_WEIGHT_MUXTEX_TIMEOUT);/*获取净重互斥体*/
+  APP_ERROR_CHECK(mutex_status,osOK);
+#endif
+  
+  for(uint8_t i=scale_start;i<=scale_end;i++)
+  {
+  usMRegHoldBuf[i-1][DEVICE_NET_WEIGHT_REG_ADDR]=net_weight>>16;
+  usMRegHoldBuf[i-1][DEVICE_NET_WEIGHT_REG_ADDR+1]=net_weight&0xffff;
+  }
+  
+#if SCALE_NET_WEIGHT_MUTEX_ENABLE > 0
+  osMutexRelease(net_weight_rw_mutex_id);/*释放净重互斥体*/
+#endif
+  
+  return FORTUNA_TRUE;
+}
+
 /*获取净重值*/
 fortuna_bool_t get_net_weight(uint8_t scale,int32_t *ptr_net_weight)
 {
+  
+#if SCALE_NET_WEIGHT_MUTEX_ENABLE > 0
+  osStatus mutex_status;
+#endif
+  
   int32_t net_weight;
   uint8_t scale_start,scale_end;
   if(ptr_net_weight==NULL || scale > SCALES_CNT_MAX)
@@ -75,12 +199,22 @@ fortuna_bool_t get_net_weight(uint8_t scale,int32_t *ptr_net_weight)
   scale_start=scale;
   scale_end=scale_start; 
   }
+  
+#if SCALE_NET_WEIGHT_MUTEX_ENABLE > 0
+   mutex_status=osMutexWait(net_weight_rw_mutex_id,SCALE_NET_WEIGHT_MUXTEX_TIMEOUT);/*获取净重互斥体*/
+   APP_ERROR_CHECK(mutex_status,osOK);
+#endif
+   
   for(uint8_t i=scale_start;i<=scale_end;i++)
   {
   net_weight=usMRegHoldBuf[i-1][DEVICE_NET_WEIGHT_REG_ADDR]<<16|usMRegHoldBuf[i-1][DEVICE_NET_WEIGHT_REG_ADDR+1];
   *ptr_net_weight++=net_weight;
   }
-
+  
+#if SCALE_NET_WEIGHT_MUTEX_ENABLE > 0
+  osMutexRelease(net_weight_rw_mutex_id);/*释放净重互斥体*/
+#endif
+  
  return FORTUNA_TRUE;
 }
 
@@ -109,7 +243,7 @@ eMB_MASTER_ErrorCode eMBMasterRegInputCB( UCHAR * pucRegBuffer, USHORT usAddress
 
     /* it already plus one in modbus function method. */
     usAddress--;
-    APP_LOG_INFO("MODBUS主机读输入寄存器 addr:%d size:%d\r\n",usAddress,usNRegs);
+    APP_LOG_DEBUG("MODBUS主机读输入寄存器 addr:%d size:%d\r\n",usAddress,usNRegs);
     
     if ((usAddress >= REG_INPUT_START)
             && (usAddress + usNRegs <= REG_INPUT_START + REG_INPUT_NREGS))
@@ -144,6 +278,10 @@ eMB_MASTER_ErrorCode eMBMasterRegInputCB( UCHAR * pucRegBuffer, USHORT usAddress
 eMB_MASTER_ErrorCode eMBMasterRegHoldingCB(UCHAR * pucRegBuffer, USHORT usAddress,
         USHORT usNRegs, eMB_MASTER_RegisterMode eMode)
 {
+#if SCALE_NET_WEIGHT_MUTEX_ENABLE > 0
+    osStatus mutex_status;
+#endif
+    
     eMB_MASTER_ErrorCode    eStatus = MB_MASTER_ENOERR;
     USHORT          iRegIndex;
     USHORT *        pusRegHoldingBuf;
@@ -169,7 +307,7 @@ eMB_MASTER_ErrorCode eMBMasterRegHoldingCB(UCHAR * pucRegBuffer, USHORT usAddres
         {
         /* read current register values from the protocol stack. */
         case MB_MASTER_REG_READ:
-          APP_LOG_INFO("MODBUS主机读保持寄存器 addr:%d size:%d\r\n",usAddress,usNRegs);
+          APP_LOG_DEBUG("MODBUS主机读保持寄存器 addr:%d size:%d\r\n",usAddress,usNRegs);
             while (usNRegs > 0)
             {
               *pucRegBuffer++ = (UCHAR) (pusRegHoldingBuf[iRegIndex] >> 8);
@@ -180,7 +318,14 @@ eMB_MASTER_ErrorCode eMBMasterRegHoldingCB(UCHAR * pucRegBuffer, USHORT usAddres
             break;
         /* write current register values with new values from the protocol stack. */
         case MB_MASTER_REG_WRITE:
-          APP_LOG_INFO("MODBUS主机写保持寄存器 addr:%d size:%d\r\n",usAddress,usNRegs);
+          APP_LOG_DEBUG("MODBUS主机写保持寄存器 addr:%d size:%d\r\n",usAddress,usNRegs);
+#if SCALE_NET_WEIGHT_MUTEX_ENABLE > 0         
+          if(usAddress==DEVICE_NET_WEIGHT_REG_ADDR)
+          {
+          mutex_status=osMutexWait(net_weight_rw_mutex_id,SCALE_NET_WEIGHT_MUXTEX_TIMEOUT);
+          APP_ERROR_CHECK(mutex_status,osOK);
+          }
+#endif        
             while (usNRegs > 0)
             {
               pusRegHoldingBuf[iRegIndex] = *pucRegBuffer++ << 8;
@@ -188,6 +333,9 @@ eMB_MASTER_ErrorCode eMBMasterRegHoldingCB(UCHAR * pucRegBuffer, USHORT usAddres
               iRegIndex++;
               usNRegs--;
             }
+#if SCALE_NET_WEIGHT_MUTEX_ENABLE > 0        
+            osMutexRelease(net_weight_rw_mutex_id);/*释放净重互斥体*/
+#endif
             break;
         }
     }
@@ -369,7 +517,7 @@ fortuna_bool_t scale_manully_zero_range(uint8_t scale,uint32_t scale_param)
  for(scale=scale_start;scale<=scale_end;scale++)
  {
   APP_LOG_DEBUG("%2d#电子秤设置手动置零范围...\r\n",scale);
-  err_code=eMBMasterReqWriteMultipleHoldingRegister(scale,DEVICE_MANUALLY_CLEAR_RANGE_REG_ADDR,DEVICE_MANUALLY_CLEAR_RANGE_REG_CNT,param,SCALE_WAIT_TIMEOUT);
+  err_code=eMBMasterReqWriteMultipleHoldingRegister(scale,DEVICE_MANUALLY_CLEAR_RANGE_REG_ADDR,DEVICE_MANUALLY_CLEAR_RANGE_REG_CNT,param,SCALE_CALIBRATE_WAIT_TIMEOUT);
   if(err_code!=MB_MRE_NO_ERR)
   {
   ret=FORTUNA_FALSE;
@@ -402,7 +550,7 @@ fortuna_bool_t scale_clear_zero(uint8_t scale,uint32_t scale_param)
  for(scale=scale_start;scale<=scale_end;scale++)
  {
   APP_LOG_DEBUG("%2d#电子秤清零...\r\n",scale);
-  err_code=eMBMasterReqWriteMultipleHoldingRegister(scale,DEVICE_MANUALLY_CLEAR_REG_ADDR,DEVICE_MANUALLY_CLEAR_REG_CNT,param,SCALE_WAIT_TIMEOUT);
+  err_code=eMBMasterReqWriteMultipleHoldingRegister(scale,DEVICE_MANUALLY_CLEAR_REG_ADDR,DEVICE_MANUALLY_CLEAR_REG_CNT,param,SCALE_CALIBRATE_WAIT_TIMEOUT);
   if(err_code!=MB_MRE_NO_ERR)
   {
   ret=FORTUNA_FALSE;
@@ -436,7 +584,7 @@ fortuna_bool_t scale_remove_tare(uint8_t scale,uint32_t scale_param)
  for(scale=scale_start;scale<=scale_end;scale++)
  {
   APP_LOG_DEBUG("%2d#电子秤去皮...\r\n",scale);
-  err_code=eMBMasterReqWriteMultipleHoldingRegister(scale,DEVICE_TARE_WEIGHT_REG_ADDR,DEVICE_TARE_WEIGHT_REG_CNT,param,SCALE_WAIT_TIMEOUT);
+  err_code=eMBMasterReqWriteMultipleHoldingRegister(scale,DEVICE_TARE_WEIGHT_REG_ADDR,DEVICE_TARE_WEIGHT_REG_CNT,param,SCALE_REMOVE_TARE_WAIT_TIMEOUT);
   if(err_code!=MB_MRE_NO_ERR)
   {
   ret=FORTUNA_FALSE;
@@ -485,7 +633,7 @@ fortuna_bool_t scale_calibrate_code(uint8_t scale,uint32_t scale_param)
  for(scale=scale_start;scale<=scale_end;scale++)
  {
   APP_LOG_DEBUG("%2d#电子秤内码值标定...\r\n",scale);
-  err_code=eMBMasterReqWriteMultipleHoldingRegister(scale,reg_addr,reg_cnt,param,SCALE_WAIT_TIMEOUT);
+  err_code=eMBMasterReqWriteMultipleHoldingRegister(scale,reg_addr,reg_cnt,param,SCALE_CALIBRATE_WAIT_TIMEOUT);
   if(err_code!=MB_MRE_NO_ERR)
   {
   ret=FORTUNA_FALSE;
@@ -534,7 +682,7 @@ fortuna_bool_t scale_calibrate_measurement(uint8_t scale,uint32_t scale_param)
  for(scale=scale_start;scale<=scale_end;scale++)
  {
   APP_LOG_DEBUG("%2d#电子秤测量值标定...\r\n",scale);
-  err_code=eMBMasterReqWriteMultipleHoldingRegister(scale,reg_addr,reg_cnt,param,SCALE_WAIT_TIMEOUT);
+  err_code=eMBMasterReqWriteMultipleHoldingRegister(scale,reg_addr,reg_cnt,param,SCALE_CALIBRATE_WAIT_TIMEOUT);
   if(err_code!=MB_MRE_NO_ERR)
   {
   ret=FORTUNA_FALSE;
@@ -582,7 +730,7 @@ fortuna_bool_t scale_calibrate_weight(uint8_t scale,uint32_t scale_param)
  for(scale=scale_start;scale<=scale_end;scale++)
  {
   APP_LOG_DEBUG("%2d#电子秤重量值标定...\r\n",scale);
-  err_code=eMBMasterReqWriteMultipleHoldingRegister(scale,reg_addr,reg_cnt,param,SCALE_WAIT_TIMEOUT);
+  err_code=eMBMasterReqWriteMultipleHoldingRegister(scale,reg_addr,reg_cnt,param,SCALE_CALIBRATE_WAIT_TIMEOUT);
   if(err_code!=MB_MRE_NO_ERR)
   {
   ret=FORTUNA_FALSE;
@@ -598,6 +746,7 @@ fortuna_bool_t scale_calibrate_weight(uint8_t scale,uint32_t scale_param)
  return ret;
 }
 
+
 /*电子秤获取净重*/
 fortuna_bool_t scale_obtain_net_weight(uint8_t scale,uint32_t scale_param)
 {
@@ -611,15 +760,16 @@ fortuna_bool_t scale_obtain_net_weight(uint8_t scale,uint32_t scale_param)
  for(scale=scale_start;scale<=scale_end;scale++)
  {
   APP_LOG_DEBUG("%2d#电子秤获取净重...\r\n",scale);
-  err_code=eMBMasterReqReadHoldingRegister(scale,DEVICE_NET_WEIGHT_REG_ADDR,DEVICE_NET_WEIGHT_REG_CNT,SCALE_WAIT_TIMEOUT);
+  err_code=eMBMasterReqReadHoldingRegister(scale,DEVICE_NET_WEIGHT_REG_ADDR,DEVICE_NET_WEIGHT_REG_CNT,SCALE_NET_WEIGHT_WAIT_TIMEOUT);
   if(err_code!=MB_MRE_NO_ERR)
   {
   ret=FORTUNA_FALSE;
+  check_timeout_cnt(scale);
   APP_LOG_ERROR("%2d#电子秤获取净重失败.\r\n",scale);
-  return ret;/*只要有一个称出现错误就立即返回 减少响应时间*/
   }
   else
   {
+  check_net_weight(scale);
   APP_LOG_DEBUG("%2d#电子秤获取净重成功.\r\n",scale);
   }
   osDelay(SCALE_OPERATION_INTERVAL);
@@ -640,7 +790,7 @@ fortuna_bool_t scale_obtain_firmware_version(uint8_t scale,uint32_t scale_param)
  for(scale=scale_start;scale<=scale_end;scale++)
  {
   APP_LOG_DEBUG("%2d#电子秤获取固件版本...\r\n",scale);
-  err_code=eMBMasterReqReadHoldingRegister(scale,DEVICE_FIRMWARE_VERTION_REG_ADDR,DEVICE_FIRMWARE_VERTION_REG_CNT,SCALE_WAIT_TIMEOUT);
+  err_code=eMBMasterReqReadHoldingRegister(scale,DEVICE_FIRMWARE_VERTION_REG_ADDR,DEVICE_FIRMWARE_VERTION_REG_CNT,SCALE_NORMAL_WAIT_TIMEOUT);
   if(err_code!=MB_MRE_NO_ERR)
   {
   ret=FORTUNA_FALSE;
@@ -673,7 +823,7 @@ fortuna_bool_t scale_set_max_weight(uint8_t scale,uint32_t scale_param)
  for(scale=scale_start;scale<=scale_end;scale++)
  {
   APP_LOG_DEBUG("%2d#电子秤设置最大称重值...\r\n",scale);
-   err_code=eMBMasterReqWriteMultipleHoldingRegister(scale,DEVICE_MAX_WEIGHT_REG_ADDR,DEVICE_MAX_WEIGHT_REG_CNT,param,SCALE_WAIT_TIMEOUT);
+   err_code=eMBMasterReqWriteMultipleHoldingRegister(scale,DEVICE_MAX_WEIGHT_REG_ADDR,DEVICE_MAX_WEIGHT_REG_CNT,param,SCALE_CALIBRATE_WAIT_TIMEOUT);
   if(err_code!=MB_MRE_NO_ERR)
   {
   ret=FORTUNA_FALSE;
@@ -706,7 +856,7 @@ fortuna_bool_t scale_set_division(uint8_t scale,uint32_t scale_param)
  for(scale=scale_start;scale<=scale_end;scale++)
  {
   APP_LOG_DEBUG("%2d#电子秤设置分度值...\r\n",scale);
-  err_code=eMBMasterReqWriteMultipleHoldingRegister(scale,DEVICE_DIVISION_REG_ADDR,DEVICE_DIVISION_REG_CNT,param,SCALE_WAIT_TIMEOUT);
+  err_code=eMBMasterReqWriteMultipleHoldingRegister(scale,DEVICE_DIVISION_REG_ADDR,DEVICE_DIVISION_REG_CNT,param,SCALE_CALIBRATE_WAIT_TIMEOUT);
   if(err_code!=MB_MRE_NO_ERR)
   {
   ret=FORTUNA_FALSE;
@@ -747,7 +897,7 @@ fortuna_bool_t scale_lock_operation(uint8_t scale,uint32_t scale_param)
  for(scale=scale_start;scale<=scale_end;scale++)
  {
   APP_LOG_DEBUG("%2d#电子秤锁操作...\r\n",scale);
-  err_code=eMBMasterReqWriteMultipleHoldingRegister(scale,DEVICE_LOCK_REG_ADDR,DEVICE_LOCK_REG_CNT,param,SCALE_WAIT_TIMEOUT);
+  err_code=eMBMasterReqWriteMultipleHoldingRegister(scale,DEVICE_LOCK_REG_ADDR,DEVICE_LOCK_REG_CNT,param,SCALE_LOCK_TIMEOUT);
   if(err_code!=MB_MRE_NO_ERR)
   {
   ret=FORTUNA_FALSE;

@@ -15,7 +15,7 @@ void weight_memory_task(void const * argument);
 extern dis_num_t w_dis_buff[];
 
 /*重量显示缓存任务运行间隔*/
-#define  WEIGHT_MEMORY_TASK_INTERVAL                   100
+#define  WEIGHT_MEMORY_TASK_INTERVAL                   40
 
 /*重量显示缓存任务信号*/
 #define  WEIGHT_MEMORY_TASK_UPDATE_IDX_SIGNAL          (1<<0)

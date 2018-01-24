@@ -27,7 +27,7 @@
 #include "usart.h"
 #include "ABDK_ZNHG_ZK.h"
 #define APP_LOG_MODULE_NAME   "[MB_M_SERIAL]"
-#define APP_LOG_MODULE_LEVEL   APP_LOG_LEVEL_DEBUG    
+#define APP_LOG_MODULE_LEVEL   APP_LOG_LEVEL_ERROR    
 #include "app_log.h"
 #include "app_error.h"
 /* ----------------------- Defines ------------------------------------------*/
@@ -124,14 +124,14 @@ void vMBMasterPortClose(void)
 BOOL xMBMasterPortSerialPutByte(CHAR ucByte)
 {
   ptr_master_modbus_uart_handle->Instance->DR = ucByte;
-  APP_LOG_ARRAY("%2X.\r\n",ucByte);
+  APP_LOG_ARRAY("S%x.\r\n",ucByte);
   return TRUE;
 }
 
 BOOL xMBMasterPortSerialGetByte(CHAR * pucByte)
 {
   *pucByte = (uint8_t)(ptr_master_modbus_uart_handle->Instance->DR & (uint8_t)0x00FF);
-  APP_LOG_ARRAY("%2X.\r\n",*pucByte);
+   APP_LOG_ARRAY("R%x.\r\n",*pucByte);
   return TRUE;
 }
 

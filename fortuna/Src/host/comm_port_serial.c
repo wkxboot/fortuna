@@ -8,7 +8,7 @@
 #include "comm_port_timer.h"
 #include "usart.h"
 #define APP_LOG_MODULE_NAME   "[port_serial]"
-#define APP_LOG_MODULE_LEVEL   APP_LOG_LEVEL_DEBUG    
+#define APP_LOG_MODULE_LEVEL   APP_LOG_LEVEL_ERROR    
 #include "app_log.h"
 
 
@@ -71,13 +71,13 @@ void xcomm_port_serial_enable(fortuna_bool_t rx_bool,fortuna_bool_t tx_bool)
  if(tx_bool)
  {
   /*使能发送中断*/
-  __HAL_UART_ENABLE_IT(ptr_comm_serial_handle,UART_IT_TXE);   
+  __HAL_UART_ENABLE_IT(ptr_comm_serial_handle,/*UART_IT_TXE*/UART_IT_TC);   
   APP_LOG_DEBUG("通信使能发送中断.\r\n"); 
  }
  else
  {
  /*禁止发送中断*/
- __HAL_UART_DISABLE_IT(ptr_comm_serial_handle, UART_IT_TXE);   
+ __HAL_UART_DISABLE_IT(ptr_comm_serial_handle, /*UART_IT_TXE*/UART_IT_TC);   
  APP_LOG_DEBUG("通信禁止发送中断.\r\n"); 
  }
 }
@@ -85,11 +85,13 @@ void xcomm_port_serial_enable(fortuna_bool_t rx_bool,fortuna_bool_t tx_bool)
 void xcomm_port_serial_send_byte(uint8_t send_byte)
 {
  ptr_comm_serial_handle->Instance->DR = send_byte;
+ APP_LOG_ARRAY("S%d.\r\n",send_byte);
 }
 
 void xcomm_port_serial_get_byte(uint8_t *ptr_byte)
 {
  *ptr_byte = (uint8_t)(ptr_comm_serial_handle->Instance->DR & (uint8_t)0x00FF);
+  APP_LOG_ARRAY("R%d.\r\n",*ptr_byte);
 }
 
 void xcomm_port_serial_isr(void)
@@ -104,8 +106,8 @@ void xcomm_port_serial_isr(void)
    comm_byte_receive();
   }
 
-  tmp_flag = __HAL_UART_GET_FLAG(ptr_comm_serial_handle, UART_FLAG_TXE);
-  tmp_it_source = __HAL_UART_GET_IT_SOURCE(ptr_comm_serial_handle, UART_IT_TXE);
+  tmp_flag = __HAL_UART_GET_FLAG(ptr_comm_serial_handle, /*UART_FLAG_TXE*/UART_FLAG_TC);
+  tmp_it_source = __HAL_UART_GET_IT_SOURCE(ptr_comm_serial_handle, /*UART_IT_TXE*/UART_IT_TC);
   /* UART in mode Transmitter ------------------------------------------------*/
   if((tmp_flag != RESET) && (tmp_it_source != RESET))
   {

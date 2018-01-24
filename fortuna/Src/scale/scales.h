@@ -4,26 +4,43 @@
 
 fortuna_bool_t get_net_weight(uint8_t sclae,int32_t *ptr_net_weight);
 
-#define  SCALE_WAIT_TIMEOUT                    110
-#define  SCALE_OPERATION_INTERVAL              1
+/*定义是否需要 净重读写操作互斥 目前不需要没问题*/
+#define  SCALE_NET_WEIGHT_MUTEX_ENABLE                 1
+
+/*电子秤相关操作的超时时间*/
+#define  SCALE_NORMAL_WAIT_TIMEOUT                     20
+#define  SCALE_NET_WEIGHT_WAIT_TIMEOUT                 20
+#define  SCALE_CALIBRATE_WAIT_TIMEOUT                  110
+#define  SCALE_REMOVE_TARE_WAIT_TIMEOUT                50
+#define  SCALE_LOCK_TIMEOUT                            80
+#define  SCALE_NET_WEIGHT_MUXTEX_TIMEOUT               2
+
+
+#define  SCALE_OPERATION_INTERVAL                      1
 
 
 /*称重单元数量*/
-#define  SCALES_CNT_MAX                        4
+#define  SCALES_CNT_MAX                                4
 
-
+/*电子秤重量错误值定义*/
+#define  SCALE_NET_WEIGHT_TIMEOUT_CNT                  3
+#define  SCALE_NET_WEIGHT_OVERLOAD_VALUE               0x7fff
+#define  SCALE_NET_WEIGHT_OVERLOAD_NEGATIVE_VALUE      (-0x8000)
+#define  SCALE_NET_WEIGHT_SPECIAL_NEGATIVE_VALUE       (-1)
+#define  SCALE_NET_WEIGHT_SPECIAL_REPLACE_VALUE        0
+#define  SCALE_NET_WEIGHT_ERR_VALUE                    0x0000ffff
 
 /*电子秤操作值*/
-#define  SCALE_UNLOCK_VALUE                    0x5AA5   
-#define  SCALE_LOCK_VALUE                      0x0000/*其他任意值*/  
-#define  SCALE_MAX_WEIGHT_VALUE                30000/*30kg*/
-#define  SCALE_DIVISION_VALUE                  0x03/*1g*/
-#define  SCALE_AUTO_TARE_WEIGHT_VALUE          0x7fffffff
-#define  SCALE_AUTO_CODE_VALUE                 0x7fffffff
-#define  SCALE_CLEAR_ZERO_VALUE                0x01                     
-#define  SCALE_RESET_VALUE                     0x55
-#define  SCALE_ZERO_RANGE_VALUE                80/*%80最大量程值都可以手动清零*/
-#define  SCALE_INVALID_WEIGHT_VALUE            0xFFFF
+#define  SCALE_UNLOCK_VALUE                            0x5AA5   
+#define  SCALE_LOCK_VALUE                              0x0000/*其他任意值*/  
+#define  SCALE_MAX_WEIGHT_VALUE                        30000/*30kg*/
+#define  SCALE_DIVISION_VALUE                          0x0C/*1g*/
+#define  SCALE_AUTO_TARE_WEIGHT_VALUE                  0x7fffffff
+#define  SCALE_AUTO_CODE_VALUE                         0x7fffffff
+#define  SCALE_CLEAR_ZERO_VALUE                        0x01                     
+#define  SCALE_RESET_VALUE                             0x55
+#define  SCALE_ZERO_RANGE_VALUE                        80/*%80最大量程值都可以手动清零*/
+#define  SCALE_INVALID_WEIGHT_VALUE                    0xFFFF
 
 /*称重传感器寄存器地址*/
 #define  M_DISCRETE_INPUT_START                0
@@ -100,6 +117,11 @@ fortuna_bool_t get_net_weight(uint8_t sclae,int32_t *ptr_net_weight);
 #define  DEVICE_AUTO_CLEAR_TIME_REG_ADDR      97
 #define  DEVICE_AUTO_CLEAR_TIME_REG_CNT        1
 
+/*电子秤初始化*/
+
+#if SCALE_NET_WEIGHT_MUTEX_ENABLE > 0
+void scale_init();
+#endif
 
 /*电子秤手动清零范围设置*/
 fortuna_bool_t scale_manully_zero_range(uint8_t scale,uint32_t scale_param);

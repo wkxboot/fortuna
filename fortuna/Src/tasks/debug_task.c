@@ -15,6 +15,7 @@
 #include "dc12v_task.h"
 #include "light_task.h"
 #include "glass_pwr_task.h"
+#include "ups_task.h"
 #include "debug_task.h"
 #include "mb_m.h"
 #include "ABDK_ZNHG_ZK.h"
@@ -502,6 +503,73 @@ err_handle2:
  continue;
  } 
  
+ /*获取UPS状态*/
+ cmd_len=strlen(DEBUG_TASK_CMD_GET_UPS_STATE);
+ if(memcmp((const char*)cmd,DEBUG_TASK_CMD_GET_UPS_STATE,cmd_len)==0)
+ { 
+ if(recv_len !=cmd_len+DEBUG_TASK_CMD_GET_UPS_STATE_PARAM_LEN)
+ {
+ APP_LOG_ERROR("UPS状态命令长度非法.\r\n");
+ continue;
+ } 
+ /*获取UPS状态*/
+ uint8_t state;
+ state=get_ups_state();
+ if(state==UPS_TASK_STATE_PWR_ON)
+ {
+  APP_LOG_DEBUG("UPS状态--接通市电.\r\n");
+ }
+ else
+ {
+  APP_LOG_DEBUG("UPS状态--断开市电.\r\n");
+ }
+ continue;
+ }
+ /*获取锁状态*/
+ cmd_len=strlen(DEBUG_TASK_CMD_GET_LOCK_STATE);
+ if(memcmp((const char*)cmd,DEBUG_TASK_CMD_GET_LOCK_STATE,cmd_len)==0)
+ { 
+ if(recv_len !=cmd_len+DEBUG_TASK_CMD_GET_LOCK_STATE_PARAM_LEN)
+ {
+ APP_LOG_ERROR("锁状态命令长度非法.\r\n");
+ continue;
+ } 
+ /*获取锁状态*/
+ uint8_t state;
+ state=get_lock_state();
+ if(state==LOCK_TASK_STATE_LOCKED)
+ {
+  APP_LOG_DEBUG("锁状态--关闭.\r\n");
+ }
+ else
+ {
+ APP_LOG_DEBUG("锁状态--打开.\r\n");
+ }
+ continue;
+ } 
+  /*获取门状态*/
+ cmd_len=strlen(DEBUG_TASK_CMD_GET_DOOR_STATE);
+ if(memcmp((const char*)cmd,DEBUG_TASK_CMD_GET_DOOR_STATE,cmd_len)==0)
+ { 
+ if(recv_len !=cmd_len+DEBUG_TASK_CMD_GET_DOOR_STATE_PARAM_LEN)
+ {
+ APP_LOG_ERROR("门状态命令长度非法.\r\n");
+ continue;
+ } 
+ /*获取门状态*/
+ uint8_t state;
+ state=get_door_state();
+ if(state==LOCK_TASK_STATE_LOCKED)
+ {
+  APP_LOG_DEBUG("门状态--关闭.\r\n");
+ }
+ else
+ {
+ APP_LOG_DEBUG("门状态--打开.\r\n");
+ }
+ continue;
+ } 
+ 
  /*获取温度值*/
  cmd_len=strlen(DEBUG_TASK_CMD_OBTAIN_TEMPERATURE);
  if(memcmp((const char*)cmd,DEBUG_TASK_CMD_OBTAIN_TEMPERATURE,cmd_len)==0)
@@ -524,7 +592,7 @@ err_handle2:
   APP_LOG_ERROR("温度命令参数%2d非法.0-1-2之一.\r\n",cmd[offset]);
   continue;  
  }
- APP_LOG_DEBUG("温度值：%2d.\r\n",t);
+ APP_LOG_DEBUG("温度值：%2d 摄氏度.\r\n",t);
  continue;
  } 
  /*打开交流电*/

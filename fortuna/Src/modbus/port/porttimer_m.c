@@ -25,7 +25,7 @@
 
 #include "cmsis_os.h"
 #define APP_LOG_MODULE_NAME   "[MB_M_TIMER]"
-#define APP_LOG_MODULE_LEVEL   APP_LOG_LEVEL_INFO    
+#define APP_LOG_MODULE_LEVEL   APP_LOG_LEVEL_ERROR    
 #include "app_log.h"
 #include "app_error.h"
 
@@ -36,6 +36,7 @@ osTimerId MASTER_MB_timerHandle;
 static void MASTER_MB_timer_expired_callback(void const * argument);
 static void prvvTIMERExpiredISR(void);
 
+volatile uint32_t mb_response_time;
 
 /* ----------------------- static functions ---------------------------------*/
 
@@ -65,8 +66,8 @@ void vMBMasterPortTimersConvertDelayEnable()
 void vMBMasterPortTimersRespondTimeoutEnable()
 {
   APP_LOG_DEBUG("启动MODBUS主机回应定时器.\r\n");
-  uint32_t time = MB_MASTER_TIMEOUT_MS_RESPOND;
-  osTimerStart ( MASTER_MB_timerHandle, time);
+  /*uint32_t time = MB_MASTER_TIMEOUT_MS_RESPOND;*/
+  osTimerStart ( MASTER_MB_timerHandle, mb_response_time);
 }
 
  void vMBMasterPortTimersDisable()

@@ -79,7 +79,7 @@
 #endif
 
 #ifndef APP_LOG_MODULE_NAME  
-#define APP_LOG_MODULE_NAME          "[default]"
+#define APP_LOG_MODULE_NAME          "[DEFAULT]"
 #endif
 
 #ifndef APP_LOG_MODULE_LEVEL  

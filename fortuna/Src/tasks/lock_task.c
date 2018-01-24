@@ -46,11 +46,11 @@ static uint8_t lock_task_update_door_state()
   bsp_state_t state_up,state_dwn;
   state_up=BSP_get_door_up_state();
   state_dwn=BSP_get_door_dwn_state();
-  if(state_up==state_dwn && state_up==LOCK_STATE_OPEN)
-    lock_state=LOCK_TASK_STATE_UNLOCKED ;
+  if(state_up==state_dwn && state_up==LOCK_STATE_CLOSE)/*需要改为闭合判断*/
+    door_state=LOCK_TASK_STATE_LOCKED ;
   else
-    lock_state=LOCK_TASK_STATE_LOCKED;
-  return lock_state; 
+    door_state=LOCK_TASK_STATE_UNLOCKED;
+  return door_state; 
 }
 
 /*门锁任务*/

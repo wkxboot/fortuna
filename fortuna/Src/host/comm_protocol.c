@@ -13,7 +13,7 @@
 #include "ups_task.h"
 #include "temperature_task.h"
 #define APP_LOG_MODULE_NAME   "[protocol]"
-#define APP_LOG_MODULE_LEVEL   APP_LOG_LEVEL_DEBUG    
+#define APP_LOG_MODULE_LEVEL   APP_LOG_LEVEL_ERROR    
 #include "app_log.h"
 #include "app_error.h"
 
@@ -60,7 +60,7 @@ comm_cmd_t comm_cmd[COMM_CMD_CNT]=
 };
 
 static volatile uint8_t rx_buff[BUFF_SIZE_MAX];
-static volatile uint8_t *ptr_send_buff;/*发送数据时缓存位置指针*/
+static volatile uint8_t * volatile ptr_send_buff;/*发送数据时缓存位置指针*/
 static volatile uint8_t recv_cnt,send_cnt;/*发送和接收的数据大小*/
 
 uint8_t comm_addr;
@@ -83,11 +83,12 @@ void HOST_PROTOCOL_CRITICAL_REGION_EXIT()
 
 void comm_fsm_timer_expired()
 {
- /*关闭串口接收，方便后续数据处理*/
- APP_LOG_DEBUG("串口定时器到期.\r\n")
- APP_LOG_DEBUG("接收完一帧数据.向通信任务发送信号.\r\n");
  /*禁止串口发送接收*/
  xcomm_port_serial_enable(FORTUNA_FALSE,FORTUNA_FALSE); 
+ xcomm_port_serial_timer_stop();
+ /*关闭串口接收，方便后续数据处理*/
+ APP_LOG_DEBUG("接收完一帧数据.发送信号.\r\n");
+
  /*发送接收完成信号*/
  osSignalSet(host_comm_task_hdl,HOST_COMM_TASK_RECV_FSM_SIGNAL);
 }
@@ -106,7 +107,7 @@ if(xcomm_port_serial_init(port,baudrate,databits)!=COMM_OK)
  }
  if(baudrate>19200)
  {
-  timer_frame_1ms=2;/*波特率超过19200，帧超时定时器时间固定为2mS*/
+  timer_frame_1ms=3;/*波特率超过19200，帧超时定时器时间固定为2mS*/
  }
  else
  {
@@ -166,24 +167,24 @@ else
 /*获取一帧数据的地址和长度*/
 comm_status_t comm_receive_fsm(uint8_t **ptr_buff,uint8_t *ptr_recv_len)
 { 
-  HOST_PROTOCOL_CRITICAL_REGION_ENTER();
+  //HOST_PROTOCOL_CRITICAL_REGION_ENTER();
   /*接收数据长度和缓存*/
-  *ptr_recv_len=recv_cnt;;
+  *ptr_recv_len=recv_cnt;
   *ptr_buff=(uint8_t*)rx_buff; 
   recv_cnt=0;/*重新开始计数*/
-  HOST_PROTOCOL_CRITICAL_REGION_EXIT();
+  //HOST_PROTOCOL_CRITICAL_REGION_EXIT();
   return COMM_OK;
 }
 
 /*发送一帧数据*/
 comm_status_t comm_send_fsm(uint8_t *ptr_buff,uint8_t send_len)
 {
-  HOST_PROTOCOL_CRITICAL_REGION_ENTER();
+  //HOST_PROTOCOL_CRITICAL_REGION_ENTER();
   /*数据长度加上地址长度*/
   ptr_buff[COMM_ADDR_OFFSET]=comm_addr;
   send_cnt=send_len;
   ptr_send_buff=ptr_buff;
-  HOST_PROTOCOL_CRITICAL_REGION_EXIT();
+  //HOST_PROTOCOL_CRITICAL_REGION_EXIT();
   /*启动发送*/
   xcomm_port_serial_enable(FORTUNA_FALSE,FORTUNA_TRUE); 
   return COMM_OK;
@@ -386,22 +387,13 @@ static comm_status_t comm_cmd03_process(uint8_t *ptr_param,uint8_t param_len,uin
  for(uint8_t i=0;i<COMM_VIRTUAL_SCALE_MAX;i++)
  {
  /*回填重量值*/
+  if(i<SCALES_CNT_MAX)
   get_net_weight(i+1,&weight);
-  if(weight>0x7fff)
-  {
-  ptr_param[i*2]=0x7f;
-  ptr_param[i*2+1]=0xff;
-  }
-  else if(weight<(-0x8000))
-  {
-  ptr_param[i*2]=0x80;
-  ptr_param[i*2+1]=00;
-  }
   else
-  {
+  weight=0;
+  
   ptr_param[i*2]=weight>>8;
   ptr_param[i*2+1]=weight; 
-  }
  }
  APP_LOG_DEBUG("获取称重值：#1:%dg #2:%dg #3:%dg #4:%dg\r\n",(int16_t)(ptr_param[0]<<8|ptr_param[1]),\
   (int16_t)(ptr_param[2]<<8|ptr_param[3]),(int16_t)(ptr_param[4]<<8|ptr_param[5]),(int16_t)(ptr_param[6]<<8|ptr_param[7]));
@@ -411,21 +403,8 @@ static comm_status_t comm_cmd03_process(uint8_t *ptr_param,uint8_t param_len,uin
  else
  {
   get_net_weight(scale,&weight);
-  if(weight>0x7fff)
-  {
-  ptr_param[0]=0x7f;
-  ptr_param[1]=0xff;
-  }
-  else if(weight<(-0x8000))
-  {
-  ptr_param[0]=0x80;
-  ptr_param[1]=00;
-  }
-  else
-  {
   ptr_param[0]=weight>>8;
   ptr_param[1]=weight & 0xff;
-  }
   APP_LOG_DEBUG("获取称重值：%d\r\n",(int16_t)(ptr_param[0]<<8|ptr_param[1]));
   /*更新需要发送的数据长度*/
   *ptr_send_len+=COMM_CMD03_EXECUTE_RESULT_ONE_SCALE_SIZE;

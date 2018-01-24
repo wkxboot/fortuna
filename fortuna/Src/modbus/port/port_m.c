@@ -25,6 +25,10 @@
 /* ----------------------- Modbus includes ----------------------------------*/
 #include "port_m.h"
 #include "cmsis_os.h"
+
+#define APP_LOG_MODULE_NAME   "[MB_OTHER]"
+#define APP_LOG_MODULE_LEVEL   APP_LOG_LEVEL_ERROR   
+#include "app_log.h"
 /* ----------------------- Defines ------------------------------------------*/
 
 /* ----------------------- Type definitions ---------------------------------*/
@@ -72,7 +76,8 @@ vMBP_MASTER_PortEnterCritical( void )
 {
     if( !bMBP_MASTER_IsWithinException(  ) )
     {
-        portENTER_CRITICAL(  );
+      APP_LOG_DEBUG("临界进.\r\n");
+      portENTER_CRITICAL(  );
     }
 }
 
@@ -81,7 +86,8 @@ vMBP_MASTER_PortExitCritical( void )
 {
     if( !bMBP_MASTER_IsWithinException(  ) )
     {
-        portEXIT_CRITICAL(  );
+     APP_LOG_DEBUG("临界出.\r\n");
+     portEXIT_CRITICAL(  );
     }
 }
 

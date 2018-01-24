@@ -11,7 +11,7 @@
 #include "scale_poll_task.h"
 #include "lock_task.h"
 #define APP_LOG_MODULE_NAME   "[host_comm]"
-#define APP_LOG_MODULE_LEVEL   APP_LOG_LEVEL_DEBUG    
+#define APP_LOG_MODULE_LEVEL   APP_LOG_LEVEL_INFO    
 #include "app_log.h"
 #include "app_error.h"
 
@@ -30,7 +30,7 @@ void host_comm_task(void const * argument)
  if(status!=COMM_OK)
  {
   APP_LOG_ERROR("与主机通信任务初始化失败.\r\n");
-  APP_ERROR_HANDLER(APP_ERROR_INIT);
+  APP_ERROR_HANDLER(status);
  }
  APP_LOG_INFO("与主机通信任务等待同步...\r\n");
  xEventGroupSync(task_sync_evt_group_hdl,HOST_COMM_TASK_SYNC_EVT,SCALE_POLL_TASK_SYNC_EVT  |\

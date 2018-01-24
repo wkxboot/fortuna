@@ -5,7 +5,7 @@
 #include "iwdg.h"
 #include "watch_dog_task.h"
 #define APP_LOG_MODULE_NAME   "[watch_dog]"
-#define APP_LOG_MODULE_LEVEL   APP_LOG_LEVEL_DEBUG    
+#define APP_LOG_MODULE_LEVEL   APP_LOG_LEVEL_INFO    
 #include "app_log.h"
 #include "app_error.h"
 
@@ -17,6 +17,7 @@ void watch_dog_task(void const * argument)
  {
  osDelay(WATCH_DOG_TASK_INTERVAL);
  /*喂狗*/
+ APP_LOG_DEBUG("喂狗.\r\n");
  sys_feed_dog();
  }
 }
