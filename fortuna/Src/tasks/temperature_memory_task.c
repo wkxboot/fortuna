@@ -21,7 +21,7 @@ osThreadId temperature_memory_task_hdl;
 
 void temperature_memory_task(void const * argument)
 {
- static int8_t t;
+ int8_t t;
  APP_LOG_INFO("######温度显示缓存任务开始.\r\n");
  while(1)
  {

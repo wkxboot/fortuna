@@ -76,7 +76,7 @@ fortuna_bool_t set_net_weight(uint8_t scale,int32_t net_weight);
 
 
 /*定义一个互斥体 对净重进行互斥操作*/  
-/*暂时不需要*/
+/*暂时需要*/
 
 void scale_init()
 {
