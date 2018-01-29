@@ -72,9 +72,15 @@ void weight_memory_task(void const * argument)
  w_dis_buff[0].num=weight_info.idx;
  w_dis_buff[0].dp=FORTUNA_TRUE;
  /*2-6显示重量*/
- if(net_weight>SCLAE_NET_WEIGHT_INVALID_VALUE || net_weight<SCLAE_NET_WEIGHT_INVALID_VALUE_NEGATIVE)
+ if(net_weight==SCLAE_NET_WEIGHT_DIS_INVALID_VALUE_ERR)
  {
-    APP_LOG_ERROR("重量值超量程.\r\n");
+   APP_LOG_ERROR("%d#称重量值错误.\r\n",weight_info.idx);
+   for(uint8_t i=1;i<DISPLAY_LED_POS_CNT;i++)
+   w_dis_buff[i].num=0x0f;/*重量值错误显示FFFFF*/
+ }
+ else if(net_weight>SCLAE_NET_WEIGHT_DIS_INVALID_VALUE ||net_weight<SCLAE_NET_WEIGHT_DIS_INVALID_VALUE_NEGATIVE)
+ {
+   APP_LOG_ERROR("%d#称重量值超量程.\r\n",weight_info.idx);
    for(uint8_t i=1;i<DISPLAY_LED_POS_CNT;i++)
    w_dis_buff[i].num=DISPLAY_LED_NEGATIVE_NUM;
  }
@@ -104,7 +110,7 @@ void weight_memory_task(void const * argument)
   }   
  }
  }
- else
+ else if(net_weight>=0)
  {
  w_dis_buff[1].num=net_weight/10000;
  net_weight=net_weight%10000;

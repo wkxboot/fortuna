@@ -70,7 +70,7 @@ osMutexId net_weight_rw_mutex_id;
 #endif
 
 static fortuna_bool_t check_timeout_cnt(uint8_t scale);
-static fortuna_bool_t check_net_weight(uint8_t scale);
+static fortuna_bool_t clear_timeout_cnt(uint8_t scale);
 /*设置净重值*/
 fortuna_bool_t set_net_weight(uint8_t scale,int32_t net_weight);
 
@@ -106,29 +106,14 @@ static fortuna_bool_t check_timeout_cnt(uint8_t scale)
   
  return FORTUNA_TRUE;
 }
-static fortuna_bool_t check_net_weight(uint8_t scale)
+
+
+/*正确读完净重后 清除超时标志*/
+static fortuna_bool_t clear_timeout_cnt(uint8_t scale)
 {
- int32_t net_weight;
  if(scale==0 || scale>SCALES_CNT_MAX)
  return FORTUNA_FALSE;
  w_timeout[scale-1].timeout_cnt=0;
- 
- get_net_weight(scale,&net_weight); 
- if(net_weight==SCALE_NET_WEIGHT_SPECIAL_NEGATIVE_VALUE)
- {
-   set_net_weight(scale,SCALE_NET_WEIGHT_SPECIAL_REPLACE_VALUE);
-   APP_LOG_DEBUG("%d#称==-1.\r\n",scale);
- }
- else if(net_weight >=SCALE_NET_WEIGHT_OVERLOAD_VALUE) 
- {
-  set_net_weight(scale,SCALE_NET_WEIGHT_OVERLOAD_VALUE); 
-  APP_LOG_DEBUG("%d#称正过载.\r\n",scale);
- }
- else if(net_weight <=SCALE_NET_WEIGHT_OVERLOAD_NEGATIVE_VALUE) 
- {
-  set_net_weight(scale,SCALE_NET_WEIGHT_OVERLOAD_NEGATIVE_VALUE);
-  APP_LOG_DEBUG("%d#称负过载.\r\n",scale);
- }
  return FORTUNA_TRUE;
 }
 
@@ -281,7 +266,7 @@ eMB_MASTER_ErrorCode eMBMasterRegHoldingCB(UCHAR * pucRegBuffer, USHORT usAddres
 #if SCALE_NET_WEIGHT_MUTEX_ENABLE > 0
     osStatus mutex_status;
 #endif
-    
+    int32_t net_weight;
     eMB_MASTER_ErrorCode    eStatus = MB_MASTER_ENOERR;
     USHORT          iRegIndex;
     USHORT *        pusRegHoldingBuf;
@@ -333,6 +318,28 @@ eMB_MASTER_ErrorCode eMBMasterRegHoldingCB(UCHAR * pucRegBuffer, USHORT usAddres
               iRegIndex++;
               usNRegs--;
             }
+          /*需要在读入净重完成后检查净重值是否合法*/
+            iRegIndex=usAddress - usRegHoldStart;
+            net_weight=pusRegHoldingBuf[iRegIndex]<<16|pusRegHoldingBuf[iRegIndex+1];
+            if(net_weight==SCALE_NET_WEIGHT_SPECIAL_NEGATIVE_VALUE)
+            {
+            pusRegHoldingBuf[iRegIndex]=SCALE_NET_WEIGHT_SPECIAL_REPLACE_VALUE>>16;
+            pusRegHoldingBuf[iRegIndex+1]=SCALE_NET_WEIGHT_SPECIAL_REPLACE_VALUE &0xffff;
+            APP_LOG_DEBUG("称==-1.\r\n");
+            }
+            else if(net_weight >=SCALE_NET_WEIGHT_OVERLOAD_VALUE) 
+            {
+            pusRegHoldingBuf[iRegIndex]=SCALE_NET_WEIGHT_OVERLOAD_VALUE>>16;
+            pusRegHoldingBuf[iRegIndex+1]=SCALE_NET_WEIGHT_OVERLOAD_VALUE &0xffff; 
+            APP_LOG_DEBUG("称正过载.\r\n");
+            }
+            else if(net_weight <=SCALE_NET_WEIGHT_OVERLOAD_NEGATIVE_VALUE) 
+            {
+            pusRegHoldingBuf[iRegIndex]=SCALE_NET_WEIGHT_OVERLOAD_NEGATIVE_VALUE>>16;
+            pusRegHoldingBuf[iRegIndex+1]=SCALE_NET_WEIGHT_OVERLOAD_NEGATIVE_VALUE &0xffff;
+            APP_LOG_DEBUG("称负过载.\r\n");
+            }           
+           
 #if SCALE_NET_WEIGHT_MUTEX_ENABLE > 0        
             osMutexRelease(net_weight_rw_mutex_id);/*释放净重互斥体*/
 #endif
@@ -769,7 +776,7 @@ fortuna_bool_t scale_obtain_net_weight(uint8_t scale,uint32_t scale_param)
   }
   else
   {
-  check_net_weight(scale);
+  clear_timeout_cnt(scale);
   APP_LOG_DEBUG("%2d#电子秤获取净重成功.\r\n",scale);
   }
   osDelay(SCALE_OPERATION_INTERVAL);
