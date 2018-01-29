@@ -952,7 +952,7 @@
                     <item>idx</item>
                     <item>(TCB_t*)host_comm_task_hdl</item>
                     <item>(TCB_t*)debug_task_hdl</item>
-                    <item></item>
+                    <item />
                 </expressions>
                 <col-names>
                     <item>Expression</item>

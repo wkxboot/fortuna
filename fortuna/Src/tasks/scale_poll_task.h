@@ -7,7 +7,7 @@ extern osThreadId scale_poll_task_hdl;
 void scale_poll_task(void const * argument);
 
 /*电子秤净重轮询任务运行间隔*/
-#define  SCALE_POLL_TASK_INTERVAL                                20
+#define  SCALE_POLL_TASK_INTERVAL                                10
 
 
 
