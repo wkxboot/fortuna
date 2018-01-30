@@ -3,6 +3,8 @@
 #include "cmsis_os.h"
 #include "lock_task.h"
 #include "comm_protocol.h"
+#include "ups_task.h"
+#include "light_task.h"
 #include "host_comm_task.h"
 #include "glass_pwr_task.h"
 #include "ABDK_ZNHG_ZK.h"
@@ -60,6 +62,7 @@ void lock_task(void const * argument)
  osEvent msg;
  lock_msg_t lock_msg;
  uint16_t time;
+ 
  APP_LOG_INFO("######门锁任务开始.\r\n");
  /*创建自己的消息队列*/
  osMessageQDef(lock_task_msg,2,uint32_t);
@@ -68,6 +71,9 @@ void lock_task(void const * argument)
  
  /*关闭门上灯*/
  BSP_LED_TURN_ON_OFF(DOOR_ORANGE_LED|DOOR_GREEN_LED|DOOR_RED_LED,LED_CTL_OFF); 
+ /*打开GPU电源*/
+ BSP_AC_TURN_ON_OFF(AC_2,AC_CTL_ON);
+ 
  while(1)
  {
   msg=osMessageGet(lock_task_msg_q_id,LOCK_TASK_INTERVAL);
@@ -76,6 +82,29 @@ void lock_task(void const * argument)
   {
    lock_state=lock_task_update_lock_state();
    door_state=lock_task_update_door_state();
+   /*如果UPS断电关闭玻璃、灯带电源*/
+   if(get_ups_state()==UPS_TASK_STATE_PWR_OFF )
+   {
+    /*关闭灯带1和2*/
+    if(BSP_get_light_state(LIGHT_1)==LIGHT_STATE_ON)
+    osSignalSet(light_task_hdl,LIGHT_TASK_LIGHT_1_PWR_OFF_SIGNAL); 
+    if(BSP_get_light_state(LIGHT_2)==LIGHT_STATE_ON)
+    osSignalSet(light_task_hdl,LIGHT_TASK_LIGHT_2_PWR_OFF_SIGNAL); 
+    /*关闭玻璃电源*/
+    if(BSP_get_glass_pwr_state()==GLASS_PWR_STATE_ON)
+    osSignalSet(glass_pwr_task_hdl,GLASS_PWR_TASK_OFF_SIGNAL);
+   }
+   else/*UPS有市电时*/
+   {
+    /*打开灯带1和2*/
+    if(BSP_get_light_state(LIGHT_1)==LIGHT_STATE_OFF)
+    osSignalSet(light_task_hdl,LIGHT_TASK_LIGHT_1_PWR_ON_SIGNAL); 
+    if(BSP_get_light_state(LIGHT_2)==LIGHT_STATE_OFF)
+    osSignalSet(light_task_hdl,LIGHT_TASK_LIGHT_2_PWR_ON_SIGNAL);  
+    /*打开玻璃电源*/
+    if(BSP_get_glass_pwr_state()==GLASS_PWR_STATE_OFF && lock_state==LOCK_TASK_STATE_LOCKED)
+    osSignalSet(glass_pwr_task_hdl,GLASS_PWR_TASK_ON_SIGNAL);
+   }
    continue;  
   }
   /*如果到不是锁消息，继续*/
@@ -102,7 +131,12 @@ void lock_task(void const * argument)
     /*关闭门上其余灯*/
     BSP_LED_TURN_ON_OFF(DOOR_ORANGE_LED,LED_CTL_OFF); 
     /*打开门上蓝色指示灯*/
-    BSP_LED_TURN_ON_OFF(DOOR_GREEN_LED|DOOR_RED_LED,LED_CTL_ON);
+    BSP_LED_TURN_ON_OFF(DOOR_GREEN_LED|DOOR_RED_LED,LED_CTL_ON);    
+    /*关闭交流风扇*/
+    BSP_AC_TURN_ON_OFF(AC_1,AC_CTL_OFF);
+   /*不管UPS是否有市电都关闭玻璃加热电源*/
+    APP_LOG_DEBUG("玻璃加热任务发送冷却信号.\r\n");
+    osSignalSet(glass_pwr_task_hdl,GLASS_PWR_TASK_OFF_SIGNAL);
     APP_LOG_DEBUG("向通信任务发送开锁成功信号.\r\n");
     osSignalSet(host_comm_task_hdl,COMM_TASK_UNLOCK_LOCK_OK_SIGNAL); 
     }
@@ -127,13 +161,18 @@ void lock_task(void const * argument)
     if(lock_state==LOCK_TASK_STATE_LOCKED)
     {
     /*关闭门上其余灯*/
-    BSP_LED_TURN_ON_OFF(DOOR_GREEN_LED|DOOR_RED_LED,LED_CTL_OFF); 
+    BSP_LED_TURN_ON_OFF(DOOR_GREEN_LED|DOOR_RED_LED,LED_CTL_OFF);
     /*打开门上橙色指示灯*/
     BSP_LED_TURN_ON_OFF(DOOR_ORANGE_LED,LED_CTL_ON);
+    /*打开交流风扇*/
+    BSP_AC_TURN_ON_OFF(AC_2,AC_CTL_ON);
     APP_LOG_DEBUG("向通信任务发送关锁成功信号.\r\n");
     osSignalSet(host_comm_task_hdl,COMM_TASK_LOCK_LOCK_OK_SIGNAL);
+    if(get_ups_state()==UPS_TASK_STATE_PWR_ON)/*只有在UPS有市电的情况下才加热玻璃*/
+    {
     APP_LOG_DEBUG("玻璃加热任务发送加热信号.\r\n");
     osSignalSet(glass_pwr_task_hdl,GLASS_PWR_TASK_ON_SIGNAL);
+    }
     }
     else
     {

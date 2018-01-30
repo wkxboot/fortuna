@@ -596,29 +596,55 @@ err_handle2:
  APP_LOG_DEBUG("温度值：%2d 摄氏度.\r\n",t);
  continue;
  } 
- /*打开交流电*/
- cmd_len=strlen(DEBUG_TASK_CMD_PWR_ON_AC);
- if(memcmp((const char*)cmd,DEBUG_TASK_CMD_PWR_ON_AC,cmd_len)==0)
+ /*打开交流电1*/
+ cmd_len=strlen(DEBUG_TASK_CMD_PWR_ON_AC1);
+ if(memcmp((const char*)cmd,DEBUG_TASK_CMD_PWR_ON_AC1,cmd_len)==0)
  { 
- if(recv_len !=cmd_len+DEBUG_TASK_CMD_PWR_ON_AC_PARAM_LEN)
+ if(recv_len !=cmd_len+DEBUG_TASK_CMD_PWR_ON_AC1_PARAM_LEN)
  {
-  APP_LOG_ERROR("交流电命令长度非法.\r\n");
+  APP_LOG_ERROR("交流电1命令长度非法.\r\n");
   continue;
  }
- APP_LOG_DEBUG("打开交流电.\r\n");
+ APP_LOG_DEBUG("打开交流电1.\r\n");
  BSP_AC_TURN_ON_OFF(AC_1|AC_2,AC_CTL_ON);
  continue;
  } 
- /*关闭交流电*/
- cmd_len=strlen(DEBUG_TASK_CMD_PWR_ON_AC);
- if(memcmp((const char*)cmd,DEBUG_TASK_CMD_PWR_OFF_AC,cmd_len)==0)
+ /*关闭交流电1*/
+ cmd_len=strlen(DEBUG_TASK_CMD_PWR_OFF_AC1);
+ if(memcmp((const char*)cmd,DEBUG_TASK_CMD_PWR_OFF_AC1,cmd_len)==0)
  { 
- if(recv_len !=cmd_len+DEBUG_TASK_CMD_PWR_OFF_AC_PARAM_LEN)
+ if(recv_len !=cmd_len+DEBUG_TASK_CMD_PWR_OFF_AC1_PARAM_LEN)
  {
-  APP_LOG_ERROR("交流电命令长度非法.\r\n");
+  APP_LOG_ERROR("交流电1命令长度非法.\r\n");
   continue;
  }
- APP_LOG_DEBUG("关闭交流电.\r\n");
+ APP_LOG_DEBUG("关闭交流电1.\r\n");
+ BSP_AC_TURN_ON_OFF(AC_1|AC_2,AC_CTL_OFF);
+ continue;
+ }
+ /*打开交流电2*/
+ cmd_len=strlen(DEBUG_TASK_CMD_PWR_ON_AC2);
+ if(memcmp((const char*)cmd,DEBUG_TASK_CMD_PWR_ON_AC2,cmd_len)==0)
+ { 
+ if(recv_len !=cmd_len+DEBUG_TASK_CMD_PWR_ON_AC2_PARAM_LEN)
+ {
+  APP_LOG_ERROR("交流电2命令长度非法.\r\n");
+  continue;
+ }
+ APP_LOG_DEBUG("打开交流电2.\r\n");
+ BSP_AC_TURN_ON_OFF(AC_1|AC_2,AC_CTL_ON);
+ continue;
+ } 
+ /*关闭交流电2*/
+ cmd_len=strlen(DEBUG_TASK_CMD_PWR_ON_AC2);
+ if(memcmp((const char*)cmd,DEBUG_TASK_CMD_PWR_OFF_AC2,cmd_len)==0)
+ { 
+ if(recv_len !=cmd_len+DEBUG_TASK_CMD_PWR_OFF_AC2_PARAM_LEN)
+ {
+  APP_LOG_ERROR("交流电2命令长度非法.\r\n");
+  continue;
+ }
+ APP_LOG_DEBUG("关闭交流电2.\r\n");
  BSP_AC_TURN_ON_OFF(AC_1|AC_2,AC_CTL_OFF);
  continue;
  }

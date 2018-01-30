@@ -9,14 +9,19 @@
 #include "app_log.h"
 #include "app_error.h"
 
+/*加热玻璃任务*/
 osThreadId glass_pwr_task_hdl;
 
 void glass_pwr_task(void const * argument)
 {
  osEvent signal;
  uint32_t pre_time,cur_time,work_time=0;
+ /*加热玻璃状态*/
  bsp_state_t glass_pwr_state;
  APP_LOG_INFO("######玻璃温度控制任务开始.\r\n");
+ /*首先关闭玻璃加热*/
+ osSignalSet(glass_pwr_task_hdl,GLASS_PWR_TASK_OFF_SIGNAL);
+ /*计算加热时间*/
  pre_time=osKernelSysTick();
  cur_time=pre_time;
  while(1)

@@ -246,18 +246,14 @@ static void create_user_tasks()
   osThreadDef(scale_comm_task, scale_comm_task, osPriorityNormal, 0, 256);
   scale_comm_task_hdl = osThreadCreate(osThread(scale_comm_task), NULL); 
   APP_ASSERT(scale_comm_task_hdl);
-
   /*创建看门狗任务*/
   osThreadDef(watch_dog_task, watch_dog_task, osPriorityNormal, 0, 256);
   watch_dog_task_hdl = osThreadCreate(osThread(watch_dog_task), NULL); 
-  APP_ASSERT(watch_dog_task_hdl);
-  
+  APP_ASSERT(watch_dog_task_hdl); 
   /*创建调试任务*/
   osThreadDef(debug_task, debug_task, osPriorityNormal, 0, 256);
   debug_task_hdl = osThreadCreate(osThread(debug_task), NULL); 
-  APP_ASSERT(debug_task_hdl);
-  
-  
+  APP_ASSERT(debug_task_hdl); 
   /*创建锁任任务*/
   osThreadDef(lock_task, lock_task, osPriorityNormal, 0, 256);
   lock_task_hdl = osThreadCreate(osThread(lock_task), NULL); 
@@ -298,18 +294,15 @@ static void create_user_tasks()
   osThreadDef(ups_task, ups_task, osPriorityNormal, 0, 256);
   ups_task_hdl = osThreadCreate(osThread(ups_task), NULL); 
   APP_ASSERT(ups_task_hdl);
-  
   /*创建重量缓存任务*/
   osThreadDef(weight_memory_task, weight_memory_task, osPriorityNormal, 0, 256);
   weight_memory_task_hdl = osThreadCreate(osThread(weight_memory_task), NULL); 
-  APP_ASSERT(weight_memory_task_hdl);
-    
+  APP_ASSERT(weight_memory_task_hdl);   
   /*创建温度缓存任务*/
   osThreadDef(temperature_memory_task, temperature_memory_task, osPriorityNormal, 0, 256);
   temperature_memory_task_hdl = osThreadCreate(osThread(temperature_memory_task), NULL); 
-  APP_ASSERT(temperature_memory_task_hdl);
-  
-/*创建校准缓存任务*/
+  APP_ASSERT(temperature_memory_task_hdl);  
+  /*创建校准缓存任务*/
   osThreadDef(calibrate_memory_task, calibrate_memory_task, osPriorityNormal, 0, 256);
   calibrate_memory_task_hdl = osThreadCreate(osThread(calibrate_memory_task), NULL); 
   APP_ASSERT(calibrate_memory_task_hdl);

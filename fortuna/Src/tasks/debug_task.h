@@ -30,8 +30,10 @@ void debug_task(void const * argument);
 #define  DEBUG_TASK_CMD_OBTAIN_TEMPERATURE_PARAM_LEN    1
 #define  DEBUG_TASK_CMD_UNLOCK_LOCK_PARAM_LEN           0
 #define  DEBUG_TASK_CMD_LOCK_LOCK_PARAM_LEN             0
-#define  DEBUG_TASK_CMD_PWR_ON_AC_PARAM_LEN             0
-#define  DEBUG_TASK_CMD_PWR_OFF_AC_PARAM_LEN            0
+#define  DEBUG_TASK_CMD_PWR_ON_AC1_PARAM_LEN            0
+#define  DEBUG_TASK_CMD_PWR_OFF_AC1_PARAM_LEN           0
+#define  DEBUG_TASK_CMD_PWR_ON_AC2_PARAM_LEN            0
+#define  DEBUG_TASK_CMD_PWR_OFF_AC2_PARAM_LEN           0
 #define  DEBUG_TASK_CMD_PWR_ON_LOCK_LED_PARAM_LEN       0
 #define  DEBUG_TASK_CMD_PWR_OFF_LOCK_LED_PARAM_LEN      0
 #define  DEBUG_TASK_CMD_GET_UPS_STATE_PARAM_LEN         0
@@ -64,8 +66,10 @@ void debug_task(void const * argument);
 #define  DEBUG_TASK_CMD_OBTAIN_TEMPERATURE             "获取温度"
 #define  DEBUG_TASK_CMD_UNLOCK_LOCK                    "开锁"
 #define  DEBUG_TASK_CMD_LOCK_LOCK                      "关锁"
-#define  DEBUG_TASK_CMD_PWR_ON_AC                      "打开交流电"
-#define  DEBUG_TASK_CMD_PWR_OFF_AC                     "关闭交流电"
+#define  DEBUG_TASK_CMD_PWR_ON_AC1                     "打开交流电1"
+#define  DEBUG_TASK_CMD_PWR_OFF_AC1                    "关闭交流电1"
+#define  DEBUG_TASK_CMD_PWR_ON_AC2                     "打开交流电2"
+#define  DEBUG_TASK_CMD_PWR_OFF_AC2                    "关闭交流电2"
 #define  DEBUG_TASK_CMD_PWR_ON_LOCK_LED                "打开门灯"
 #define  DEBUG_TASK_CMD_PWR_OFF_LOCK_LED               "关闭门灯"
 #define  DEBUG_TASK_CMD_GET_UPS_STATE                  "UPS状态"

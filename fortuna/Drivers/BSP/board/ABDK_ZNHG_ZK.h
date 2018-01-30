@@ -8,8 +8,8 @@
 
 #define  CTL_TYPE_IO                     1
 #define  CTL_TYPE_PWM                    2
-#define  LIGHT_CTL_TYPE                  CTL_TYPE_PWM
-#define  DC12V_2_CTL_TYPE                CTL_TYPE_PWM
+#define  LIGHT_CTL_TYPE                  CTL_TYPE_IO
+#define  DC12V_2_CTL_TYPE                CTL_TYPE_IO
 
 
 #define  SYS_LED                        (1<<0)
@@ -51,11 +51,11 @@ typedef enum
  LOCK_STATE_OPEN=GPIO_PIN_SET,
  LOCK_STATE_CLOSE=GPIO_PIN_RESET,
  /*灯条*/
- LIGHT_CTL_ON=GPIO_PIN_RESET,
- LIGHT_CTL_OFF=GPIO_PIN_SET,
- LIGHT_STATE_ON=GPIO_PIN_RESET,
- LIGHT_STATE_OFF=GPIO_PIN_SET,
- /*玻璃温度*/
+ LIGHT_CTL_ON=GPIO_PIN_SET,
+ LIGHT_CTL_OFF=GPIO_PIN_RESET,
+ LIGHT_STATE_ON=GPIO_PIN_SET,
+ LIGHT_STATE_OFF=GPIO_PIN_RESET,
+ /*玻璃电源*/
  GLASS_PWR_CTL_ON=GPIO_PIN_SET,
  GLASS_PWR_CTL_OFF=GPIO_PIN_RESET,
  GLASS_PWR_STATE_ON=GPIO_PIN_SET,
@@ -98,7 +98,8 @@ bsp_state_t BSP_get_func2_sw_state();
 bsp_state_t BSP_get_compressor_pwr_state();
 /*获取玻璃加热电源状态*/
 bsp_state_t BSP_get_glass_pwr_state();
-
+/*获取灯带状态*/
+bsp_state_t BSP_get_light_state(uint8_t light);
 
 /*led灯控制*/
 void BSP_LED_TURN_ON_OFF(uint8_t led,bsp_state_t state);
