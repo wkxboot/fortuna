@@ -40,22 +40,14 @@ void glass_pwr_task(void const * argument)
   {
    if(signal.value.signals & GLASS_PWR_TASK_ON_SIGNAL)
    {
-    APP_LOG_DEBUG("玻璃温度控制任务收到加热信号.\r\n");  
-    if(glass_pwr_state!=GLASS_PWR_STATE_ON)
-    {
     APP_LOG_DEBUG("玻璃温度控制任务加热玻璃.\r\n");  
     BSP_GLASS_PWR_TURN_ON_OFF(GLASS_PWR_CTL_ON); 
-    }
    }
    if(signal.value.signals & GLASS_PWR_TASK_OFF_SIGNAL)
    {
-    APP_LOG_DEBUG("玻璃温度控制任务收到关闭加热信号.\r\n");
-    if(glass_pwr_state!=GLASS_PWR_STATE_OFF)
-    {
     APP_LOG_DEBUG("玻璃温度控制任务关闭加热玻璃.\r\n");  
     BSP_GLASS_PWR_TURN_ON_OFF(GLASS_PWR_CTL_OFF); 
     work_time=0;
-    }
    }
   }
   

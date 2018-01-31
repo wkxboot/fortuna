@@ -23,8 +23,8 @@ static uint8_t lock_task_update_door_state();
 osThreadId lock_task_hdl;
 osMessageQId lock_task_msg_q_id;
 /*门锁状态机*/
-uint8_t lock_state;
-uint8_t door_state;
+static uint8_t lock_state;
+static uint8_t door_state;
 
 uint8_t get_lock_state()
 {
@@ -83,29 +83,6 @@ void lock_task(void const * argument)
   {
    lock_state=lock_task_update_lock_state();
    door_state=lock_task_update_door_state();
-   /*如果UPS断电关闭玻璃、灯带电源*/
-   if(get_ups_state()==UPS_TASK_STATE_PWR_OFF )
-   {
-    /*关闭灯带1和2*/
-    if(BSP_get_light_state(LIGHT_1)==LIGHT_STATE_ON)
-    osSignalSet(light_task_hdl,LIGHT_TASK_LIGHT_1_PWR_OFF_SIGNAL); 
-    if(BSP_get_light_state(LIGHT_2)==LIGHT_STATE_ON)
-    osSignalSet(light_task_hdl,LIGHT_TASK_LIGHT_2_PWR_OFF_SIGNAL); 
-    /*关闭玻璃电源*/
-    if(BSP_get_glass_pwr_state()==GLASS_PWR_STATE_ON)
-    osSignalSet(glass_pwr_task_hdl,GLASS_PWR_TASK_OFF_SIGNAL);
-   }
-   else/*UPS有市电时*/
-   {
-    /*打开灯带1和2*/
-    if(BSP_get_light_state(LIGHT_1)==LIGHT_STATE_OFF)
-    osSignalSet(light_task_hdl,LIGHT_TASK_LIGHT_1_PWR_ON_SIGNAL); 
-    if(BSP_get_light_state(LIGHT_2)==LIGHT_STATE_OFF)
-    osSignalSet(light_task_hdl,LIGHT_TASK_LIGHT_2_PWR_ON_SIGNAL);  
-    /*打开玻璃电源*/
-    if(BSP_get_glass_pwr_state()==GLASS_PWR_STATE_OFF && lock_state==LOCK_TASK_STATE_LOCKED)
-    osSignalSet(glass_pwr_task_hdl,GLASS_PWR_TASK_ON_SIGNAL);
-   }
    continue;  
   }
   /*如果到不是锁消息，继续*/
