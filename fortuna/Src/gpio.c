@@ -85,11 +85,17 @@ void MX_GPIO_Init(void)
   HAL_GPIO_WritePin(GPIOE, DOOR_RED_LED_CTL_POS_Pin|DOOR_GREEN_LED_CTL_POS_Pin|DOOR_ORANGE_LED_CTL_POS_Pin|COMPRESSOR_CTL_POS_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOC, AC1_CTL_POS_Pin|AC2_CTL_POS_Pin|GLASS_T_CTL_POS_Pin|DISPLAY_A_CTL_POS_Pin 
-                          |DISPLAY_F_CTL_POS_Pin|DISPLAY_G_CTL_POS_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOC, AC1_CTL_POS_Pin|AC2_CTL_POS_Pin|DISPLAY_A_CTL_POS_Pin|DISPLAY_F_CTL_POS_Pin 
+                          |DISPLAY_G_CTL_POS_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOA, SYS_LED_CTL_POS_Pin|DC12V1_CTL_POS_Pin|LOCK_CTL_POS_Pin, GPIO_PIN_RESET);
+
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(GPIOA, LED1_CTL_POS_Pin|LED2_CTL_POS_Pin, GPIO_PIN_SET);
+
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(GLASS_T_CTL_POS_GPIO_Port, GLASS_T_CTL_POS_Pin, GPIO_PIN_SET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOG, DISPLAY_COM6_CTL_POS_Pin|DISPLAY_COM4_CTL_POS_Pin|DISPLAY_COM1_CTL_POS_Pin|DISPLAY_C_CTL_POS_Pin 
@@ -115,8 +121,10 @@ void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : PAPin PAPin PAPin */
-  GPIO_InitStruct.Pin = SYS_LED_CTL_POS_Pin|DC12V1_CTL_POS_Pin|LOCK_CTL_POS_Pin;
+  /*Configure GPIO pins : PAPin PAPin PAPin PAPin 
+                           PAPin */
+  GPIO_InitStruct.Pin = SYS_LED_CTL_POS_Pin|DC12V1_CTL_POS_Pin|LED1_CTL_POS_Pin|LED2_CTL_POS_Pin 
+                          |LOCK_CTL_POS_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);

@@ -70,63 +70,41 @@ return (bsp_state_t)HAL_GPIO_ReadPin(FUNC2_SW_STATE_POS_GPIO_Port,FUNC2_SW_STATE
 }
 
 /*获取压缩机电源状态*/
+static bsp_state_t bsp_compressor_pwr_state=COMPRESSOR_PWR_STATE_OFF;
 bsp_state_t BSP_get_compressor_pwr_state()
 {
- return (bsp_state_t)HAL_GPIO_ReadPin(COMPRESSOR_CTL_POS_GPIO_Port,COMPRESSOR_CTL_POS_Pin);  
+ return bsp_compressor_pwr_state;  
 }
 
 /*获取玻璃加热电源状态*/
+static bsp_state_t bsp_glass_pwr_state=GLASS_PWR_STATE_OFF;
 bsp_state_t BSP_get_glass_pwr_state()
 {
- return (bsp_state_t)HAL_GPIO_ReadPin(GLASS_T_CTL_POS_GPIO_Port,GLASS_T_CTL_POS_Pin); 
+ return bsp_glass_pwr_state;
 }
 
 
 /*获取灯带状态--IO直接控制或者PWM控制*/
-#if defined(LIGHT_CTL_TYPE) && (LIGHT_CTL_TYPE == CTL_TYPE_IO)/*IO直接控制*/ 
+static bsp_state_t bsp_light1_state=LIGHT_STATE_OFF;
+static bsp_state_t bsp_light2_state=LIGHT_STATE_OFF;
+
 bsp_state_t BSP_get_light_state(uint8_t light)
 {
- bsp_state_t state;
- if(light & LIGHT_1 && light & LIGHT_2)/*同时只能有一个灯获取状态。否则错误*/
+ if(light & LIGHT_1 && light & LIGHT_2 ||light==0)/*同时只能有一个灯获取状态。否则错误*/
  {
-  APP_LOG_ERROR("同时获取2个灯带状态.\r\n");
+  APP_LOG_ERROR("同时获取2个或者0个灯带状态.\r\n");
   APP_ERROR_HANDLER(0);
  }
  if(light & LIGHT_1)
  {
- state= (bsp_state_t)HAL_GPIO_ReadPin(LED1_CTL_POS_GPIO_Port,LED1_CTL_POS_Pin);  
+ return bsp_light1_state;  
  }
  if(light & LIGHT_2)
  {
- state= (bsp_state_t)HAL_GPIO_ReadPin(LED2_CTL_POS_GPIO_Port,LED2_CTL_POS_Pin);  
+ return bsp_light2_state;  
  } 
- return state;
+ return bsp_light1_state;
 }
-#elif defined(LIGHT_CTL_TYPE) && (LIGHT_CTL_TYPE == CTL_TYPE_PWM)/*PWM控制*/ 
-
-static bsp_state_t bsp_light1_pwm_state=LIGHT_STATE_OFF;
-static bsp_state_t bsp_light2_pwm_state=LIGHT_STATE_OFF;
-bsp_state_t BSP_get_light_state(uint8_t light)
-{
- if(light & LIGHT_1 && light & LIGHT_2)/*同时只能有一个灯获取状态。否则错误*/
- {
-  APP_LOG_ERROR("同时获取2个灯带状态.\r\n")
-  APP_ERROR_HANDLER(0);
- }
- 
- if(light &LIGHT_1)
- {
-  return bsp_light1_pwm_state;
- }
- if(light &LIGHT_2)
- {
-  return bsp_light2_pwm_state;
- }
- return light1_pwm_state;/*不应该到这一步*/
-}
-#else 
-#error "应该定义LIGHT_CTL_TYPE值"
-#endif
 
 /*led灯操作*/
 void BSP_LED_TURN_ON_OFF(uint8_t led,bsp_state_t state)
@@ -164,12 +142,12 @@ void BSP_RS485_TX_ENABLE()
 /*交流电操作*/
 void BSP_AC_TURN_ON_OFF(uint8_t ac,bsp_state_t state)
 {
-/*交流电1 交流风扇*/
+/*交流电1 交流GPU*/
  if(ac & AC_1)
  {
  HAL_GPIO_WritePin(AC1_CTL_POS_GPIO_Port,AC1_CTL_POS_Pin,(GPIO_PinState)state); 
  }
-/*交流电2 交流GPU*/
+/*交流电2 交流风扇*/
  if(ac & AC_2)
  {
  HAL_GPIO_WritePin(AC2_CTL_POS_GPIO_Port,AC2_CTL_POS_Pin,(GPIO_PinState)state); 
@@ -183,7 +161,8 @@ void BSP_LOCK_TURN_ON_OFF(bsp_state_t state)
 /*玻璃加热电源操作*/
 void BSP_GLASS_PWR_TURN_ON_OFF(bsp_state_t state)
 {
- HAL_GPIO_WritePin(GLASS_T_CTL_POS_GPIO_Port,GLASS_T_CTL_POS_Pin,(GPIO_PinState)state);  
+ HAL_GPIO_WritePin(GLASS_T_CTL_POS_GPIO_Port,GLASS_T_CTL_POS_Pin,(GPIO_PinState)state);
+ bsp_glass_pwr_state=state;
 }
 
 /*灯带控制--IO控制或者PWM控制*/
@@ -193,10 +172,12 @@ void BSP_LIGHT_TURN_ON_OFF(uint8_t light,bsp_state_t state)
  if(light & LIGHT_1)
  {
  HAL_GPIO_WritePin(LED1_CTL_POS_GPIO_Port,LED1_CTL_POS_Pin,(GPIO_PinState)state);  
+ bsp_light1_state=state;
  }
  if(light & LIGHT_2)
  {
- HAL_GPIO_WritePin(LED2_CTL_POS_GPIO_Port,LED2_CTL_POS_Pin,(GPIO_PinState)state);  
+ HAL_GPIO_WritePin(LED2_CTL_POS_GPIO_Port,LED2_CTL_POS_Pin,(GPIO_PinState)state); 
+ bsp_light2_state=state; 
  }
 }
 #elif defined(LIGHT_CTL_TYPE) && (LIGHT_CTL_TYPE == CTL_TYPE_PWM)/*PWM控制*/ 
@@ -207,14 +188,14 @@ void BSP_LIGHT_TURN_ON_OFF(uint8_t light,bsp_state_t state)
  if(state==LIGHT_CTL_ON)
  {
  HAL_TIM_PWM_Start(&htim3,TIM_CHANNEL_1);
- bsp_light1_pwm_state=LIGHT_STATE_ON;
+ bsp_light1_state=LIGHT_STATE_ON;
  }
  else
  {
   /*强制PWM关闭时引脚电平为低，频率250HZ 占空比%80 所以把计数值设置在PWM输出无效值范围内（3200-3999）*/
  __HAL_TIM_SET_COUNTER(&htim3,3500);
  HAL_TIM_PWM_Stop(&htim3,TIM_CHANNEL_1);
- bsp_light1_pwm_state=LIGHT_STATE_OFF;
+ bsp_light1_state=LIGHT_STATE_OFF;
  }
  }
  if(light & LIGHT_2)
@@ -222,14 +203,14 @@ void BSP_LIGHT_TURN_ON_OFF(uint8_t light,bsp_state_t state)
  if(state==LIGHT_CTL_ON)
  {
  HAL_TIM_PWM_Start(&htim3,TIM_CHANNEL_2); 
- bsp_light2_pwm_state=LIGHT_STATE_ON;
+ bsp_light2_state=LIGHT_STATE_ON;
  }
  else
  {
  /*强制PWM关闭时引脚电平为低，频率250HZ 占空比%80 所以把计数值设置在PWM输出无效值范围内（3200-3999）*/
  __HAL_TIM_SET_COUNTER(&htim3,3500);
  HAL_TIM_PWM_Stop(&htim3,TIM_CHANNEL_2);
- bsp_light2_pwm_state=LIGHT_STATE_OFF;
+ bsp_light2_state=LIGHT_STATE_OFF;
  }
  }
 }
@@ -240,6 +221,7 @@ void BSP_LIGHT_TURN_ON_OFF(uint8_t light,bsp_state_t state)
 void BSP_COMPRESSOR_TURN_ON_OFF(bsp_state_t state)
 {
  HAL_GPIO_WritePin(COMPRESSOR_CTL_POS_GPIO_Port,COMPRESSOR_CTL_POS_Pin,(GPIO_PinState)state);  
+ bsp_compressor_pwr_state=state;
 }
 
 /*12V输出控制--IO控制或者PWM控制*/

@@ -23,7 +23,7 @@ fortuna_bool_t get_net_weight(uint8_t sclae,int32_t *ptr_net_weight);
 #define  SCALES_CNT_MAX                                4
 
 /*电子秤重量错误值定义*/
-#define  SCALE_NET_WEIGHT_TIMEOUT_CNT                  3
+#define  SCALE_NET_WEIGHT_TIMEOUT_CNT                  10/*连续10次读不到称的重量数据就定义为超时*/
 #define  SCALE_NET_WEIGHT_OVERLOAD_VALUE               0x7fff
 #define  SCALE_NET_WEIGHT_OVERLOAD_NEGATIVE_VALUE      (-0x8000)
 #define  SCALE_NET_WEIGHT_SPECIAL_NEGATIVE_VALUE       (-1)

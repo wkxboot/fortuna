@@ -72,8 +72,9 @@ void lock_task(void const * argument)
  /*关闭门上灯*/
  BSP_LED_TURN_ON_OFF(DOOR_ORANGE_LED|DOOR_GREEN_LED|DOOR_RED_LED,LED_CTL_OFF); 
  /*打开GPU电源*/
+ BSP_AC_TURN_ON_OFF(AC_1,AC_CTL_ON);
+  /*打开交流风扇*/
  BSP_AC_TURN_ON_OFF(AC_2,AC_CTL_ON);
- 
  while(1)
  {
   msg=osMessageGet(lock_task_msg_q_id,LOCK_TASK_INTERVAL);
@@ -133,7 +134,7 @@ void lock_task(void const * argument)
     /*打开门上蓝色指示灯*/
     BSP_LED_TURN_ON_OFF(DOOR_GREEN_LED|DOOR_RED_LED,LED_CTL_ON);    
     /*关闭交流风扇*/
-    BSP_AC_TURN_ON_OFF(AC_1,AC_CTL_OFF);
+    BSP_AC_TURN_ON_OFF(AC_2,AC_CTL_OFF);
    /*不管UPS是否有市电都关闭玻璃加热电源*/
     APP_LOG_DEBUG("玻璃加热任务发送冷却信号.\r\n");
     osSignalSet(glass_pwr_task_hdl,GLASS_PWR_TASK_OFF_SIGNAL);

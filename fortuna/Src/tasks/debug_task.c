@@ -606,7 +606,7 @@ err_handle2:
   continue;
  }
  APP_LOG_DEBUG("打开交流电1.\r\n");
- BSP_AC_TURN_ON_OFF(AC_1|AC_2,AC_CTL_ON);
+ BSP_AC_TURN_ON_OFF(AC_1,AC_CTL_ON);
  continue;
  } 
  /*关闭交流电1*/
@@ -619,7 +619,7 @@ err_handle2:
   continue;
  }
  APP_LOG_DEBUG("关闭交流电1.\r\n");
- BSP_AC_TURN_ON_OFF(AC_1|AC_2,AC_CTL_OFF);
+ BSP_AC_TURN_ON_OFF(AC_1,AC_CTL_OFF);
  continue;
  }
  /*打开交流电2*/
@@ -632,7 +632,7 @@ err_handle2:
   continue;
  }
  APP_LOG_DEBUG("打开交流电2.\r\n");
- BSP_AC_TURN_ON_OFF(AC_1|AC_2,AC_CTL_ON);
+ BSP_AC_TURN_ON_OFF(AC_2,AC_CTL_ON);
  continue;
  } 
  /*关闭交流电2*/
@@ -645,7 +645,7 @@ err_handle2:
   continue;
  }
  APP_LOG_DEBUG("关闭交流电2.\r\n");
- BSP_AC_TURN_ON_OFF(AC_1|AC_2,AC_CTL_OFF);
+ BSP_AC_TURN_ON_OFF(AC_2,AC_CTL_OFF);
  continue;
  }
   /*开锁*/
