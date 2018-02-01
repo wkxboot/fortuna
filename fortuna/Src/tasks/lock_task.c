@@ -15,16 +15,16 @@
 
 
 
-static uint8_t lock_task_update_lock_state();
-static uint8_t lock_task_update_door_state();
+static fortuna_bool_t lock_task_update_lock_state();
+static fortuna_bool_t lock_task_update_door_state();
 
 
 /*任务和消息句柄*/
 osThreadId lock_task_hdl;
 osMessageQId lock_task_msg_q_id;
 /*门锁状态机*/
-static uint8_t lock_state;
-static uint8_t door_state;
+static uint8_t lock_state=LOCK_TASK_STATE_UNLOCKED;
+static uint8_t door_state=LOCK_TASK_STATE_UNLOCKED;
 
 uint8_t get_lock_state()
 {
@@ -34,26 +34,55 @@ uint8_t get_door_state()
 {
   return door_state;
 }
-static uint8_t lock_task_update_lock_state()
+
+/*更新lock的状态并返回是否发生状态改变*/
+static fortuna_bool_t lock_task_update_lock_state()
 {
   bsp_state_t state;
+  fortuna_bool_t is_changed=FORTUNA_FALSE;
   state=BSP_get_lock_state();
-  if(state==LOCK_STATE_OPEN)
+  if(state==LOCK_STATE_OPEN )
+  {
+    if( lock_state!=LOCK_TASK_STATE_UNLOCKED)
+    {
     lock_state=LOCK_TASK_STATE_UNLOCKED ;
+    is_changed=FORTUNA_TRUE;
+    }
+  }
   else
+  {
+    if(lock_state!=LOCK_TASK_STATE_LOCKED)
+    {
     lock_state=LOCK_TASK_STATE_LOCKED;
-  return lock_state;
+    is_changed=FORTUNA_TRUE;
+    }
+  }
+  return is_changed;
 }
-static uint8_t lock_task_update_door_state()
+/*更新door的状态并返回是否发生状态改变*/
+static fortuna_bool_t lock_task_update_door_state()
 {
   bsp_state_t state_up,state_dwn;
+  fortuna_bool_t is_changed=FORTUNA_FALSE;
   state_up=BSP_get_door_up_state();
   state_dwn=BSP_get_door_dwn_state();
   if(state_up==state_dwn && state_up==LOCK_STATE_CLOSE)/*需要改为闭合判断*/
+  {
+    if(door_state!=LOCK_TASK_STATE_LOCKED)
+    {
     door_state=LOCK_TASK_STATE_LOCKED ;
+    is_changed=FORTUNA_TRUE;
+    }
+  }
   else
+  {
+    if(door_state!=LOCK_TASK_STATE_UNLOCKED)
+    {
     door_state=LOCK_TASK_STATE_UNLOCKED;
-  return door_state; 
+    is_changed=FORTUNA_TRUE;
+    }
+  }
+  return is_changed; 
 }
 
 /*门锁任务*/
@@ -73,17 +102,30 @@ void lock_task(void const * argument)
  BSP_LED_TURN_ON_OFF(DOOR_ORANGE_LED|DOOR_GREEN_LED|DOOR_RED_LED,LED_CTL_OFF); 
  /*打开GPU电源*/
  BSP_AC_TURN_ON_OFF(AC_1,AC_CTL_ON);
-  /*打开交流风扇*/
- BSP_AC_TURN_ON_OFF(AC_2,AC_CTL_ON);
+  /*关闭交流风扇*/
+ BSP_AC_TURN_ON_OFF(AC_2,AC_CTL_OFF);
+ 
  while(1)
  {
   msg=osMessageGet(lock_task_msg_q_id,LOCK_TASK_INTERVAL);
   /*如果到达更新状态时间，那么就更新锁和门的状态*/
   if(msg.status == osEventTimeout)
   {
-   lock_state=lock_task_update_lock_state();
-   door_state=lock_task_update_door_state();
-   continue;  
+  lock_task_update_door_state(); 
+  if(lock_task_update_lock_state()==FORTUNA_TRUE)
+  {
+   if( lock_state==LOCK_TASK_STATE_LOCKED)
+   {
+   BSP_AC_TURN_ON_OFF(AC_2,AC_CTL_ON); /*打开交流风扇*/
+   osSignalSet(glass_pwr_task_hdl,GLASS_PWR_TASK_OFF_SIGNAL);/*打开加热玻璃*/
+   }
+   else
+   {
+   BSP_AC_TURN_ON_OFF(AC_2,AC_CTL_OFF);/*关闭交流风扇*/ 
+   osSignalSet(glass_pwr_task_hdl,GLASS_PWR_TASK_OFF_SIGNAL);/*关闭加热玻璃*/
+   }
+  }
+  continue;  
   }
   /*如果到不是锁消息，继续*/
   if(msg.status!=osEventMessage)
@@ -95,9 +137,9 @@ void lock_task(void const * argument)
   case LOCK_TASK_UNLOCK_LOCK_MSG:
     APP_LOG_DEBUG("锁任务收到开锁指令消息.\r\n");
     time=0;
+    BSP_LOCK_TURN_ON_OFF(LOCK_CTL_OPEN);
     while(time<LOCK_TASK_LOCK_TIMEOUT)
     {
-    BSP_LOCK_TURN_ON_OFF(LOCK_CTL_OPEN);
     osDelay(LOCK_TASK_INTERVAL);
     lock_state=lock_task_update_lock_state();
     if(lock_state==LOCK_TASK_STATE_UNLOCKED)
@@ -127,9 +169,9 @@ void lock_task(void const * argument)
   case LOCK_TASK_LOCK_LOCK_MSG:
     APP_LOG_DEBUG("锁任务收到关锁指令消息.\r\n");
     time=0;
+    BSP_LOCK_TURN_ON_OFF(LOCK_CTL_CLOSE);
     while(time<LOCK_TASK_LOCK_TIMEOUT)
     {
-    BSP_LOCK_TURN_ON_OFF(LOCK_CTL_CLOSE);
     osDelay(LOCK_TASK_INTERVAL);
     lock_state=lock_task_update_lock_state();
     if(lock_state==LOCK_TASK_STATE_LOCKED)

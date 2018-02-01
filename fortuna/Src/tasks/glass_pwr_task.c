@@ -42,6 +42,7 @@ void glass_pwr_task(void const * argument)
    {
     APP_LOG_DEBUG("玻璃温度控制任务加热玻璃.\r\n");  
     BSP_GLASS_PWR_TURN_ON_OFF(GLASS_PWR_CTL_ON); 
+    work_time=0;
    }
    if(signal.value.signals & GLASS_PWR_TASK_OFF_SIGNAL)
    {
