@@ -169,16 +169,20 @@ static void calibrate_sw_long_press_normal()
   calibrate_w =get_calibrate_memory_calibrate_weight();
   
   APP_LOG_DEBUG("按键任务执行校准...\r\n");
-  /*校准时应该把皮重值清零*/
+  /*1校准时应该把皮重值清零*/
   ret=scale_remove_tare(calibrate_idx,0);
   if(ret==FORTUNA_FALSE)
   goto calibrate_err_handle;
-  /*标定内码值*/
+  /*2标定内码值*/
   ret=scale_calibrate_code(calibrate_idx,calibrate_w);
   if(ret==FORTUNA_FALSE)
   goto calibrate_err_handle;
-   /*标定测量值*/
+   /*3标定测量值*/
   ret=scale_calibrate_measurement(calibrate_idx,calibrate_w);
+  if(ret==FORTUNA_FALSE)
+  goto calibrate_err_handle;
+   /*4标定砝码值*/
+  ret=scale_calibrate_weight(calibrate_idx,calibrate_w);
   if(ret==FORTUNA_FALSE)
   goto calibrate_err_handle;
  /*执行成功*/

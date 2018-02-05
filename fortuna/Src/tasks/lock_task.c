@@ -116,12 +116,16 @@ void lock_task(void const * argument)
   {
    if( lock_state==LOCK_TASK_STATE_LOCKED)
    {
+   APP_LOG_DEBUG("打开交流风扇.\r\n");
    BSP_AC_TURN_ON_OFF(AC_2,AC_CTL_ON); /*打开交流风扇*/
-   osSignalSet(glass_pwr_task_hdl,GLASS_PWR_TASK_OFF_SIGNAL);/*打开加热玻璃*/
+   APP_LOG_DEBUG("玻璃加热任务发送加热信号.\r\n");
+   osSignalSet(glass_pwr_task_hdl,GLASS_PWR_TASK_ON_SIGNAL);/*打开加热玻璃*/
    }
    else
    {
+   APP_LOG_DEBUG("关闭交流风扇.\r\n");
    BSP_AC_TURN_ON_OFF(AC_2,AC_CTL_OFF);/*关闭交流风扇*/ 
+   APP_LOG_DEBUG("玻璃加热任务发送冷却信号.\r\n");
    osSignalSet(glass_pwr_task_hdl,GLASS_PWR_TASK_OFF_SIGNAL);/*关闭加热玻璃*/
    }
   }
@@ -141,7 +145,7 @@ void lock_task(void const * argument)
     while(time<LOCK_TASK_LOCK_TIMEOUT)
     {
     osDelay(LOCK_TASK_INTERVAL);
-    lock_state=lock_task_update_lock_state();
+    lock_task_update_lock_state();
     if(lock_state==LOCK_TASK_STATE_UNLOCKED)
       break;
     time+=LOCK_TASK_INTERVAL;
@@ -153,6 +157,7 @@ void lock_task(void const * argument)
     /*打开门上蓝色指示灯*/
     BSP_LED_TURN_ON_OFF(DOOR_GREEN_LED|DOOR_RED_LED,LED_CTL_ON);    
     /*关闭交流风扇*/
+    APP_LOG_DEBUG("关闭交流风扇.\r\n");
     BSP_AC_TURN_ON_OFF(AC_2,AC_CTL_OFF);
    /*不管UPS是否有市电都关闭玻璃加热电源*/
     APP_LOG_DEBUG("玻璃加热任务发送冷却信号.\r\n");
@@ -173,7 +178,7 @@ void lock_task(void const * argument)
     while(time<LOCK_TASK_LOCK_TIMEOUT)
     {
     osDelay(LOCK_TASK_INTERVAL);
-    lock_state=lock_task_update_lock_state();
+    lock_task_update_lock_state();
     if(lock_state==LOCK_TASK_STATE_LOCKED)
       break;
     time+=LOCK_TASK_INTERVAL;
@@ -185,6 +190,7 @@ void lock_task(void const * argument)
     /*打开门上橙色指示灯*/
     BSP_LED_TURN_ON_OFF(DOOR_ORANGE_LED,LED_CTL_ON);
     /*打开交流风扇*/
+    APP_LOG_DEBUG("打开交流风扇.\r\n");
     BSP_AC_TURN_ON_OFF(AC_2,AC_CTL_ON);
     APP_LOG_DEBUG("向通信任务发送关锁成功信号.\r\n");
     osSignalSet(host_comm_task_hdl,COMM_TASK_LOCK_LOCK_OK_SIGNAL);

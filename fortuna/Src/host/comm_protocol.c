@@ -243,58 +243,56 @@ parse_err_handle:
  return status;
 }
 
-/*命令码0x01 去除皮重 处理函数*/
+/*命令码0x01 置零 处理函数*/
 static comm_status_t comm_cmd01_process(uint8_t *ptr_param,uint8_t param_len,uint8_t *ptr_send_len) 
 {
+  fortuna_bool_t ret;
   uint8_t scale;
-  osEvent signal;
-  scale_msg_t msg;
-  APP_LOG_DEBUG("执行命令0x01.去皮指令.\r\n");
+  APP_LOG_DEBUG("执行命令0x01.置零指令.\r\n");
   if(param_len!=COMM_CMD01_PARAM_SIZE)
   {
    APP_LOG_ERROR("命令0x01参数长度%d不匹配.\r\n",param_len);
    return COMM_ERR;
   }
-  /*装载去皮指令参数*/
+  /*装载置零指令参数*/
   scale=ptr_param[0];
   if(scale>COMM_CMD_PARAM_SCALE_MAX)
   {
    APP_LOG_ERROR("命令0x01参数%d非法.\r\n",scale);
    return COMM_ERR;
   }
-  msg.type=SCALE_FUNC_TASK_CLEAR_TARE_WEIGHT_MSG;
-  msg.scale=scale;
-  msg.param16=1;/*非0代表当前毛重为皮重值*/
-  /*向电子秤任务发送去除皮重消息*/
-  APP_LOG_DEBUG("向电子秤任务发送去除皮重消息.\r\n");
-  osMessagePut(scale_func_msg_q_id,*(uint32_t*)&msg,0);
-  /*等待处理返回*/
-  APP_LOG_DEBUG("等待电子秤任务返回结果...\r\n");
-  signal=osSignalWait(COMM_TASK_CLEAR_SCALE_TARE_WEIGHT_OK_SIGNAL|COMM_TASK_CLEAR_SCALE_TARE_WEIGHT_ERR_SIGNAL,COMM_TASK_CLEAR_SCALE_TARE_WEIGHT_TIMEOUT);
-  if(signal.status==osEventSignal && (signal.value.signals & COMM_TASK_CLEAR_SCALE_TARE_WEIGHT_OK_SIGNAL))
-  {
-   /*回填操作结果*/
-   ptr_param[0]=COMM_CMD01_EXECUTE_RESULT_SUCCESS; 
-   APP_LOG_DEBUG("命令0x01执行成功.\r\n");
-  }
-  else
-  {
-   /*回填操作结果*/
-   ptr_param[0]=COMM_CMD01_EXECUTE_RESULT_FAIL;
-   APP_LOG_ERROR("命令0x01执行失败.\r\n");
-  }
-  /*更新需要发送的数据长度*/
-  *ptr_send_len+=COMM_CMD01_EXECUTE_RESULT_SIZE;
-
-  return COMM_OK;
+ APP_LOG_DEBUG("向电子秤任务发送置零消息.\r\n");
+ APP_LOG_DEBUG("第一步发送设置皮重为0消息.\r\n");
+ /*1首先设置皮重为0*/
+ ret=scale_remove_tare(scale,0);
+ if(ret==FORTUNA_FALSE)
+ goto comm_clear_zero_err_handle;
+ /*2首先手动置零*/
+ ret=scale_clear_zero(scale,0);
+ if(ret==FORTUNA_FALSE)
+ goto comm_clear_zero_err_handle;
+ /*回填操作结果*/
+ /*更新需要发送的数据长度*/
+ *ptr_send_len+=COMM_CMD01_EXECUTE_RESULT_SIZE;
+ ptr_param[0]=COMM_CMD01_EXECUTE_RESULT_SUCCESS; 
+ APP_LOG_DEBUG("命令0x01执行成功.\r\n");
+ return COMM_OK;
+   
+comm_clear_zero_err_handle:  
+ /*回填操作结果*/
+ /*更新需要发送的数据长度*/
+ *ptr_send_len+=COMM_CMD01_EXECUTE_RESULT_SIZE;
+ ptr_param[0]=COMM_CMD01_EXECUTE_RESULT_FAIL;
+ APP_LOG_ERROR("命令0x01执行失败.\r\n");  
+ return COMM_OK;
 }
+
 /*命令码0x02 校准 处理函数*/
 static comm_status_t comm_cmd02_process(uint8_t *ptr_param,uint8_t param_len,uint8_t *ptr_send_len) 
 {
+ fortuna_bool_t ret;
  uint8_t scale;
  uint16_t weight;
- scale_msg_t msg;
- osEvent signal;
  APP_LOG_DEBUG("执行命令0x02.校准指令.\r\n");
  if(param_len!=COMM_CMD02_PARAM_SIZE)
  {
@@ -313,51 +311,33 @@ static comm_status_t comm_cmd02_process(uint8_t *ptr_param,uint8_t param_len,uin
 /*向电子秤任务发送校准消息*/
  APP_LOG_DEBUG("向电子秤任务发送校准消息.\r\n");
  APP_LOG_DEBUG("第一步发送设置皮重为0消息.\r\n");
-  /*设置皮重为0*/
- msg.type=SCALE_FUNC_TASK_CLEAR_TARE_WEIGHT_MSG;
- msg.scale=scale;
- msg.param16=0;
- osMessagePut(scale_func_msg_q_id,*(uint32_t*)&msg,0);
-  /*等待处理返回*/
- APP_LOG_DEBUG("等待电子秤任务返回设置0皮重结果...\r\n");
- signal=osSignalWait(COMM_TASK_CLEAR_SCALE_TARE_WEIGHT_OK_SIGNAL|COMM_TASK_CLEAR_SCALE_TARE_WEIGHT_ERR_SIGNAL,COMM_TASK_CLEAR_SCALE_TARE_WEIGHT_TIMEOUT);
- if(!(signal.status==osEventSignal && (signal.value.signals & COMM_TASK_CLEAR_SCALE_TARE_WEIGHT_OK_SIGNAL)))
- goto comm_calibrate_err_handle;
- 
- APP_LOG_DEBUG("第二步发送标定内码消息.\r\n");
- /*标定内码*/
- msg.type=SCALE_FUNC_TASK_CALIBRATE_CODE_MSG;
- msg.scale=scale;
- msg.param16=weight;
- osMessagePut(scale_func_msg_q_id,*(uint32_t*)&msg,0);
- /*等待处理返回*/
- APP_LOG_DEBUG("等待电子秤任务返回标定内码结果...\r\n");
- signal=osSignalWait(COMM_TASK_CALIBRATE_SCALE_CODE_OK_SIGNAL|COMM_TASK_CALIBRATE_SCALE_CODE_ERR_SIGNAL,COMM_TASK_CALIBRATE_SCALE_CODE_TIMEOUT);
- if(!(signal.status==osEventSignal && (signal.value.signals & COMM_TASK_CALIBRATE_SCALE_CODE_OK_SIGNAL)))
- goto comm_calibrate_err_handle;
- 
- APP_LOG_DEBUG("第三步发送标定测量值消息.\r\n");
- msg.type=SCALE_FUNC_TASK_CALIBRATE_MEASUREMENT_MSG;
- msg.scale=scale;
- msg.param16=weight;
- osMessagePut(scale_func_msg_q_id,*(uint32_t*)&msg,0);
- /*等待处理返回*/
- APP_LOG_DEBUG("等待电子秤任务返回标定测量值结果...\r\n");
- signal=osSignalWait(COMM_TASK_CALIBRATE_SCALE_MEASUREMENT_OK_SIGNAL|COMM_TASK_CALIBRATE_SCALE_MEASUREMENT_ERR_SIGNAL,COMM_TASK_CALIBRATE_SCALE_MEASUREMENT_TIMEOUT);
- if(!(signal.status==osEventSignal && (signal.value.signals & COMM_TASK_CALIBRATE_SCALE_MEASUREMENT_OK_SIGNAL)))
- goto comm_calibrate_err_handle;
- 
+  /*1校准时应该把皮重值清零*/
+  ret=scale_remove_tare(scale,0);
+  if(ret==FORTUNA_FALSE)
+  goto comm_calibrate_err_handle;
+  /*2标定内码值*/
+  ret=scale_calibrate_code(scale,weight);
+  if(ret==FORTUNA_FALSE)
+  goto comm_calibrate_err_handle;
+   /*3标定测量值*/
+  ret=scale_calibrate_measurement(scale,weight);
+  if(ret==FORTUNA_FALSE)
+  goto comm_calibrate_err_handle;
+   /*4标定砝码值*/
+  ret=scale_calibrate_weight(scale,weight);
+  if(ret==FORTUNA_FALSE)
+  goto comm_calibrate_err_handle;
  /*回填操作结果*/
- ptr_param[0]=COMM_CMD02_EXECUTE_RESULT_SUCCESS; 
  APP_LOG_DEBUG("命令0x02执行成功.\r\n");
- goto comm_calibrate_ok_handle;
+ ptr_param[0]=COMM_CMD02_EXECUTE_RESULT_SUCCESS; 
+  /*更新需要发送的数据长度*/
+ *ptr_send_len+=COMM_CMD02_EXECUTE_RESULT_SIZE;
+ return COMM_OK;
   
 comm_calibrate_err_handle:
   /*回填操作结果*/
-  ptr_param[0]=COMM_CMD02_EXECUTE_RESULT_FAIL;
   APP_LOG_ERROR("命令0x02执行失败.\r\n");
-  
-comm_calibrate_ok_handle:
+  ptr_param[0]=COMM_CMD02_EXECUTE_RESULT_FAIL;
  /*更新需要发送的数据长度*/
  *ptr_send_len+=COMM_CMD02_EXECUTE_RESULT_SIZE;
   return COMM_OK;
@@ -429,7 +409,6 @@ static comm_status_t comm_cmd04_process(uint8_t *ptr_param,uint8_t param_len,uin
  *ptr_send_len+=COMM_CMD04_EXECUTE_RESULT_SIZE;
  return COMM_OK;
 }
-
 /*命令码0x11 查询门的状态 处理函数*/
 static comm_status_t comm_cmd11_process(uint8_t *ptr_param,uint8_t param_len,uint8_t *ptr_send_len) 
 {

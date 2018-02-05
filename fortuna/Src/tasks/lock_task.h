@@ -3,7 +3,7 @@
 #include "fortuna_common.h"
 
 
-#define  LOCK_TASK_INTERVAL                    10/*锁和门的状态更新间隔*/
+#define  LOCK_TASK_INTERVAL                    50/*锁和门的状态更新间隔*/
 #define  LOCK_TASK_LOCK_TIMEOUT                500/*开锁的时间 只开一次 jd要求*/
 
 typedef struct

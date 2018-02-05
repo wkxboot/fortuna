@@ -10,8 +10,10 @@ fortuna_bool_t get_net_weight(uint8_t sclae,int32_t *ptr_net_weight);
 /*电子秤相关操作的超时时间*/
 #define  SCALE_NORMAL_WAIT_TIMEOUT                     20
 #define  SCALE_NET_WEIGHT_WAIT_TIMEOUT                 20
-#define  SCALE_CALIBRATE_WAIT_TIMEOUT                  120
 #define  SCALE_REMOVE_TARE_WAIT_TIMEOUT                60
+#define  SCALE_CLEAR_ZERO_WAIT_TIMEOUT                 100
+#define  SCALE_CALIBRATE_WAIT_TIMEOUT                  120
+
 #define  SCALE_LOCK_TIMEOUT                            80
 #define  SCALE_NET_WEIGHT_MUXTEX_TIMEOUT               2
 

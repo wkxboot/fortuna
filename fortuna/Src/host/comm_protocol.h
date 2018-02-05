@@ -59,8 +59,9 @@ comm_status_t comm_send_fsm(uint8_t *ptr_buff,uint8_t send_len);
 /*通信任务子函数超时时间*/
 #define  COMM_TASK_CALIBRATE_SCALE_CODE_TIMEOUT             500
 #define  COMM_TASK_CALIBRATE_SCALE_MEASUREMENT_TIMEOUT      500
-#define  COMM_TASK_CLEAR_SCALE_TARE_WEIGHT_TIMEOUT          400
 #define  COMM_TASK_CALIBRATE_SCALE_WEIGHT_TIMEOUT           500
+#define  COMM_TASK_CLEAR_ZERO_TIMEOUT                       400
+#define  COMM_TASK_CLEAR_SCALE_TARE_WEIGHT_TIMEOUT          400
 #define  COMM_TASK_UNLOCK_LOCK_TIMEOUT                      500
 #define  COMM_TASK_LOCK_LOCK_TIMEOUT                        500
 

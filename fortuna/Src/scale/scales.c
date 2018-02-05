@@ -557,7 +557,7 @@ fortuna_bool_t scale_clear_zero(uint8_t scale,uint32_t scale_param)
  for(scale=scale_start;scale<=scale_end;scale++)
  {
   APP_LOG_DEBUG("%2d#电子秤清零...\r\n",scale);
-  err_code=eMBMasterReqWriteMultipleHoldingRegister(scale,DEVICE_MANUALLY_CLEAR_REG_ADDR,DEVICE_MANUALLY_CLEAR_REG_CNT,param,SCALE_CALIBRATE_WAIT_TIMEOUT);
+  err_code=eMBMasterReqWriteMultipleHoldingRegister(scale,DEVICE_MANUALLY_CLEAR_REG_ADDR,DEVICE_MANUALLY_CLEAR_REG_CNT,param,SCALE_CLEAR_ZERO_WAIT_TIMEOUT);
   if(err_code!=MB_MRE_NO_ERR)
   {
   ret=FORTUNA_FALSE;
