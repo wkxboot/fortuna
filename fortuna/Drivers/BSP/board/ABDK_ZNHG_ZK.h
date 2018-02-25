@@ -2,7 +2,6 @@
 #define  __ABDK_ZNHG_ZK_H__
 #include "gpio.h"
 #include "usart.h"
-#include "tim.h"
 #include "adc.h"
 
 

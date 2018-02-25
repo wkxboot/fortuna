@@ -1,13 +1,15 @@
 #include "FreeRTOS.h"
 #include "task.h"
 #include "cmsis_os.h"
-#include "tim.h"
 #include "ABDK_ZNHG_ZK.h"
 #define APP_LOG_MODULE_NAME   "[BSP]"
 #define APP_LOG_MODULE_LEVEL   APP_LOG_LEVEL_ERROR    
 #include "app_log.h"
 #include "app_error.h"
 
+#if (defined(LIGHT_CTL_TYPE) && LIGHT_CTL_TYPE == CTL_TYPE_PWM) || (defined(DC12V_2_CTL_TYPE) && DC12V_2_CTL_TYPE == CTL_TYPE_PWM)
+#include "tim.h"
+#endif
 
 
 /*获取锁舌传感器状态*/

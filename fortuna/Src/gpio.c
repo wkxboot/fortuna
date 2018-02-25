@@ -89,7 +89,7 @@ void MX_GPIO_Init(void)
                           |DISPLAY_G_CTL_POS_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOA, SYS_LED_CTL_POS_Pin|DC12V1_CTL_POS_Pin|LOCK_CTL_POS_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOA, DC12V2_CTL_POS_Pin|SYS_LED_CTL_POS_Pin|DC12V1_CTL_POS_Pin|LOCK_CTL_POS_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOA, LED1_CTL_POS_Pin|LED2_CTL_POS_Pin, GPIO_PIN_SET);
@@ -122,9 +122,9 @@ void MX_GPIO_Init(void)
   HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
   /*Configure GPIO pins : PAPin PAPin PAPin PAPin 
-                           PAPin */
-  GPIO_InitStruct.Pin = SYS_LED_CTL_POS_Pin|DC12V1_CTL_POS_Pin|LED1_CTL_POS_Pin|LED2_CTL_POS_Pin 
-                          |LOCK_CTL_POS_Pin;
+                           PAPin PAPin */
+  GPIO_InitStruct.Pin = DC12V2_CTL_POS_Pin|SYS_LED_CTL_POS_Pin|DC12V1_CTL_POS_Pin|LED1_CTL_POS_Pin 
+                          |LED2_CTL_POS_Pin|LOCK_CTL_POS_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);

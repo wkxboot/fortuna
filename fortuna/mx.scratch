@@ -10,6 +10,7 @@
 
 <filestoremove>
 	<file>
+	   		<name>..\Src\tim.c</name>
 	</file>
 </filestoremove>
 
@@ -195,10 +196,6 @@
 
                                 <file>
                                  <name>..\Src\iwdg.c</name>
-                                </file>
-
-                                <file>
-                                 <name>..\Src\tim.c</name>
                                 </file>
 
                                 <file>
