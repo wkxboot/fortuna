@@ -168,6 +168,7 @@ void lock_task(void const * argument)
     else
     {
     APP_LOG_ERROR("向通信任务发送开锁失败信号.\r\n");
+    BSP_LOCK_TURN_ON_OFF(LOCK_CTL_CLOSE);
     osSignalSet(host_comm_task_hdl,COMM_TASK_UNLOCK_LOCK_ERR_SIGNAL);  
     }      
     break;
@@ -203,6 +204,7 @@ void lock_task(void const * argument)
     else
     {
     APP_LOG_ERROR("向通信任务发送关锁失败信号.\r\n");
+    BSP_LOCK_TURN_ON_OFF(LOCK_CTL_OPEN);
     osSignalSet(host_comm_task_hdl,COMM_TASK_LOCK_LOCK_ERR_SIGNAL);  
     }     
    break;

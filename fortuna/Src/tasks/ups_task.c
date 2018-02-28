@@ -19,7 +19,7 @@
 osThreadId ups_task_hdl;
 /*osMessageQId ups_task_msg_q_id;*/
 
-static uint8_t ups_state=UPS_TASK_STATE_PWR_OFF;
+static uint8_t ups_state=UPS_TASK_STATE_PWR_ON;
 
 uint8_t get_ups_state()
 {

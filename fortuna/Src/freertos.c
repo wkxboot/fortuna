@@ -150,7 +150,7 @@ __weak void vApplicationStackOverflowHook(xTaskHandle xTask, signed char *pcTask
    /* Run time stack overflow checking is performed if
    configCHECK_FOR_STACK_OVERFLOW is defined to 1 or 2. This hook function is
    called if a stack overflow is detected. */
-  APP_LOG_ERROR("%s任务栈溢出.\r\n",pcTaskName);
+  APP_LOG_ERROR("%s任务栈溢�?.\r\n",pcTaskName);
   APP_ERROR_HANDLER(0);
 }
 /* USER CODE END 4 */
@@ -246,7 +246,7 @@ static void create_user_tasks()
   osThreadDef(scale_comm_task, scale_comm_task, osPriorityNormal, 0, 256);
   scale_comm_task_hdl = osThreadCreate(osThread(scale_comm_task), NULL); 
   APP_ASSERT(scale_comm_task_hdl);
-  /*创建看门狗任务*/
+  /*创建看门狗任任务*/
   osThreadDef(watch_dog_task, watch_dog_task, osPriorityNormal, 0, 256);
   watch_dog_task_hdl = osThreadCreate(osThread(watch_dog_task), NULL); 
   APP_ASSERT(watch_dog_task_hdl); 

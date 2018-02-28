@@ -89,10 +89,8 @@ void MX_GPIO_Init(void)
                           |DISPLAY_G_CTL_POS_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOA, DC12V2_CTL_POS_Pin|SYS_LED_CTL_POS_Pin|DC12V1_CTL_POS_Pin|LOCK_CTL_POS_Pin, GPIO_PIN_RESET);
-
-  /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOA, LED1_CTL_POS_Pin|LED2_CTL_POS_Pin, GPIO_PIN_SET);
+  HAL_GPIO_WritePin(GPIOA, DC12V2_CTL_POS_Pin|SYS_LED_CTL_POS_Pin|DC12V1_CTL_POS_Pin|LED1_CTL_POS_Pin 
+                          |LED2_CTL_POS_Pin|LOCK_CTL_POS_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GLASS_T_CTL_POS_GPIO_Port, GLASS_T_CTL_POS_Pin, GPIO_PIN_SET);

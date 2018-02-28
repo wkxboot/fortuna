@@ -10,7 +10,6 @@
 
 <filestoremove>
 	<file>
-	   		<name>..\Src\tim.c</name>
 	</file>
 </filestoremove>
 
