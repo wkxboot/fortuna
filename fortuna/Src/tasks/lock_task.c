@@ -105,6 +105,13 @@ void lock_task(void const * argument)
   /*关闭交流风扇*/
  BSP_AC_TURN_ON_OFF(AC_2,AC_CTL_OFF);
  
+ /*上电之后检查锁的状态 如果没有锁上，就把锁打开*/
+ lock_task_update_lock_state();
+ if(lock_state==LOCK_TASK_STATE_UNLOCKED)
+ {
+  BSP_LOCK_TURN_ON_OFF(LOCK_CTL_OPEN); 
+ }
+
  while(1)
  {
   msg=osMessageGet(lock_task_msg_q_id,LOCK_TASK_INTERVAL);
