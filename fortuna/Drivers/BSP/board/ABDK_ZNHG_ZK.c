@@ -87,8 +87,8 @@ bsp_state_t BSP_get_glass_pwr_state()
 
 
 /*获取灯带状态--IO直接控制或者PWM控制*/
-static bsp_state_t bsp_light1_state=LIGHT_STATE_OFF;
-static bsp_state_t bsp_light2_state=LIGHT_STATE_OFF;
+static bsp_state_t bsp_light1_state=LIGHT_STATE_ON;
+static bsp_state_t bsp_light2_state=LIGHT_STATE_ON;
 
 bsp_state_t BSP_get_light_state(uint8_t light)
 {
