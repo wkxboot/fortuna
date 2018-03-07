@@ -18,7 +18,6 @@
 #include "ups_task.h"
 #include "debug_task.h"
 #include "cpu_utils.h"
-#include "mb_m.h"
 #include "ABDK_ZNHG_ZK.h"
 #define APP_LOG_MODULE_NAME   "[debug]"
 #define APP_LOG_MODULE_LEVEL   APP_LOG_LEVEL_DEBUG    
@@ -77,7 +76,7 @@ void debug_task(void const * argument)
   /*执行成功*/
   if(ret==FORTUNA_TRUE)
   {
-  int32_t net_weight[SCALES_CNT_MAX];
+  int16_t net_weight[SCALES_CNT_MAX];
   get_net_weight(0,net_weight);
   APP_LOG_DEBUG("电子秤获取净重成功.\r\n");
   for(uint8_t i=0;i< SCALES_CNT_MAX;i++)

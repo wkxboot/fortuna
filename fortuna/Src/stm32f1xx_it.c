@@ -183,8 +183,8 @@ void USART1_IRQHandler(void)
 void UART5_IRQHandler(void)
 {
   /* USER CODE BEGIN UART5_IRQn 0 */
-void MASTER_MODBUS_USARTIRQHandler(void);
-MASTER_MODBUS_USARTIRQHandler();
+void mb_poll_port_serial_isr(void);
+mb_poll_port_serial_isr();
 #if 0
   /* USER CODE END UART5_IRQn 0 */
   HAL_UART_IRQHandler(&huart5);

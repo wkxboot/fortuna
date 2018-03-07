@@ -48,7 +48,7 @@ uint8_t get_weight_memory_idx()
 void weight_memory_task(void const * argument)
 {
  osEvent signal;
- int32_t net_weight;
+ int16_t net_weight;
  APP_LOG_INFO("######重量显示缓存任务开始.\r\n");
  while(1)
  {
@@ -72,13 +72,13 @@ void weight_memory_task(void const * argument)
  w_dis_buff[0].num=weight_info.idx;
  w_dis_buff[0].dp=FORTUNA_TRUE;
  /*2-6显示重量*/
- if(net_weight==SCLAE_NET_WEIGHT_DIS_INVALID_VALUE_ERR)
+ if(net_weight==SCALE_NET_WEIGHT_ERR_CODE)
  {
    APP_LOG_ERROR("%d#称重量值错误.\r\n",weight_info.idx);
    for(uint8_t i=1;i<DISPLAY_LED_POS_CNT;i++)
    w_dis_buff[i].num=0x0f;/*重量值错误显示FFFFF*/
  }
- else if(net_weight>SCLAE_NET_WEIGHT_DIS_INVALID_VALUE ||net_weight<SCLAE_NET_WEIGHT_DIS_INVALID_VALUE_NEGATIVE)
+ else if(net_weight == SCALE_NET_WEIGHT_OVERLOAD_CODE)
  {
    APP_LOG_ERROR("%d#称重量值超量程.\r\n",weight_info.idx);
    for(uint8_t i=1;i<DISPLAY_LED_POS_CNT;i++)

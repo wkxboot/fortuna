@@ -2,7 +2,6 @@
 #include "task.h"
 #include "cmsis_os.h"
 #include "fortuna_common.h"
-#include "mb_m.h"
 #include "scales.h"
 #include "scale_func_task.h"
 #include "display_led.h"

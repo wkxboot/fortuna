@@ -190,11 +190,11 @@
                 </option>
                 <option>
                     <name>GenLocaleTags</name>
-                    <state />
+                    <state></state>
                 </option>
                 <option>
                     <name>GenLocaleDisplayOnly</name>
-                    <state />
+                    <state></state>
                 </option>
                 <option>
                     <name>DSPExtension</name>
@@ -256,19 +256,19 @@
                 </option>
                 <option>
                     <name>CCDiagSuppress</name>
-                    <state />
+                    <state></state>
                 </option>
                 <option>
                     <name>CCDiagRemark</name>
-                    <state />
+                    <state></state>
                 </option>
                 <option>
                     <name>CCDiagWarning</name>
-                    <state />
+                    <state></state>
                 </option>
                 <option>
                     <name>CCDiagError</name>
-                    <state />
+                    <state></state>
                 </option>
                 <option>
                     <name>CCObjPrefix</name>
@@ -297,7 +297,7 @@
                 </option>
                 <option>
                     <name>IExtraOptions</name>
-                    <state />
+                    <state></state>
                 </option>
                 <option>
                     <name>CCLangConformance</name>
@@ -333,7 +333,7 @@
                 </option>
                 <option>
                     <name>PreInclude</name>
-                    <state />
+                    <state></state>
                 </option>
                 <option>
                     <name>CompilerMisraOverride</name>
@@ -350,14 +350,11 @@
                     <state>$PROJ_DIR$/../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS</state>
                     <state>$PROJ_DIR$/../Drivers/CMSIS/Include</state>
                     <state>$PROJ_DIR$/../Src/tasks</state>
-                    <state>$PROJ_DIR$/../Src/host</state>
-                    <state>$PROJ_DIR$/../Src/scale</state>
-                    <state>$PROJ_DIR$/../Src/modbus/port</state>
-                    <state>$PROJ_DIR$/../Src/modbus/modbus/rtu</state>
-                    <state>$PROJ_DIR$/../Src/modbus/modbus/ascii</state>
-                    <state>$PROJ_DIR$/../Src/modbus/modbus/tcp</state>
-                    <state>$PROJ_DIR$/../Src/modbus/modbus/functions</state>
-                    <state>$PROJ_DIR$/../Src/modbus/modbus/include</state>
+                    <state>$PROJ_DIR$/../Src/communication</state>
+                    <state>$PROJ_DIR$/../Src/communication/port</state>
+                    <state>$PROJ_DIR$/../Src/modbus_poll</state>
+                    <state>$PROJ_DIR$/../Src/modbus_poll/port</state>
+                    <state>$PROJ_DIR$/../Src/scales</state>
                     <state>$PROJ_DIR$/../libraries/app_log</state>
                     <state>$PROJ_DIR$/../libraries/app_error</state>
                     <state>$PROJ_DIR$/../libraries/SEGGER_RTT_V612j/RTT</state>
@@ -367,7 +364,7 @@
                     <state>$PROJ_DIR$/../Drivers/BSP/common</state>
                     <state>$PROJ_DIR$/../Drivers/BSP/components/ntc</state>
                     <state>$PROJ_DIR$/../Drivers/BSP/components/display_led</state>
-                <state /><state /><state /><state /><state /><state /><state /><state /><state /><state /><state /><state /><state /><state /><state /><state /><state /><state /><state /><state /><state /><state /><state /><state /><state /><state /><state /><state /><state /><state /><state /><state /><state /><state /><state /><state /><state /><state /><state /><state /><state /><state /><state /><state /><state /><state /><state /><state /><state /><state /><state /><state /><state /><state /><state /><state /><state /><state /><state /><state /><state /><state /><state /><state /><state /><state /><state /><state /><state /><state /><state /><state /><state /><state /><state /><state /><state /><state /><state /><state /><state /><state /><state /><state /><state /><state /><state /><state /></option>
+                </option>
                 <option>
                     <name>CCStdIncCheck</name>
                     <state>0</state>
@@ -516,15 +513,15 @@
                 </option>
                 <option>
                     <name>AWarnOne</name>
-                    <state />
+                    <state></state>
                 </option>
                 <option>
                     <name>AWarnRange1</name>
-                    <state />
+                    <state></state>
                 </option>
                 <option>
                     <name>AWarnRange2</name>
-                    <state />
+                    <state></state>
                 </option>
                 <option>
                     <name>ADebug</name>
@@ -536,7 +533,7 @@
                 </option>
                 <option>
                     <name>ADefines</name>
-                    <state />
+                    <state></state>
                 </option>
                 <option>
                     <name>AList</name>
@@ -636,7 +633,7 @@
                 </option>
                 <option>
                     <name>AExtraOptionsV2</name>
-                    <state />
+                    <state></state>
                 </option>
                 <option>
                     <name>AsmNoLiteralPool</name>
@@ -678,8 +675,8 @@
             <name>CUSTOM</name>
             <archiveVersion>3</archiveVersion>
             <data>
-                <extensions />
-                <cmdline />
+                <extensions></extensions>
+                <cmdline></cmdline>
                 <hasPrio>0</hasPrio>
             </data>
         </settings>
@@ -692,8 +689,8 @@
             <name>BUILDACTION</name>
             <archiveVersion>1</archiveVersion>
             <data>
-                <prebuild />
-                <postbuild />
+                <prebuild></prebuild>
+                <postbuild></postbuild>
             </data>
         </settings>
         <settings>
@@ -725,31 +722,31 @@
                 </option>
                 <option>
                     <name>IlinkKeepSymbols</name>
-                    <state />
+                    <state></state>
                 </option>
                 <option>
                     <name>IlinkRawBinaryFile</name>
-                    <state />
+                    <state></state>
                 </option>
                 <option>
                     <name>IlinkRawBinarySymbol</name>
-                    <state />
+                    <state></state>
                 </option>
                 <option>
                     <name>IlinkRawBinarySegment</name>
-                    <state />
+                    <state></state>
                 </option>
                 <option>
                     <name>IlinkRawBinaryAlign</name>
-                    <state />
+                    <state></state>
                 </option>
                 <option>
                     <name>IlinkDefines</name>
-                    <state />
+                    <state></state>
                 </option>
                 <option>
                     <name>IlinkConfigDefines</name>
-                    <state />
+                    <state></state>
                 </option>
                 <option>
                     <name>IlinkMapFile</name>
@@ -785,7 +782,7 @@
                 </option>
                 <option>
                     <name>IlinkIcfFileSlave</name>
-                    <state />
+                    <state></state>
                 </option>
                 <option>
                     <name>IlinkEnableRemarks</name>
@@ -793,19 +790,19 @@
                 </option>
                 <option>
                     <name>IlinkSuppressDiags</name>
-                    <state />
+                    <state></state>
                 </option>
                 <option>
                     <name>IlinkTreatAsRem</name>
-                    <state />
+                    <state></state>
                 </option>
                 <option>
                     <name>IlinkTreatAsWarn</name>
-                    <state />
+                    <state></state>
                 </option>
                 <option>
                     <name>IlinkTreatAsErr</name>
-                    <state />
+                    <state></state>
                 </option>
                 <option>
                     <name>IlinkWarningsAreErrors</name>
@@ -817,7 +814,7 @@
                 </option>
                 <option>
                     <name>IlinkExtraOptions</name>
-                    <state />
+                    <state></state>
                 </option>
                 <option>
                     <name>IlinkLowLevelInterfaceSlave</name>
@@ -829,7 +826,7 @@
                 </option>
                 <option>
                     <name>IlinkAdditionalLibs</name>
-                    <state />
+                    <state></state>
                 </option>
                 <option>
                     <name>IlinkOverrideProgramEntryLabel</name>
@@ -964,11 +961,11 @@
                 </option>
                 <option>
                     <name>IlinkStackControlFile</name>
-                    <state />
+                    <state></state>
                 </option>
                 <option>
                     <name>IlinkStackCallGraphFile</name>
-                    <state />
+                    <state></state>
                 </option>
                 <option>
                     <name>CrcAlgorithm</name>
@@ -990,7 +987,7 @@
                 </option>
                 <option>
                     <name>IlinkIcfFile_AltDefault</name>
-                    <state />
+                    <state></state>
                 </option>
                 <option>
                     <name>IlinkEncInput</name>
@@ -1023,7 +1020,7 @@
                 <debug>1</debug>
                 <option>
                     <name>IarchiveInputs</name>
-                    <state />
+                    <state></state>
                 </option>
                 <option>
                     <name>IarchiveOverride</name>
@@ -1052,75 +1049,39 @@
         <group>
             <name>User</name>
             <group>
-                <name>host</name>
-                <file>
-                    <name>$PROJ_DIR$\..\Src\host\comm_port_serial.c</name>
-                </file>
-                <file>
-                    <name>$PROJ_DIR$\..\Src\host\comm_port_timer.c</name>
-                </file>
-                <file>
-                    <name>$PROJ_DIR$\..\Src\host\comm_protocol.c</name>
-                </file>
-            </group>
-            <group>
-                <name>modbus</name>
-                <group>
-                    <name>modbus</name>
-                    <group>
-                        <name>functions</name>
-                        <file>
-                            <name>$PROJ_DIR$\..\Src\modbus\modbus\functions\mbfunccoils_m.c</name>
-                        </file>
-                        <file>
-                            <name>$PROJ_DIR$\..\Src\modbus\modbus\functions\mbfuncdisc_m.c</name>
-                        </file>
-                        <file>
-                            <name>$PROJ_DIR$\..\Src\modbus\modbus\functions\mbfuncholding_m.c</name>
-                        </file>
-                        <file>
-                            <name>$PROJ_DIR$\..\Src\modbus\modbus\functions\mbfuncinput_m.c</name>
-                        </file>
-                        <file>
-                            <name>$PROJ_DIR$\..\Src\modbus\modbus\functions\mbfuncother_m.c</name>
-                        </file>
-                        <file>
-                            <name>$PROJ_DIR$\..\Src\modbus\modbus\functions\mbutils_m.c</name>
-                        </file>
-                    </group>
-                    <group>
-                        <name>rtu</name>
-                        <file>
-                            <name>$PROJ_DIR$\..\Src\modbus\modbus\rtu\mbcrc_m.c</name>
-                        </file>
-                        <file>
-                            <name>$PROJ_DIR$\..\Src\modbus\modbus\rtu\mbrtu_m.c</name>
-                        </file>
-                    </group>
-                    <file>
-                        <name>$PROJ_DIR$\..\Src\modbus\modbus\mb_m.c</name>
-                    </file>
-                </group>
+                <name>communication</name>
                 <group>
                     <name>port</name>
                     <file>
-                        <name>$PROJ_DIR$\..\Src\modbus\port\port_m.c</name>
+                        <name>$PROJ_DIR$\..\Src\communication\port\comm_port_serial.c</name>
                     </file>
                     <file>
-                        <name>$PROJ_DIR$\..\Src\modbus\port\portevent_m.c</name>
-                    </file>
-                    <file>
-                        <name>$PROJ_DIR$\..\Src\modbus\port\portserial_m.c</name>
-                    </file>
-                    <file>
-                        <name>$PROJ_DIR$\..\Src\modbus\port\porttimer_m.c</name>
+                        <name>$PROJ_DIR$\..\Src\communication\port\comm_port_timer.c</name>
                     </file>
                 </group>
+                <file>
+                    <name>$PROJ_DIR$\..\Src\communication\comm_protocol.c</name>
+                </file>
+            </group>
+            <group>
+                <name>modbus_poll</name>
+                <group>
+                    <name>port</name>
+                    <file>
+                        <name>$PROJ_DIR$\..\Src\modbus_poll\port\mb_poll_port_serial.c</name>
+                    </file>
+                    <file>
+                        <name>$PROJ_DIR$\..\Src\modbus_poll\port\mb_poll_port_timer.c</name>
+                    </file>
+                </group>
+                <file>
+                    <name>$PROJ_DIR$\..\Src\modbus_poll\modbus_poll.c</name>
+                </file>
             </group>
             <group>
                 <name>scales</name>
                 <file>
-                    <name>$PROJ_DIR$\..\Src\scale\scales.c</name>
+                    <name>$PROJ_DIR$\..\Src\scales\scales.c</name>
                 </file>
             </group>
             <group>
@@ -1207,7 +1168,6 @@
             <file>
                 <name>$PROJ_DIR$\..\Src\stm32f1xx_it.c</name>
             </file>
-            
             <file>
                 <name>$PROJ_DIR$\..\Src\usart.c</name>
             </file>

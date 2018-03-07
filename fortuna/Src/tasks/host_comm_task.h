@@ -8,12 +8,6 @@ void host_comm_task(void const * argument);
 extern osThreadId host_comm_task_hdl;
 
 
-/*串口通信定义*/
-#define  COMM_ADDR                                   1
-#define  COMM_PORT                                   1
-#define  COMM_BAUDRATE                               115200UL
-#define  COMM_DATABITS                               8
-
 /*主机通信任务信号*/
 #define  HOST_COMM_TASK_BUFF_OVERFLOW_SIGNAL               (1<<0)
 #define  HOST_COMM_TASK_RECV_FSM_SIGNAL                    (1<<1)

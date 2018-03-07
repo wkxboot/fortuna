@@ -26,7 +26,7 @@ void host_comm_task(void const * argument)
  uint8_t *ptr_buff,recv_len,send_len;
  comm_status_t status;
  APP_LOG_INFO("######与主机通信任务开始.\r\n");
- status=comm_init(COMM_ADDR,COMM_PORT,COMM_BAUDRATE,COMM_DATABITS);
+ status=comm_init();
  if(status!=COMM_OK)
  {
   APP_LOG_ERROR("与主机通信任务初始化失败.\r\n");

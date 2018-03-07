@@ -7,7 +7,6 @@
 #include "scale_poll_task.h"
 #include "scale_comm_task.h"
 #include "scales.h"
-#include "mb_m.h"
 #define APP_LOG_MODULE_NAME   "[scales_func]"
 #define APP_LOG_MODULE_LEVEL   APP_LOG_LEVEL_INFO    
 #include "app_log.h"

@@ -10,71 +10,38 @@
 extern "C" {
 #endif
 
-#define APP_MODULE_ENABLED(module) \
-    ((defined(module ## _ENABLED) && (module ## _ENABLED)) ? 1 : 0)
 /** The upper 8 bits of a 32 bit value */
-//lint -emacro(572,MSB) // Suppress warning 572 "Excessive shift value"
-#define MSB_32(a) (((a) & 0xFF000000) >> 24)
+#define HIGH_8BITS_OF_32(a) (((a) & 0xFF000000) >> 24)
 /** The lower 8 bits (of a 32 bit value) */
-#define LSB_32(a) ((a) & 0x000000FF)
+#define LOW_8BITS_OF_32(a) ((a) & 0x000000FF)
 
 /** The upper 8 bits of a 16 bit value */
-//lint -emacro(572,MSB_16) // Suppress warning 572 "Excessive shift value"
-#define MSB_16(a) (((a) & 0xFF00) >> 8)
+#define HIGH_8BITS_OF_16(a) (((a) & 0xFF00) >> 8)
 /** The lower 8 bits (of a 16 bit value) */
-#define LSB_16(a) ((a) & 0x00FF)
+#define LOW_8BITS_OF_16(a) ((a) & 0x00FF)
 
+/** The upper 16 bits of a 32 bit value */
+#define HIGH_16BITS_OF_32(a) (((a) & 0xFFFF0000) >> 16)
+/** The lower 16 bits (of a 32 bit value) */
+#define LOW_16BITS_OF_32(a) ((a) & 0x0000FFFF)  
+  
+#define CONVERT_TO_16BITS(a)   ((uint16_t)(a))
+#define CONVERT_TO_32BITS(a)   ((uint32_t)(a))  
+  
 /** Leaves the minimum of the two 32-bit arguments */
-/*lint -emacro(506, MIN) */ /* Suppress "Constant value Boolean */
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
 /** Leaves the maximum of the two 32-bit arguments */
-/*lint -emacro(506, MAX) */ /* Suppress "Constant value Boolean */
 #define MAX(a, b) ((a) < (b) ? (b) : (a))
 
-/**@brief Concatenates two parameters.
- *
- * It realizes two level expansion to make it sure that all the parameters
- * are actually expanded before gluing them together.
- *
- * @param p1 First parameter to concatenating
- * @param p2 Second parameter to concatenating
- *
- * @return Two parameters glued together.
- *         They have to create correct C mnemonic in other case
- *         preprocessor error would be generated.
- *
- * @sa CONCAT_3
- */
+
 #define CONCAT_2(p1, p2)      CONCAT_2_(p1, p2)
-/** Auxiliary macro used by @ref CONCAT_2 */
 #define CONCAT_2_(p1, p2)     p1##p2
 
-/**@brief Concatenates three parameters.
- *
- * It realizes two level expansion to make it sure that all the parameters
- * are actually expanded before gluing them together.
- *
- * @param p1 First parameter to concatenating
- * @param p2 Second parameter to concatenating
- * @param p3 Third parameter to concatenating
- *
- * @return Three parameters glued together.
- *         They have to create correct C mnemonic in other case
- *         preprocessor error would be generated.
- *
- * @sa CONCAT_2
- */
 #define CONCAT_3(p1, p2, p3)  CONCAT_3_(p1, p2, p3)
-/** Auxiliary macro used by @ref CONCAT_3 */
 #define CONCAT_3_(p1, p2, p3) p1##p2##p3
 
 #define NUM_TO_STR_INTERNAL(val) #val
-/** Converts numeric value to string.
- */
 #define NUM_TO_STR(val) NUM_TO_STR_INTERNAL(val)
-
-/** Counts number of elements inside the array
- */
 #define ARRAY_SIZE(arr) (sizeof(arr) / sizeof((arr)[0]))
 
       
@@ -109,312 +76,11 @@ extern "C" {
 #define IS_SET(W,B) (((W) >> (B)) & 1)
 #endif
       
-#define BIT_0 0x01 /**< The value of bit 0 */
-#define BIT_1 0x02 /**< The value of bit 1 */
-#define BIT_2 0x04 /**< The value of bit 2 */
-#define BIT_3 0x08 /**< The value of bit 3 */
-#define BIT_4 0x10 /**< The value of bit 4 */
-#define BIT_5 0x20 /**< The value of bit 5 */
-#define BIT_6 0x40 /**< The value of bit 6 */
-#define BIT_7 0x80 /**< The value of bit 7 */
-#define BIT_8 0x0100 /**< The value of bit 8 */
-#define BIT_9 0x0200 /**< The value of bit 9 */
-#define BIT_10 0x0400 /**< The value of bit 10 */
-#define BIT_11 0x0800 /**< The value of bit 11 */
-#define BIT_12 0x1000 /**< The value of bit 12 */
-#define BIT_13 0x2000 /**< The value of bit 13 */
-#define BIT_14 0x4000 /**< The value of bit 14 */
-#define BIT_15 0x8000 /**< The value of bit 15 */
-#define BIT_16 0x00010000 /**< The value of bit 16 */
-#define BIT_17 0x00020000 /**< The value of bit 17 */
-#define BIT_18 0x00040000 /**< The value of bit 18 */
-#define BIT_19 0x00080000 /**< The value of bit 19 */
-#define BIT_20 0x00100000 /**< The value of bit 20 */
-#define BIT_21 0x00200000 /**< The value of bit 21 */
-#define BIT_22 0x00400000 /**< The value of bit 22 */
-#define BIT_23 0x00800000 /**< The value of bit 23 */
-#define BIT_24 0x01000000 /**< The value of bit 24 */
-#define BIT_25 0x02000000 /**< The value of bit 25 */
-#define BIT_26 0x04000000 /**< The value of bit 26 */
-#define BIT_27 0x08000000 /**< The value of bit 27 */
-#define BIT_28 0x10000000 /**< The value of bit 28 */
-#define BIT_29 0x20000000 /**< The value of bit 29 */
-#define BIT_30 0x40000000 /**< The value of bit 30 */
-#define BIT_31 0x80000000 /**< The value of bit 31 */
-
    
 #define UNUSED_VARIABLE(X)  ((void)(X))
 #define UNUSED_PARAMETER(X) UNUSED_VARIABLE(X)
 #define UNUSED_RETURN_VALUE(X) UNUSED_VARIABLE(X)
       
-          
-/**@brief Implementation specific macro for delayed macro expansion used in string concatenation
-*
-* @param[in]   lhs   Left hand side in concatenation
-* @param[in]   rhs   Right hand side in concatenation
-*/
-#define STRING_CONCATENATE_IMPL(lhs, rhs) lhs ## rhs
-
-
-/**@brief Macro used to concatenate string using delayed macro expansion
-*
-* @note This macro will delay concatenation until the expressions have been resolved
-*
-* @param[in]   lhs   Left hand side in concatenation
-* @param[in]   rhs   Right hand side in concatenation
-*/
-#define STRING_CONCATENATE(lhs, rhs) STRING_CONCATENATE_IMPL(lhs, rhs)
-
-/**@brief Macro for doing static (i.e. compile time) assertion.
-*
-* @note If the EXPR isn't resolvable, then the error message won't be shown.
-*
-* @note The output of STATIC_ASSERT_MSG will be different across different compilers.
-*
-* @param[in] EXPR Constant expression to be verified.
-* @param[in] MSG  Name of the static assert.
-*/
-#if defined(__COUNTER__)
-
-    #define STATIC_ASSERT_MSG(EXPR, MSG) \
-        ;enum { STRING_CONCATENATE(MSG, __COUNTER__) = 1 / (!!(EXPR)) }
-
-#else
-
-    #define STATIC_ASSERT_MSG(EXPR, MSG) \
-        ;enum { STRING_CONCATENATE(MSG, __LINE__) = 1 / (!!(EXPR)) }
-
-#endif
-
-
-/**@brief Macro for doing static (i.e. compile time) assertion.
-*
-* @note If the EXPR isn't resolvable, then the error message won't be shown.
-*
-* @note The output of STATIC_ASSERT will be different across different compilers.
-*
-* @param[in] EXPR Constant expression to be verified.
-*/
-#define STATIC_ASSERT(EXPR) STATIC_ASSERT_MSG((EXPR), static_assert_)
-  
-/**@brief Implementation details for NUM_VAR_ARGS */
-#define NUM_VA_ARGS_IMPL(                              \
-    _0, _1, _2, _3, _4, _5, _6, _7, _8, _9, _10,       \
-    _11, _12, _13, _14, _15, _16, _17, _18, _19, _20,  \
-    _21, _22, _23, _24, _25, _26, _27, _28, _29, _30,  \
-    _31, _32, _33, _34, _35, _36, _37, _38, _39, _40,  \
-    _41, _42, _43, _44, _45, _46, _47, _48, _49, _50,  \
-    _51, _52, _53, _54, _55, _56, _57, _58, _59, _60,  \
-    _61, _62, N, ...) N
-
-
-/**@brief Macro to get the number of arguments in a call variadic macro call
- *
- * param[in]    ...     List of arguments
- *
- * @retval  Number of variadic arguments in the argument list
- */
-#define NUM_VA_ARGS(...) NUM_VA_ARGS_IMPL(__VA_ARGS__, 63, 62, 61,  \
-    60, 59, 58, 57, 56, 55, 54, 53, 52, 51,                         \
-    50, 49, 48, 47, 46, 45, 44, 43, 42, 41,                         \
-    40, 39, 38, 37, 36, 35, 34, 33, 32, 31,                         \
-    30, 29, 28, 27, 26, 25, 24, 23, 22, 21,                         \
-    20, 19, 18, 17, 16, 15, 14, 13, 12, 11,                         \
-    10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0)
-
-/**@brief Implementation details for NUM_VAR_ARGS */
-#define NUM_VA_ARGS_LESS_1_IMPL(                       \
-    _ignored,                                          \
-    _0, _1, _2, _3, _4, _5, _6, _7, _8, _9, _10,       \
-    _11, _12, _13, _14, _15, _16, _17, _18, _19, _20,  \
-    _21, _22, _23, _24, _25, _26, _27, _28, _29, _30,  \
-    _31, _32, _33, _34, _35, _36, _37, _38, _39, _40,  \
-    _41, _42, _43, _44, _45, _46, _47, _48, _49, _50,  \
-    _51, _52, _53, _54, _55, _56, _57, _58, _59, _60,  \
-    _61, _62, N, ...) N
-
-/**@brief Macro to get the number of arguments in a call variadic macro call.
- * First argument is not counted.
- *
- * param[in]    ...     List of arguments
- *
- * @retval  Number of variadic arguments in the argument list
- */
-#define NUM_VA_ARGS_LESS_1(...) NUM_VA_ARGS_LESS_1_IMPL(__VA_ARGS__, 63, 62, 61,  \
-    60, 59, 58, 57, 56, 55, 54, 53, 52, 51,                         \
-    50, 49, 48, 47, 46, 45, 44, 43, 42, 41,                         \
-    40, 39, 38, 37, 36, 35, 34, 33, 32, 31,                         \
-    30, 29, 28, 27, 26, 25, 24, 23, 22, 21,                         \
-    20, 19, 18, 17, 16, 15, 14, 13, 12, 11,                         \
-    10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0, ~)
-
-
-/**@brief type for holding an encoded (i.e. little endian) 16 bit unsigned integer. */
-typedef uint8_t uint16_le_t[2];
-
-/**@brief Type for holding an encoded (i.e. little endian) 32 bit unsigned integer. */
-typedef uint8_t uint32_le_t[4];
-
-/**@brief Byte array type. */
-typedef struct
-{
-    uint16_t  size;                 /**< Number of array entries. */
-    uint8_t * p_data;               /**< Pointer to array entries. */
-} uint8_array_t;
-      
-      
-      
-/** The upper 8 bits of a 32 bit value */
-//lint -emacro(572,MSB) // Suppress warning 572 "Excessive shift value"
-#define MSB_32(a) (((a) & 0xFF000000) >> 24)
-/** The lower 8 bits (of a 32 bit value) */
-#define LSB_32(a) ((a) & 0x000000FF)
-
-/** The upper 8 bits of a 16 bit value */
-//lint -emacro(572,MSB_16) // Suppress warning 572 "Excessive shift value"
-#define MSB_16(a) (((a) & 0xFF00) >> 8)
-/** The lower 8 bits (of a 16 bit value) */
-#define LSB_16(a) ((a) & 0x00FF)
-
-/** Leaves the minimum of the two 32-bit arguments */
-/*lint -emacro(506, MIN) */ /* Suppress "Constant value Boolean */
-#define MIN(a, b) ((a) < (b) ? (a) : (b))
-/** Leaves the maximum of the two 32-bit arguments */
-/*lint -emacro(506, MAX) */ /* Suppress "Constant value Boolean */
-#define MAX(a, b) ((a) < (b) ? (b) : (a))  
-  
-
-
-/**@brief Macro for verifying statement to be true. It will cause the exterior function to return
- *        err_code if the statement is not true.
- *
- * @param[in]   statement   Statement to test.
- * @param[in]   err_code    Error value to return if test was invalid.
- *
- * @retval      nothing, but will cause the exterior function to return @p err_code if @p statement
- *              is false.
- */
-#define VERIFY_TRUE(statement, err_code)    \
-do                                          \
-{                                           \
-    if (!(statement))                       \
-    {                                       \
-        return err_code;                    \
-    }                                       \
-} while (0)
-
-
-/**@brief Macro for verifying statement to be true. It will cause the exterior function to return
- *        if the statement is not true.
- *
- * @param[in]   statement   Statement to test.
- */
-#define VERIFY_TRUE_VOID(statement) VERIFY_TRUE((statement), )
-
-
-/**@brief Macro for verifying statement to be false. It will cause the exterior function to return
- *        err_code if the statement is not false.
- *
- * @param[in]   statement   Statement to test.
- * @param[in]   err_code    Error value to return if test was invalid.
- *
- * @retval      nothing, but will cause the exterior function to return @p err_code if @p statement
- *              is true.
- */
-#define VERIFY_FALSE(statement, err_code)   \
-do                                          \
-{                                           \
-    if ((statement))                        \
-    {                                       \
-        return err_code;                    \
-    }                                       \
-} while (0)
-
-
-/**@brief Macro for verifying statement to be false. It will cause the exterior function to return
- *        if the statement is not false.
- *
- * @param[in]   statement    Statement to test.
- */
-#define VERIFY_FALSE_VOID(statement) VERIFY_FALSE((statement), )
-
-
-/**@brief Macro for verifying that a function returned APP_SUCCESS. It will cause the exterior
- *        function to return err_code if the err_code is not @ref APP_SUCCESS.
- *
- * @param[in] err_code The error code to check.
- */
-#ifdef DISABLE_PARAM_CHECK
-#define VERIFY_SUCCESS()
-#else
-#define VERIFY_SUCCESS(err_code) VERIFY_TRUE((err_code) == APP_SUCCESS, (err_code))
-#endif /* DISABLE_PARAM_CHECK */
-
-
-/**@brief Macro for verifying that a function returned APP_SUCCESS. It will cause the exterior
- *        function to return if the err_code is not @ref APP_SUCCESS.
- *
- * @param[in] err_code The error code to check.
- */
-#ifdef DISABLE_PARAM_CHECK
-#define VERIFY_SUCCESS_VOID()
-#else
-#define VERIFY_SUCCESS_VOID(err_code) VERIFY_TRUE_VOID((err_code) == APP_SUCCESS)
-#endif /* DISABLE_PARAM_CHECK */
-
-
-/**@brief Macro for verifying that the module is initialized. It will cause the exterior function to
- *        return @ref APP_ERROR_INVALID_STATE if not.
- *
- * @note MODULE_INITIALIZED must be defined in each module using this macro. MODULE_INITIALIZED
- *       should be true if the module is initialized, false if not.
- */
-#ifdef DISABLE_PARAM_CHECK
-#define VERIFY_MODULE_INITIALIZED()
-#else
-#define VERIFY_MODULE_INITIALIZED() VERIFY_TRUE((MODULE_INITIALIZED), APP_ERROR_INVALID_STATE)
-#endif /* DISABLE_PARAM_CHECK */
-
-
-/**@brief Macro for verifying that the module is initialized. It will cause the exterior function to
- *        return if not.
- *
- * @note MODULE_INITIALIZED must be defined in each module using this macro. MODULE_INITIALIZED
- *       should be true if the module is initialized, false if not.
- */
-#ifdef DISABLE_PARAM_CHECK
-#define VERIFY_MODULE_INITIALIZED_VOID()
-#else
-#define VERIFY_MODULE_INITIALIZED_VOID() VERIFY_TRUE_VOID((MODULE_INITIALIZED))
-#endif /* DISABLE_PARAM_CHECK */
-
-
-/**@brief Macro for verifying that the module is initialized. It will cause the exterior function to
- *        return if not.
- *
- * @param[in] param  The variable to check if is NULL.
- */
-#ifdef DISABLE_PARAM_CHECK
-#define VERIFY_PARAM_NOT_NULL()
-#else
-#define VERIFY_PARAM_NOT_NULL(param) VERIFY_FALSE(((param) == NULL), APP_ERROR_NULL)
-#endif /* DISABLE_PARAM_CHECK */
-
-
-/**@brief Macro for verifying that the module is initialized. It will cause the exterior function to
- *        return if not.
- *
- * @param[in] param  The variable to check if is NULL.
- */
-#ifdef DISABLE_PARAM_CHECK
-#define VERIFY_PARAM_NOT_NULL_VOID()
-#else
-#define VERIFY_PARAM_NOT_NULL_VOID(param) VERIFY_FALSE_VOID(((param) == NULL))
-#endif /* DISABLE_PARAM_CHECK */
-
-
-
-
 #if   defined ( __CC_ARM )
   #define __ASM            __asm                                      /*!< asm keyword for ARM Compiler          */
   #define __INLINE         __inline                                   /*!< inline keyword for ARM Compiler       */
@@ -609,6 +275,11 @@ static __INLINE uint32_t uint32_decode(const uint8_t * p_encoded_data)
              (((uint32_t)((uint8_t *)p_encoded_data)[3]) << 24 ));
 }
 
+static __INLINE uint32_t uint32_decode_uint16(const uint16_t * p_encoded_data)
+{
+    return ( (((uint32_t)((uint16_t *)p_encoded_data)[0]) << 0)  |
+             (((uint32_t)((uint16_t *)p_encoded_data)[1]) << 16 ));
+}
 /**@brief Function for decoding a uint32 value in big-endian format.
  *
  * @param[in]   p_encoded_data   Buffer where the encoded data is stored.
@@ -622,7 +293,11 @@ static __INLINE uint32_t uint32_big_decode(const uint8_t * p_encoded_data)
              (((uint32_t)((uint8_t *)p_encoded_data)[2]) << 8)  |
              (((uint32_t)((uint8_t *)p_encoded_data)[3]) << 0) );
 }
-
+static __INLINE uint32_t uint32_big_decode_uint16(const uint16_t * p_encoded_data)
+{
+    return ( (((uint32_t)((uint16_t *)p_encoded_data)[0]) << 16) |
+             (((uint32_t)((uint16_t *)p_encoded_data)[1]) << 0) );
+}
 /**
  * @brief Function for encoding an uint16 value in big-endian format.
  *
