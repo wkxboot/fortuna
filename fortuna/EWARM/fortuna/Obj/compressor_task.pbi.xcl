@@ -28,7 +28,7 @@ D:\development\st\stm32\src_code\fortuna\fortuna\EWARM/../Src/modbus_poll
 -I
 D:\development\st\stm32\src_code\fortuna\fortuna\EWARM/../Src/modbus_poll/port
 -I
-D:\development\st\stm32\src_code\fortuna\fortuna\EWARM/../Src/scale
+D:\development\st\stm32\src_code\fortuna\fortuna\EWARM/../Src/scales
 -I
 D:\development\st\stm32\src_code\fortuna\fortuna\EWARM/../libraries/app_log
 -I
@@ -80,7 +80,7 @@ D:\development\st\stm32\src_code\fortuna\fortuna\Src\modbus_poll
 -I
 D:\development\st\stm32\src_code\fortuna\fortuna\Src\modbus_poll\port
 -I
-D:\development\st\stm32\src_code\fortuna\fortuna\Src\scale
+D:\development\st\stm32\src_code\fortuna\fortuna\Src\scales
 -I
 D:\development\st\stm32\src_code\fortuna\fortuna\libraries\app_log
 -I

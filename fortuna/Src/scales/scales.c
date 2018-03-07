@@ -70,7 +70,7 @@ fortuna_bool_t set_net_weight(uint8_t id,int32_t net_weight)
     APP_LOG_ERROR("%d# 称正过载.\r\n",id); 
     ptr_scale->net_weight=SCALE_NET_WEIGHT_OVERLOAD_CODE;
   }
-  else if(net_weight<(-0x8000))
+  else if(net_weight<=(-0x8000))
   {
     APP_LOG_ERROR("%d# 称负过载.\r\n",id); 
     ptr_scale->net_weight=SCALE_NET_WEIGHT_OVERLOAD_CODE;
