@@ -351,10 +351,11 @@
                     <state>$PROJ_DIR$/../Drivers/CMSIS/Include</state>
                     <state>$PROJ_DIR$/../Src/tasks</state>
                     <state>$PROJ_DIR$/../Src/communication</state>
+                    <state>$PROJ_DIR$/../Src/communication/internet/http</state>
                     <state>$PROJ_DIR$/../Src/communication/port</state>
-                    <state>$PROJ_DIR$/../Src/modbus_poll</state>
-                    <state>$PROJ_DIR$/../Src/modbus_poll/port</state>
-                    <state>$PROJ_DIR$/../Src/scales</state>
+                    <state>$PROJ_DIR$/../Src/at_cmd_set</state>
+                    <state>$PROJ_DIR$/../Src/at_cmd_set/port</state>
+                    <state>$PROJ_DIR$/../Src/json</state>
                     <state>$PROJ_DIR$/../libraries/app_log</state>
                     <state>$PROJ_DIR$/../libraries/app_error</state>
                     <state>$PROJ_DIR$/../libraries/SEGGER_RTT_V612j/RTT</state>
@@ -1049,99 +1050,63 @@
         <group>
             <name>User</name>
             <group>
+                <name>at_cmd_set</name>
+                <group>
+                    <name>port</name>
+                    <file>
+                        <name>$PROJ_DIR$\..\Src\at_cmd_set\port\at_cmd_port_serial.c</name>
+                    </file>
+                    <file>
+                        <name>$PROJ_DIR$\..\Src\at_cmd_set\port\at_cmd_port_timer.c</name>
+                    </file>
+                </group>
+                <file>
+                    <name>$PROJ_DIR$\..\Src\at_cmd_set\at_cmd_set.c</name>
+                </file>
+            </group>
+            <group>
                 <name>communication</name>
                 <group>
-                    <name>port</name>
-                    <file>
-                        <name>$PROJ_DIR$\..\Src\communication\port\comm_port_serial.c</name>
-                    </file>
-                    <file>
-                        <name>$PROJ_DIR$\..\Src\communication\port\comm_port_timer.c</name>
-                    </file>
+                    <name>internet</name>
+                    <group>
+                        <name>http</name>
+                        <file>
+                            <name>$PROJ_DIR$\..\Src\communication\internet\http\http_get_post.c</name>
+                        </file>
+                    </group>
+                    <group>
+                        <name>socket</name>
+                    </group>
+                    <group>
+                        <name>tcp</name>
+                    </group>
+                    <group>
+                        <name>udp</name>
+                    </group>
                 </group>
-                <file>
-                    <name>$PROJ_DIR$\..\Src\communication\comm_protocol.c</name>
-                </file>
-            </group>
-            <group>
-                <name>modbus_poll</name>
                 <group>
-                    <name>port</name>
-                    <file>
-                        <name>$PROJ_DIR$\..\Src\modbus_poll\port\mb_poll_port_serial.c</name>
-                    </file>
-                    <file>
-                        <name>$PROJ_DIR$\..\Src\modbus_poll\port\mb_poll_port_timer.c</name>
-                    </file>
+                    <name>modbus_poll</name>
+                    <group>
+                        <name>port</name>
+                    </group>
                 </group>
-                <file>
-                    <name>$PROJ_DIR$\..\Src\modbus_poll\modbus_poll.c</name>
-                </file>
             </group>
             <group>
-                <name>scales</name>
+                <name>json</name>
                 <file>
-                    <name>$PROJ_DIR$\..\Src\scales\scales.c</name>
+                    <name>$PROJ_DIR$\..\Src\json\json.c</name>
                 </file>
             </group>
             <group>
                 <name>tasks</name>
                 <file>
-                    <name>$PROJ_DIR$\..\Src\tasks\calibrate_memory_task.c</name>
+                    <name>$PROJ_DIR$\..\Src\tasks\device_task.c</name>
                 </file>
                 <file>
-                    <name>$PROJ_DIR$\..\Src\tasks\compressor_task.c</name>
-                </file>
-                <file>
-                    <name>$PROJ_DIR$\..\Src\tasks\dc12v_task.c</name>
-                </file>
-                <file>
-                    <name>$PROJ_DIR$\..\Src\tasks\debug_task.c</name>
-                </file>
-                <file>
-                    <name>$PROJ_DIR$\..\Src\tasks\display_task.c</name>
-                </file>
-                <file>
-                    <name>$PROJ_DIR$\..\Src\tasks\glass_pwr_task.c</name>
-                </file>
-                <file>
-                    <name>$PROJ_DIR$\..\Src\tasks\host_comm_task.c</name>
-                </file>
-                <file>
-                    <name>$PROJ_DIR$\..\Src\tasks\light_task.c</name>
-                </file>
-                <file>
-                    <name>$PROJ_DIR$\..\Src\tasks\lock_task.c</name>
-                </file>
-                <file>
-                    <name>$PROJ_DIR$\..\Src\tasks\scale_comm_task.c</name>
-                </file>
-                <file>
-                    <name>$PROJ_DIR$\..\Src\tasks\scale_func_task.c</name>
-                </file>
-                <file>
-                    <name>$PROJ_DIR$\..\Src\tasks\scale_poll_task.c</name>
-                </file>
-                <file>
-                    <name>$PROJ_DIR$\..\Src\tasks\switch_task.c</name>
-                </file>
-                <file>
-                    <name>$PROJ_DIR$\..\Src\tasks\sys_led_task.c</name>
-                </file>
-                <file>
-                    <name>$PROJ_DIR$\..\Src\tasks\temperature_memory_task.c</name>
-                </file>
-                <file>
-                    <name>$PROJ_DIR$\..\Src\tasks\temperature_task.c</name>
-                </file>
-                <file>
-                    <name>$PROJ_DIR$\..\Src\tasks\ups_task.c</name>
+                    <name>$PROJ_DIR$\..\Src\tasks\shopping_task.c</name>
                 </file>
                 <file>
                     <name>$PROJ_DIR$\..\Src\tasks\watch_dog_task.c</name>
-                </file>
-                <file>
-                    <name>$PROJ_DIR$\..\Src\tasks\weight_memory_task.c</name>
                 </file>
             </group>
             <file>
@@ -1175,30 +1140,6 @@
     </group>
     <group>
         <name>Drivers</name>
-        <group>
-            <name>BSP</name>
-            <group>
-                <name>board</name>
-                <file>
-                    <name>$PROJ_DIR$\..\Drivers\BSP\board\ABDK_ZNHG_ZK.c</name>
-                </file>
-            </group>
-            <group>
-                <name>components</name>
-                <group>
-                    <name>display_led</name>
-                    <file>
-                        <name>$PROJ_DIR$\..\Drivers\BSP\components\display_led\display_led.c</name>
-                    </file>
-                </group>
-                <group>
-                    <name>ntc_3950</name>
-                    <file>
-                        <name>$PROJ_DIR$\..\Drivers\BSP\components\ntc\ntc_3950.c</name>
-                    </file>
-                </group>
-            </group>
-        </group>
         <group>
             <name>CMSIS</name>
             <file>

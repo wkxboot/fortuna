@@ -1,6 +1,6 @@
 #ifndef  __LOCK_TASK_H__
 #define  __LOCK_TASK_H__
-#include "fortuna_common.h"
+#include "app_common.h"
 
 
 #define  LOCK_TASK_INTERVAL                    50/*锁和门的状态更新间隔*/
