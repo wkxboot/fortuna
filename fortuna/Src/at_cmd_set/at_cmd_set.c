@@ -11,10 +11,10 @@
 #include "app_error.h"
 
 
-#define  MAX_ADU_SIZE                              200
+#define  MAX_ADU_SIZE                              250
 
 static uint8_t send_adu_buff[MAX_ADU_SIZE];
-static uint8_t recv_adu_buff[MAX_ADU_SIZE];
+static uint8_t volatile recv_adu_buff[MAX_ADU_SIZE];
 
 static uint8_t volatile send_adu_size;
 static uint8_t volatile recv_adu_size;
@@ -77,15 +77,19 @@ void at_cmd_timer_35_expired()
 void at_cmd_init()
 {
  /*创建互斥体*/
-/*
+ if(at_cmd_mutex_id==NULL)
+ {
  osMutexDef(at_cmd_mutex);
  at_cmd_mutex_id=osMutexCreate(osMutex(at_cmd_mutex)); 
  APP_ASSERT(at_cmd_mutex_id);
-*/
+ }
+
  /*创建事件组*/
  if(at_cmd_evt_group_hdl==NULL)
+ {
  at_cmd_evt_group_hdl=xEventGroupCreate();
  APP_ASSERT(at_cmd_evt_group_hdl);
+ }
   
  /*串口和定时器初始化*/
  at_cmd_port_serial_init();
@@ -94,24 +98,20 @@ void at_cmd_init()
 
 /*获取互斥体*/
 static void at_cmd_take_mutex()
-{
-  /*
+{ 
  if(osMutexWait(at_cmd_mutex_id,osWaitForever)!=osOK)
  {
   APP_ERROR_HANDLER(0);
  }
-*/
 }
 
 /*释放互斥体*/
 static void at_cmd_release_mutex()
 {
- /*
  if(osMutexRelease(at_cmd_mutex_id)!=osOK)
  {
   APP_ERROR_HANDLER(0);
  }
-*/
 }
 
 
@@ -121,7 +121,7 @@ static at_cmd_status_t at_cmd_send_cmd()
  at_cmd_status_t status=AT_CMD_STATUS_SUCCESS;
  send_adu_buff[send_adu_size]='\0';
  
-APP_LOG_DEBUG("发送的数据:\r\n---->%s\r\n",send_adu_buff);
+APP_LOG_DEBUG("发送的数据:---->\r\n%s\r\n",send_adu_buff);
  /*启动串口发送数据*/
  at_cmd_port_serial_enable(AT_CMD_FALSE,AT_CMD_TRUE);
  /*等待发送完成*/
@@ -162,11 +162,10 @@ restart:
    ptr_response->response_timeout= ptr_response->response_delay_timeout;
    goto restart;
  }
- recv_adu_buff[recv_adu_size++]='\0';
- ptr_response->cnt=recv_adu_size; 
- //strcpy((char *)ptr_response->response,(const char *)recv_adu_buff);
- ptr_response->ptr_response=recv_adu_buff;
- APP_LOG_DEBUG("响应的数据:\r\n---->%s\r\n",ptr_response->ptr_response);
+ recv_adu_buff[recv_adu_size]='\0';
+ strcpy((char*)ptr_response->response,(const char *)recv_adu_buff);
+ ptr_response->size=recv_adu_size; 
+ APP_LOG_DEBUG("响应的数据:---->\r\n%s\r\n",ptr_response->response);
  return status; 
 }
 
@@ -371,7 +370,7 @@ at_cmd_status_t at_cmd_find_expect_from_response(at_cmd_response_t *ptr_response
  at_cmd_status_t status=AT_CMD_STATUS_SUCCESS; 
  APP_ASSERT(ptr_response); 
  APP_ASSERT(ptr_expect); 
- if(strstr((char const*)ptr_response->ptr_response,(char const*)ptr_expect)==NULL)
+ if(strstr((char const*)ptr_response->response,(char const*)ptr_expect)==NULL)
  {
   status= AT_CMD_STATUS_INVALID_RESPONSE;
  }

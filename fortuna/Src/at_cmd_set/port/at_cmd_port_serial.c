@@ -10,14 +10,14 @@
 #define APP_LOG_MODULE_LEVEL   APP_LOG_LEVEL_ERROR   
 #include "app_log.h"
 
-extern UART_HandleTypeDef huart1;
+extern UART_HandleTypeDef huart4;
 UART_HandleTypeDef *ptr_at_cmd_port_serial_handle;
 
 /*默认115200 8 N 1*/
 void at_cmd_port_serial_init()
 { 
-  ptr_at_cmd_port_serial_handle=&huart1;
-  ptr_at_cmd_port_serial_handle->Instance=USART1;
+  ptr_at_cmd_port_serial_handle=&huart4;
+  ptr_at_cmd_port_serial_handle->Instance=UART4;
 
   ptr_at_cmd_port_serial_handle->Init.BaudRate = AT_CMD_PORT_SERIAL_BAUDRATE;
   ptr_at_cmd_port_serial_handle->Init.WordLength =UART_WORDLENGTH_8B;

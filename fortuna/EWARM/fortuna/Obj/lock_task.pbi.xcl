@@ -22,6 +22,8 @@ D:\development\st\stm32\src_code\fortuna\fortuna\EWARM/../Src/tasks
 -I
 D:\development\st\stm32\src_code\fortuna\fortuna\EWARM/../Src/communication
 -I
+D:\development\st\stm32\src_code\fortuna\fortuna\EWARM/../Src/communication/internet/http
+-I
 D:\development\st\stm32\src_code\fortuna\fortuna\EWARM/../Src/communication/port
 -I
 D:\development\st\stm32\src_code\fortuna\fortuna\EWARM/../Src/at_cmd_set
@@ -73,6 +75,8 @@ D:\development\st\stm32\src_code\fortuna\fortuna\Drivers\CMSIS\Include
 D:\development\st\stm32\src_code\fortuna\fortuna\Src\tasks
 -I
 D:\development\st\stm32\src_code\fortuna\fortuna\Src\communication
+-I
+D:\development\st\stm32\src_code\fortuna\fortuna\Src\communication\internet\http
 -I
 D:\development\st\stm32\src_code\fortuna\fortuna\Src\communication\port
 -I

@@ -1,6 +1,6 @@
 #ifndef  __HOST_COMM_TASK_H__
 #define  __HOST_COMM_TASK_H__
-#include "fortuna_common.h"
+#include "app_common.h"
 
 /*主机通信任务*/
 void host_comm_task(void const * argument);

@@ -5,40 +5,36 @@
 #include "app_common.h"
 #include "json.h"
 
-static uint8_t json_body_str[JSON_BODY_STR_MAX_SIZE];
-
-app_bool_t json_get_value_by_name_from_json_body(uint8_t *ptr_json,uint8_t *ptr_name,uint8_t *ptr_value)
+app_bool_t json_get_item_value_by_name_from_json_str(uint8_t *ptr_json_str,uint8_t *ptr_name,uint8_t *ptr_value)
 {
   uint8_t *ptr_addr;
-  uint8_t cnt=0;
-  if(ptr_json==NULL)
+  if(ptr_json_str==NULL)
   return APP_FALSE; 
-  ptr_addr=(uint8_t *)strstr((const char *)ptr_json,(const char *)ptr_name);
+  ptr_addr=(uint8_t *)strstr((const char *)ptr_json_str,(const char *)ptr_name);
   if(ptr_addr==NULL)
   return APP_FALSE;
   ptr_addr=(uint8_t *)strstr((const char *)ptr_addr,":");/*查找“：”*/
   if(ptr_addr==NULL)
   return APP_FALSE;
   ptr_addr++;
-  while(*ptr_addr!=',' && *ptr_addr!='}')
+  while(*ptr_addr!=',' && *ptr_addr!='}' && *ptr_addr !=0)
   {
-  ptr_value[cnt++]=*ptr_addr++; 
+  *ptr_value++=*ptr_addr++; 
   }
-  ptr_value[cnt]=0;/*设置成字符串*/
+  *ptr_value=0;/*设置成字符串*/
   return APP_TRUE;
 }
 
-app_bool_t json_find_json_body(uint8_t *ptr_buff,uint8_t **ptr_json)
+app_bool_t json_find_cpy_json_str_to(uint8_t *ptr_str_buff,uint8_t *ptr_json_str)
 {
-  uint8_t *ptr_addr_start;
-  app_bool_t result=APP_FALSE;
-  ptr_addr_start=(uint8_t *)strstr((const char *)ptr_buff,"{");
-  if(ptr_addr_start)
+  uint8_t *ptr_addr;
+  ptr_addr=(uint8_t *)strstr((const char *)ptr_str_buff,"{");
+  if(ptr_addr)
   {
-   *ptr_json=ptr_addr_start;
-   result= APP_TRUE;
+   strcpy((char *)ptr_json_str,(const char *)ptr_addr);
+  return APP_TRUE;
   }
-  return result;
+  return APP_FALSE;
 }
 
 
@@ -57,34 +53,34 @@ app_bool_t json_set_item_name_value(json_item_t *ptr_item,uint8_t *ptr_name,uint
  return APP_TRUE; 
 }
 
-app_bool_t json_body_to_str(void *ptr_json,uint8_t **ptr_str)
+app_bool_t json_body_to_str(void *ptr_json_body,uint8_t *ptr_jon_str)
 {
  uint8_t len=0;
  uint8_t i,cnt;
- uint8_t *ptr_str_buff=json_body_str;
  json_item_t *ptr_item;
- if(ptr_json==NULL)
+ if(ptr_json_body==NULL)
  return APP_FALSE;
- cnt=((json_header_t*)ptr_json)->item_cnt;
+ cnt=((json_header_t*)ptr_json_body)->item_cnt;
  
- ptr_item=(json_item_t*)((uint8_t *)ptr_json+sizeof(json_header_t));;
- *ptr_str_buff++='{';
+ ptr_item=(json_item_t*)((uint8_t *)ptr_json_body+sizeof(json_header_t));
+ /*第一个是{*/
+ *ptr_jon_str++='{';
  
   for(i=0;i<cnt;i++)
   {
   len=strlen((const char *)ptr_item->name);
-  memcpy(ptr_str_buff,ptr_item->name,len);
-  ptr_str_buff+=len;
-  *ptr_str_buff++=':';
+  memcpy(ptr_jon_str,ptr_item->name,len);
+  ptr_jon_str+=len;
+  *ptr_jon_str++=':';
   len=strlen((const char *)ptr_item->value);
-  memcpy(ptr_str_buff,ptr_item->value,len);
-  ptr_str_buff+=len;
-  *ptr_str_buff++=',';
+  memcpy(ptr_jon_str,ptr_item->value,len);
+  ptr_jon_str+=len;
+  *ptr_jon_str++=',';
   ptr_item++;
   }
- *(ptr_str_buff-1)='}';
- *ptr_str_buff=0;
- *ptr_str=json_body_str;
+ /*最后一个}*/
+ *(ptr_jon_str-1)='}';
+ *ptr_jon_str=0;
  return APP_TRUE; 
 }
 

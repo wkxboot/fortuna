@@ -1,8 +1,8 @@
 #ifndef  __AT_CMD_SET_H__
 #define  __AT_CMD_SET_H__
 
-#define    AT_CMD_SEND_TIMEOUT        20
-
+#define    AT_CMD_SEND_TIMEOUT                 25
+#define    AT_CMD_RESPONSE_MAX_STR_SZIE        250
 typedef enum 
 {
   AT_CMD_FALSE=0,
@@ -14,8 +14,8 @@ typedef struct
   at_cmd_bool_t is_response_delay;
   uint16_t response_timeout;
   uint16_t response_delay_timeout;
-  uint16_t cnt;
-  uint8_t *ptr_response;
+volatile uint8_t size;
+volatile uint8_t response[AT_CMD_RESPONSE_MAX_STR_SZIE];
 }at_cmd_response_t;
 
 typedef enum

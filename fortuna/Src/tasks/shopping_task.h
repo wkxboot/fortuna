@@ -8,9 +8,14 @@ void shopping_task(void const * argument);
 extern osThreadId shopping_task_hdl;
 
 #define  SHOPPING_TASK_INTERVAL                           100/*购物任务运行间隔*/
-#define  SHOPPING_PULL_OPEN_TIMEOUT                       1000/*购物任务拉取开门指令时间*/
-#define  SHOPPING_TASK_LOCK_CTL_TIMEOUT                   500/*开锁等待时间*/
-#define  SHOPPING_TASK_AUTO_LOCK_DETECT_INTERVAL          800/*门检测时间间隔*/
-#define  SHOPPING_TASK_AUTO_LOCK_TIMEOUT                 (1000*10)/*门没有被拉开的超时时间*/
+#define  SHOPPING_TASK_RETRY_TIMEOUT                      100
+
+#define  SHOPPING_TASK_LOCK_LOCK_SUCCESS_SIGNAL           (1<<0)
+#define  SHOPPING_TASK_LOCK_LOCK_FAIL_SIGNAL              (1<<1)
+#define  SHOPPING_TASK_UNLOCK_LOCK_SUCCESS_SIGNAL         (1<<2)
+#define  SHOPPING_TASK_UNLOCK_LOCK_FAIL_SIGNAL            (1<<3)
+
+#define  SHOPPING_TASK_ALL_SIGNALS                        ((1<<4)-1)
+
 
 #endif

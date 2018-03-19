@@ -109,7 +109,6 @@ int main(void)
   MX_USART1_UART_Init();
   MX_IWDG_Init();
   MX_ADC3_Init();
-  MX_UART5_Init();
   MX_UART4_Init();
 
   /* USER CODE BEGIN 2 */

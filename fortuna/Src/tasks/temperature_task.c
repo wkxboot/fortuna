@@ -1,17 +1,24 @@
 #include "FreeRTOS.h"
 #include "task.h"
 #include "cmsis_os.h"
-#include "fortuna_common.h"
+#include "app_common.h"
+#include "ABDK_ABX081_ZK.h"
 #include "ntc_3950.h"
 #include "temperature_task.h"
-#include "ABDK_ZNHG_ZK.h"
+#include "compressor_task.h"
+
 #include "adc.h"
 #define APP_LOG_MODULE_NAME   "[temperature]"
-#define APP_LOG_MODULE_LEVEL   APP_LOG_LEVEL_INFO    
+#define APP_LOG_MODULE_LEVEL   APP_LOG_LEVEL_DEBUG    
 #include "app_log.h"
 #include "app_error.h"
 
 osThreadId temperature_task_hdl;
+
+
+
+static void update_temperature_warning();
+static void update_average_temperature();
 
 /*温度ADC单次的取样值*/
 static volatile uint16_t adc_sample[TEMPERATURE_CNT];
@@ -36,8 +43,6 @@ typedef struct
   uint32_t hold_time;
 }temperature_ctl_t;
 
-/*一个变化方向上的保持时间最小值 10s*/
-#define           T_HOLD_TIME                10*1000
 
 /*温度值*/
 static int8_t temperature[TEMPERATURE_CNT];
@@ -104,6 +109,34 @@ average_temperature.hold_time+=TEMPERATURE_SAMPLE_TIME;
 
 }
 
+static void update_temperature_warning()
+{
+ static app_bool_t is_high_t_warning_send=APP_FALSE;
+ static app_bool_t is_low_t_warning_send=APP_FALSE;
+ 
+ if(average_temperature.temperature!=TEMPERATURE_TASK_ERR_T_VALUE)
+ {
+   if(average_temperature.temperature!=TEMPERATURE_TASK_ERR_T_VALUE && \
+      average_temperature.temperature>COMPRESSOR_TASK_T_MAX         && \
+      is_high_t_warning_send==APP_FALSE)
+   {
+     APP_LOG_DEBUG("向压缩机发送开压缩机信号.\r\n");
+     osSignalSet(compressor_task_hdl,COMPRESSOR_TASK_PWR_TURN_ON_SIGNAL);
+     is_high_t_warning_send=APP_TRUE;
+     is_low_t_warning_send=APP_FALSE;
+   }
+   if((average_temperature.temperature==TEMPERATURE_TASK_ERR_T_VALUE || \
+       average_temperature.temperature<COMPRESSOR_TASK_T_MIN) && is_low_t_warning_send==APP_FALSE)
+   {
+     APP_LOG_DEBUG("向压缩机发送关压缩机信号.\r\n");
+     osSignalSet(compressor_task_hdl,COMPRESSOR_TASK_PWR_TURN_OFF_SIGNAL);
+     is_high_t_warning_send=APP_FALSE;
+     is_low_t_warning_send=APP_TRUE;
+   }
+ }
+}
+
+
 int8_t get_temperature(uint8_t t_idx)
 {
  if(t_idx > TEMPERATURE_CNT-1)
@@ -117,6 +150,8 @@ int8_t get_average_temperature()
 {
 return average_temperature.temperature;
 }
+
+
 
 
 void temperature_task(void const * argument)
@@ -152,7 +187,7 @@ void temperature_task(void const * argument)
  } 
  sample_time=0;
  sample_cnt=0; 
- /*不需要连续总和计算，而是下次重新计算*/
+ /*不需要滑动计算，而是下次重新计算*/
  for(uint8_t i=0;i<TEMPERATURE_CNT;i++)
  {
  sample_cusum[i]=0;
@@ -164,5 +199,7 @@ void temperature_task(void const * argument)
  }
  /*计算更新平均值*/
  update_average_temperature();
+ /*更新温度警告*/
+ update_temperature_warning();
  }
 }

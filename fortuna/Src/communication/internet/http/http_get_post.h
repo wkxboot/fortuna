@@ -1,25 +1,30 @@
 #ifndef  __HTTP_GET_POST_H__
 #define  __HTTP_GET_POST_H__
 
-#define  HTTP_CONFIG_AT_CMD_RESPONSE_TIMEOUT    100
-#define  HTTP_CONFIG_RESPONSE_DELAY_TIMEOUT     10000
+#define  HTTP_CONFIG_AT_CMD_NORMAL_RESPONSE_TIMEOUT     100
+#define  HTTP_CONFIG_AT_CMD_SPECIAL_RESPONSE_TIMEOUT    5000
+#define  HTTP_RESPONSE_TIMEOUT                          5000
 
 #define  AT_MODULE_SIOT203                      1
 #define  SIM900A_MODULE                         2
 #define  AT_MODULE                              SIM900A_MODULE
 
 
+#define  HTTP_REQUEST_STR_MAX_SIZE              250
+#define  HTTP_REQUEST_SIZE_TIME_STR_MAX_SIZE    12
+#define  HTTP_RESPONSE_STR_MAX_SIZE             250
 
 typedef struct
 {
   uint8_t *ptr_url;
-  uint8_t *ptr_param;
-  uint8_t size_time[10];
+  uint8_t param[HTTP_REQUEST_STR_MAX_SIZE];
+  uint8_t size_time[HTTP_REQUEST_SIZE_TIME_STR_MAX_SIZE];
 }http_request_t;
 
 typedef struct
 {
- uint8_t *ptr_json;
+ uint8_t size;
+ uint8_t json_str[HTTP_RESPONSE_STR_MAX_SIZE];
 }http_response_t;
 
 

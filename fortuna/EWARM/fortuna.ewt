@@ -1218,10 +1218,31 @@
             <group>
                 <name>tasks</name>
                 <file>
-                    <name>$PROJ_DIR$\..\Src\tasks\device_task.c</name>
+                    <name>$PROJ_DIR$\..\Src\tasks\compressor_task.c</name>
+                </file>
+                <file>
+                    <name>$PROJ_DIR$\..\Src\tasks\glass_pwr_task.c</name>
+                </file>
+                <file>
+                    <name>$PROJ_DIR$\..\Src\tasks\light_task.c</name>
+                </file>
+                <file>
+                    <name>$PROJ_DIR$\..\Src\tasks\lock_task.c</name>
+                </file>
+                <file>
+                    <name>$PROJ_DIR$\..\Src\tasks\report_task.c</name>
                 </file>
                 <file>
                     <name>$PROJ_DIR$\..\Src\tasks\shopping_task.c</name>
+                </file>
+                <file>
+                    <name>$PROJ_DIR$\..\Src\tasks\sys_led_task.c</name>
+                </file>
+                <file>
+                    <name>$PROJ_DIR$\..\Src\tasks\temperature_task.c</name>
+                </file>
+                <file>
+                    <name>$PROJ_DIR$\..\Src\tasks\ups_task.c</name>
                 </file>
                 <file>
                     <name>$PROJ_DIR$\..\Src\tasks\watch_dog_task.c</name>
@@ -1258,6 +1279,24 @@
     </group>
     <group>
         <name>Drivers</name>
+        <group>
+            <name>BSP</name>
+            <group>
+                <name>board</name>
+                <file>
+                    <name>$PROJ_DIR$\..\Drivers\BSP\board\ABDK_ABX081_ZK.c</name>
+                </file>
+            </group>
+            <group>
+                <name>components</name>
+                <group>
+                    <name>ntc</name>
+                    <file>
+                        <name>$PROJ_DIR$\..\Drivers\BSP\components\ntc\ntc_3950.c</name>
+                    </file>
+                </group>
+            </group>
+        </group>
         <group>
             <name>CMSIS</name>
             <file>
