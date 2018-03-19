@@ -58,6 +58,7 @@
 #include "watch_dog_task.h"
 
 #include "lock_task.h"
+#include "door_task.h"
 /*
 #include "display_led.h"
 #include "display_task.h"
@@ -150,7 +151,7 @@ __weak void vApplicationStackOverflowHook(xTaskHandle xTask, signed char *pcTask
    /* Run time stack overflow checking is performed if
    configCHECK_FOR_STACK_OVERFLOW is defined to 1 or 2. This hook function is
    called if a stack overflow is detected. */
-  APP_LOG_ERROR("%s任务栈溢出.\r\n",pcTaskName);
+  APP_LOG_ERROR("%s任务栈溢�?.\r\n",pcTaskName);
   APP_ERROR_HANDLER(0);
 }
 /* USER CODE END 4 */
@@ -235,7 +236,7 @@ static void create_user_tasks()
   report_task_hdl = osThreadCreate(osThread(report_task), NULL); 
   APP_ASSERT(report_task_hdl);
   
-  osThreadDef(watch_dog_task, watch_dog_task, osPriorityNormal, 0, 256);
+  osThreadDef(watch_dog_task, watch_dog_task, osPriorityNormal, 0, 128);
   watch_dog_task_hdl = osThreadCreate(osThread(watch_dog_task), NULL); 
   APP_ASSERT(watch_dog_task_hdl);
   
@@ -243,7 +244,7 @@ static void create_user_tasks()
   compressor_task_hdl = osThreadCreate(osThread(compressor_task), NULL); 
   APP_ASSERT(compressor_task_hdl);
   
-  osThreadDef(sys_led_task, sys_led_task, osPriorityNormal, 0, 256);
+  osThreadDef(sys_led_task, sys_led_task, osPriorityNormal, 0, 128);
   sys_led_task_hdl = osThreadCreate(osThread(sys_led_task), NULL); 
   APP_ASSERT(sys_led_task_hdl);
   
@@ -251,15 +252,19 @@ static void create_user_tasks()
   lock_task_hdl = osThreadCreate(osThread(lock_task), NULL); 
   APP_ASSERT(lock_task_hdl);
   
-  osThreadDef(light_task, light_task, osPriorityNormal, 0, 256);
+   osThreadDef(door_task, door_task, osPriorityNormal, 0, 256);
+  door_task_hdl = osThreadCreate(osThread(door_task), NULL); 
+  APP_ASSERT(door_task_hdl);
+  
+  osThreadDef(light_task, light_task, osPriorityNormal, 0, 128);
   light_task_hdl = osThreadCreate(osThread(light_task), NULL); 
   APP_ASSERT(light_task_hdl);
   
-  osThreadDef(glass_pwr_task, glass_pwr_task, osPriorityNormal, 0, 256);
+  osThreadDef(glass_pwr_task, glass_pwr_task, osPriorityNormal, 0, 128);
   glass_pwr_task_hdl = osThreadCreate(osThread(glass_pwr_task), NULL); 
   APP_ASSERT(glass_pwr_task_hdl);
   
-  osThreadDef(ups_task, ups_task, osPriorityNormal, 0, 256);
+  osThreadDef(ups_task, ups_task, osPriorityNormal, 0, 128);
   ups_task_hdl = osThreadCreate(osThread(ups_task), NULL); 
   APP_ASSERT(ups_task_hdl);
   
@@ -267,7 +272,7 @@ static void create_user_tasks()
   temperature_task_hdl = osThreadCreate(osThread(temperature_task), NULL); 
   APP_ASSERT(temperature_task_hdl);
   
-  APP_LOG_INFO("######所有的任务创建成功.\r\n"); 
+  APP_LOG_INFO("######�?有的任务创建成功.\r\n"); 
 }
 /* USER CODE END Application */
 

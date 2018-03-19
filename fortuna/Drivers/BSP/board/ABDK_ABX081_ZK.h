@@ -37,6 +37,14 @@ typedef enum
  LOCK_CTL_LOCK=GPIO_PIN_RESET,
  LOCK_STATUS_UNLOCK=GPIO_PIN_SET,
  LOCK_STATUS_LOCK=GPIO_PIN_RESET,
+ /*吸住门的电磁锁*/
+ DOOR_CTL_LOCK=GPIO_PIN_SET,
+ DOOR_CTL_UNLOCK=GPIO_PIN_RESET,
+ DOOR_STATUS_UNLOCK=GPIO_PIN_SET,
+ DOOR_STATUS_LOCK=GPIO_PIN_RESET,
+  /*门的状态*/
+ DOOR_STATUS_OPEN=GPIO_PIN_SET,
+ DOOR_STATUS_CLOSE=GPIO_PIN_RESET,
  /*灯条*/
  LIGHT_CTL_ON=GPIO_PIN_SET,
  LIGHT_CTL_OFF=GPIO_PIN_RESET,
@@ -87,7 +95,9 @@ void BSP_RS485_TX_ENABLE();
 /*交流电控制*/
 void BSP_AC_TURN_ON_OFF(uint8_t ac,bsp_status_t status);
 /*锁控制*/
-void BSP_LOCK_TURN_ON_OFF(bsp_status_t status);
+void BSP_LOCK_CTL(bsp_status_t status);
+/*锁控制*/
+void BSP_DOOR_CTL(bsp_status_t status);
 /*玻璃加热电源控制*/
 void BSP_GLASS_PWR_TURN_ON_OFF(bsp_status_t status);
 /*灯带控制*/

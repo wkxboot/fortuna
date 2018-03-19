@@ -8,7 +8,7 @@
 #include "shopping_task.h"
 #include "report_task.h"
 
-#define APP_LOG_MODULE_NAME   "[device]"
+#define APP_LOG_MODULE_NAME   "[report]"
 #define APP_LOG_MODULE_LEVEL   APP_LOG_LEVEL_DEBUG    
 #include "app_log.h"
 #include "app_error.h"
@@ -52,7 +52,9 @@ void report_task(void const * argument)
   if(strcmp((const char *)item.value,"\"0\"")==0)
   break;
   }
+  APP_LOG_ERROR("上报设备状态失败.\r\n");
   osDelay(REPORT_TASK_RETRY_TIMEOUT);
-  }  
+  }
+  APP_LOG_INFO("上报设备状态成功.\r\n");  
   } 
 }

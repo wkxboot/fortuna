@@ -946,7 +946,7 @@
                     <item>report_device</item>
                     <item>item</item>
                     <item>http_request</item>
-                    <item></item>
+                    <item />
                 </expressions>
                 <col-names>
                     <item>Expression</item>

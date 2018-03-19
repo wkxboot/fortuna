@@ -61,7 +61,9 @@ json_set_item_name_value(&report_device.boot,"\"boot\"","1");  /*启动状态*/
 json_set_item_name_value(&report_device.temperature,"\"temperature\"","12"); /*温度*/   
 }
 
-uint8_t emulate[]="{\"result\":{\"expire\":\"1521080916800\",\"token\":\"e76aebcfa6096a70994d69e5811430c3d3836a4a\",\"data\":{\"userPin\":\"JD_20874f3ca9d474f\",\"type\":0},\"uuid\":\"30bbf00e09664194b0d2442a0210dace\"},\"code\":\"0\",\"msg\":\"成功\"}";
+//uint8_t emulate[]="{\"result\":{\"expire\":\"1521080916800\",\"token\":\"e76aebcfa6096a70994d69e5811430c3d3836a4a\",\"data\":{\"userPin\":\"JD_20874f3ca9d474f\",\"type\":0},\"uuid\":\"30bbf00e09664194b0d2442a0210dace\"},\"code\":\"0\",\"msg\":\"成功\"}";
+
+
 /*购物流程任务*/
 void shopping_task(void const * argument)
 {
@@ -91,7 +93,7 @@ void shopping_task(void const * argument)
   APP_LOG_ERROR("pull open param err.\r\n");
   }
   param_size=strlen((const char *)http_request.param);
-  http_make_request_size_time_to_str(param_size,2000,http_request.size_time);
+  http_make_request_size_time_to_str(param_size,SHOPPING_TASK_DOWNLOAD_TIMEOUT,http_request.size_time);
   result=http_post(&http_request,&http_response,HTTP_RESPONSE_TIMEOUT);
   if(result!=APP_TRUE)
   continue;
@@ -101,13 +103,13 @@ void shopping_task(void const * argument)
   /*如果没有找到uuid*/
   if(result!=APP_TRUE)
   {
-  APP_LOG_DEBUG("没有开门指令.继续请求...\r\n");
+  APP_LOG_INFO("没有开门指令.继续请求...\r\n");
   continue;
   }
   
   //strcpy((char *)http_response.json_str,(const char *)emulate);
-  APP_LOG_DEBUG("收到开门指令.\r\n");
-  
+  APP_LOG_INFO("收到开门指令.\r\n");
+  APP_LOG_INFO("拷贝开门指令中需要的信息...\r\n");
   /*拷贝json中uuid的值到report open中的open_uuid*/
   result=json_get_item_value_by_name_from_json_str(http_response.json_str,"uuid",report_open.open_uuid.value);
   /*拷贝json中uuid的值到report close中的open_uuid*/
@@ -134,14 +136,14 @@ void shopping_task(void const * argument)
   json_set_item_name_value(&report_open.error,NULL,"4");
   APP_LOG_DEBUG("开锁失败.\r\n");  
   }
- /*上报开门状态*/
+ /*上报开锁状态*/
   http_request.ptr_url="\"URL\",\"http://rack-brain-app-pre.jd.com/brain/reportLockOpenStatus\"";
   if(json_body_to_str(&report_open,http_request.param)!=APP_TRUE)
   {
   APP_LOG_ERROR("report open param err.\r\n");
   }
   param_size=strlen((const char *)http_request.param);
-  http_make_request_size_time_to_str(param_size,2000,http_request.size_time);
+  http_make_request_size_time_to_str(param_size,SHOPPING_TASK_DOWNLOAD_TIMEOUT,http_request.size_time);
   while(1)
   {
   result=http_post(&http_request,&http_response,HTTP_RESPONSE_TIMEOUT);
@@ -152,16 +154,31 @@ void shopping_task(void const * argument)
   if(strcmp((const char *)item.value,"\"0\"")==0)
   break;
   }
+  APP_LOG_ERROR("上报开锁状态失败.\r\n");
   osDelay(SHOPPING_TASK_RETRY_TIMEOUT);
   } 
+  APP_LOG_INFO("上报开锁状态成功.\r\n");
   /*服务器回应code:"0"*/
   /*等待关门*/
   while(1)
   {
   sig=osSignalWait(SHOPPING_TASK_ALL_SIGNALS,osWaitForever);
   /*关门成功*/
-  if(sig.status==osEventSignal && sig.value.signals & SHOPPING_TASK_LOCK_LOCK_SUCCESS_SIGNAL)
-  break;
+  if(sig.status==osEventSignal)
+  {
+   if(sig.value.signals & SHOPPING_TASK_AUTO_LOCK_LOCK_SUCCESS_SIGNAL)
+   {
+   APP_LOG_DEBUG("购物任务收到自动关门信号.\r\n");
+   json_set_item_name_value(&report_close.auto_lock,NULL,"0");
+   break;
+   }
+   if(sig.value.signals & SHOPPING_TASK_MAN_LOCK_LOCK_SUCCESS_SIGNAL)
+   {
+   APP_LOG_DEBUG("购物任务收到手动关门信号.\r\n");
+   json_set_item_name_value(&report_close.auto_lock,NULL,"1");
+   break;
+   }
+  }
   }
   
   /*上报关门状态*/  
@@ -171,7 +188,7 @@ void shopping_task(void const * argument)
   APP_LOG_ERROR("report close param err.\r\n");
   }
   param_size=strlen((const char *)http_request.param);
-  http_make_request_size_time_to_str(param_size,2000,http_request.size_time);
+  http_make_request_size_time_to_str(param_size,SHOPPING_TASK_DOWNLOAD_TIMEOUT,http_request.size_time);
   while(1)
   {
   result=http_post(&http_request,&http_response,HTTP_RESPONSE_TIMEOUT);
@@ -179,10 +196,13 @@ void shopping_task(void const * argument)
   {
   json_set_item_name_value(&item,"code",NULL);
   json_get_item_value_by_name_from_json_str(http_response.json_str,item.name,item.value); 
-  if(strcmp((const char *)item.value,"\"0\"")==0)/*服务器回应code:"0"*/ 
+  /*服务器回应code:"0"*/ 
+  if(strcmp((const char *)item.value,"\"0\"")==0)
   break;
   }
+  APP_LOG_ERROR("上报关门状态失败.\r\n");
   osDelay(SHOPPING_TASK_RETRY_TIMEOUT);
   }
+  APP_LOG_INFO("上报关门状态成功.\r\n");
  }
 }

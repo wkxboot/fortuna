@@ -99,10 +99,17 @@ void BSP_RS485_TX_ENABLE()
 }
 
 /*锁操作*/
-void BSP_LOCK_TURN_ON_OFF(bsp_status_t status)
+void BSP_LOCK_CTL(bsp_status_t status)
 {
  HAL_GPIO_WritePin(LOCK_CTL_POS_GPIO_Port,LOCK_CTL_POS_Pin,(GPIO_PinState)status); 
 }
+
+/*电磁锁操作*/
+void BSP_DOOR_CTL(bsp_status_t status)
+{
+ HAL_GPIO_WritePin(DOOR_CTL_POS_GPIO_Port,DOOR_CTL_POS_Pin,(GPIO_PinState)status); 
+}
+
 /*玻璃加热电源操作*/
 void BSP_GLASS_PWR_TURN_ON_OFF(bsp_status_t status)
 {
