@@ -6,6 +6,7 @@
 #include "ups_task.h"
 #include "light_task.h"
 #include "glass_pwr_task.h"
+#include "fan_task.h"
 #include "shopping_task.h"
 #define APP_LOG_MODULE_NAME   "[lock]"
 #define APP_LOG_MODULE_LEVEL   APP_LOG_LEVEL_DEBUG    
@@ -35,6 +36,8 @@ static void unlock_timer_start();
 static void unlock_timer_stop();
 static void unlock_timer_expired(void const * argument);
 
+static void lock_task_turn_on_lock_led();
+static void lock_task_turn_on_unlock_led();
 /*电磁锁吸住门*/
 static void lock_task_lock_door();
 /*电磁锁释放门*/
@@ -82,12 +85,15 @@ static void lock_timer_expired(void const * argument)
   osSignalSet(shopping_task_hdl,SHOPPING_TASK_MAN_LOCK_LOCK_SUCCESS_SIGNAL);
   
   lock_task_lock_door();
-  
+  lock_task_turn_on_lock_led();
+  osSignalSet(fan_task_hdl,FAN_TASK_FAN_TURN_ON_SIGNAL);
+  osSignalSet(glass_pwr_task_hdl,FAN_TASK_FAN_TURN_ON_SIGNAL);
  }
  else
  {
   APP_LOG_DEBUG("向购物任务发送关锁失败信号.\r\n");
   osSignalSet(shopping_task_hdl,SHOPPING_TASK_LOCK_LOCK_FAIL_SIGNAL); 
+  lock_task_unlock_lock();
  }
 }
 
@@ -117,6 +123,8 @@ static void auto_lock_timer_expired(void const * argument)
  lock_type=LOCK_TASK_LOCK_TYPE_AUTO;
  /*立刻上锁*/
  APP_LOG_DEBUG("准备自动关锁.\r\n");
+ unlock_timer_stop();
+ lock_timer_start();
  lock_task_lock_lock();
 }
 
@@ -140,12 +148,15 @@ static void unlock_timer_stop()
 static void unlock_timer_expired(void const * argument)
 {
  APP_LOG_DEBUG("开锁定时器到达.\r\n");
- if(bsp_get_lock_status()==LOCK_STATUS_LOCK)
+ if(bsp_get_lock_status()==LOCK_STATUS_UNLOCK)
  {
   APP_LOG_DEBUG("向购物任务发送开锁成功信号.\r\n");
   osSignalSet(shopping_task_hdl,SHOPPING_TASK_UNLOCK_LOCK_SUCCESS_SIGNAL);
   lock_task_unlock_door();
   auto_lock_timer_start();
+  lock_task_turn_on_unlock_led();
+  osSignalSet(fan_task_hdl,FAN_TASK_FAN_TURN_OFF_SIGNAL);
+  osSignalSet(glass_pwr_task_hdl,FAN_TASK_FAN_TURN_ON_SIGNAL);
  }
  else
  {
@@ -169,16 +180,27 @@ static void lock_task_unlock_door()
 
 static void lock_task_lock_lock()
 {
- unlock_timer_stop();
- lock_timer_start();
  BSP_LOCK_CTL(LOCK_CTL_LOCK); 
 }
 static void lock_task_unlock_lock()
 {
- lock_timer_stop();
- unlock_timer_start();
  BSP_LOCK_CTL(LOCK_CTL_UNLOCK); 
 }
+/*关锁成功时 打开橙色led和风扇*/
+static void lock_task_turn_on_lock_led()
+{
+ APP_LOG_DEBUG("打开橙色门灯和风扇.\r\n");
+ BSP_LED_TURN_ON_OFF(DOOR_GREEN_LED,LED_CTL_ON); 
+ BSP_LED_TURN_ON_OFF(DOOR_ORANGE_LED,LED_CTL_OFF);
+}
+/*开锁成功时 打开绿色led，关闭风扇*/
+static void lock_task_turn_on_unlock_led()
+{
+ APP_LOG_DEBUG("打开绿色门灯.关闭风扇.\r\n");
+ BSP_LED_TURN_ON_OFF(DOOR_ORANGE_LED,LED_CTL_ON); 
+ BSP_LED_TURN_ON_OFF(DOOR_GREEN_LED,LED_CTL_OFF); 
+}
+
 /*调试调用*/
 static void lock_task_debug_lock_lock()
 {
@@ -200,6 +222,13 @@ void lock_task(void const * argument)
   auto_lock_timer_init();
   unlock_timer_init();
   
+  /*首先在开机时判断锁的状态*/
+  if(bsp_get_lock_status()==LOCK_STATUS_UNLOCK)
+  lock_task_turn_on_unlock_led();
+  else
+  lock_task_turn_on_lock_led();
+  
+  
   while(1)
   {
   sig=osSignalWait(LOCK_TASK_ALL_SIGNALS,LOCK_TASK_WAIT_TIMEOUT);
@@ -210,6 +239,8 @@ void lock_task(void const * argument)
    {
     APP_LOG_DEBUG("收到关锁信号.关锁.\r\n");
     lock_task_lock_lock();
+    unlock_timer_stop();
+    lock_timer_start();
    }
    /*收到开锁信号*/
    if(sig.value.signals & LOCK_TASK_UNLOCK_SIGNAL)
@@ -217,6 +248,8 @@ void lock_task(void const * argument)
     APP_LOG_DEBUG("收到开锁信号.开锁.\r\n");
     /*默认是手动关锁*/
     lock_type=LOCK_TASK_LOCK_TYPE_MAN;
+    lock_timer_stop();
+    unlock_timer_start();
     lock_task_unlock_lock();
    }
    /*收到门的状态变为打开*/
@@ -225,12 +258,14 @@ void lock_task(void const * argument)
     APP_LOG_DEBUG("门状态变化->打开.\r\n");
     /*收到门打开后 停止自动关锁定时器*/
     auto_lock_timer_stop();
-    lock_task_lock_lock();/*避免死锁 重复开锁一次*/
+    lock_task_unlock_lock();/*避免死锁 重复开锁一次*/
    }
    /*收到门的状态变为关闭*/
    if(sig.value.signals & LOCK_TASK_DOOR_STATUS_CLOSE_SIGNAL)
    {
     APP_LOG_DEBUG("门状态变化->关闭.关锁.\r\n");
+    unlock_timer_stop();
+    lock_timer_start();
     lock_task_lock_lock();/*马上尝试关锁*/
    }   
    /*收到调试开锁信号 打开*/

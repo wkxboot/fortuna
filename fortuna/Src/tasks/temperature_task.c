@@ -9,7 +9,7 @@
 
 #include "adc.h"
 #define APP_LOG_MODULE_NAME   "[temperature]"
-#define APP_LOG_MODULE_LEVEL   APP_LOG_LEVEL_DEBUG    
+#define APP_LOG_MODULE_LEVEL   APP_LOG_LEVEL_ERROR    
 #include "app_log.h"
 #include "app_error.h"
 

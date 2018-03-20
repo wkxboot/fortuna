@@ -82,11 +82,11 @@ void MX_GPIO_Init(void)
   __HAL_RCC_GPIOG_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOE, DOOR_RED_LED_CTL_POS_Pin|DOOR_GREEN_LED_CTL_POS_Pin|DOOR_ORANGE_LED_CTL_POS_Pin|LIGHT_CTL_POS_Pin 
+  HAL_GPIO_WritePin(GPIOE, DOOR_RED_LED_CTL_POS_Pin|DOOR_GREEN_LED_CTL_POS_Pin|DOOR_ORANGE_LED_CTL_POS_Pin|FAN_CTL_POS_Pin 
                           |COMPRESSOR_CTL_POS_Pin|DISPLAY_C_CTL_POS_Pin|DISPLAY_E_CTL_POS_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOA, FAN_CTL_POS_Pin|SYS_LED_CTL_POS_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(SYS_LED_CTL_POS_GPIO_Port, SYS_LED_CTL_POS_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOC, GLASS_PWR_CTL_POS_Pin|DOOR_CTL_POS_Pin, GPIO_PIN_RESET);
@@ -102,17 +102,17 @@ void MX_GPIO_Init(void)
 
   /*Configure GPIO pins : PEPin PEPin PEPin PEPin 
                            PEPin PEPin PEPin */
-  GPIO_InitStruct.Pin = DOOR_RED_LED_CTL_POS_Pin|DOOR_GREEN_LED_CTL_POS_Pin|DOOR_ORANGE_LED_CTL_POS_Pin|LIGHT_CTL_POS_Pin 
+  GPIO_InitStruct.Pin = DOOR_RED_LED_CTL_POS_Pin|DOOR_GREEN_LED_CTL_POS_Pin|DOOR_ORANGE_LED_CTL_POS_Pin|FAN_CTL_POS_Pin 
                           |COMPRESSOR_CTL_POS_Pin|DISPLAY_C_CTL_POS_Pin|DISPLAY_E_CTL_POS_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : PAPin PAPin */
-  GPIO_InitStruct.Pin = FAN_CTL_POS_Pin|SYS_LED_CTL_POS_Pin;
+  /*Configure GPIO pin : PtPin */
+  GPIO_InitStruct.Pin = SYS_LED_CTL_POS_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+  HAL_GPIO_Init(SYS_LED_CTL_POS_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pin : PtPin */
   GPIO_InitStruct.Pin = LOCK_SW_STATUS_POS_Pin;

@@ -5,6 +5,8 @@
 extern osThreadId door_task_hdl;
 void door_task(void const * argument);
 
+/*获取门的状态*/
+uint8_t door_task_get_door_status();
 
 #define  DOOR_TASK_INTERVAL                     50/*门状态监测间隔50ms*/
 

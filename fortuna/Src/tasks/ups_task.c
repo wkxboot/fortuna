@@ -6,6 +6,7 @@
 #include "ups_task.h"
 #include "light_task.h"
 #include "lock_task.h"
+#include "fan_task.h"
 #include "glass_pwr_task.h"
 #define APP_LOG_MODULE_NAME   "[ups]"
 #define APP_LOG_MODULE_LEVEL   APP_LOG_LEVEL_DEBUG    
@@ -15,7 +16,7 @@
 
 osThreadId ups_task_hdl;
 
-static uint8_t ups_status=UPS_TASK_STATUS_PWR_ON;
+static uint8_t ups_status=UPS_TASK_STATUS_INIT;
 
 uint8_t get_ups_status()
 {
@@ -47,7 +48,8 @@ if(status1==UPS_PWR_STATUS_ON && status2==UPS_PWR_STATUS_ON)
   APP_LOG_DEBUG("UPS状态切换为-->市电.\r\n");
   ups_status=UPS_TASK_STATUS_PWR_ON;
   osSignalSet(light_task_hdl,LIGHT_TASK_UPS_PWR_ON_SIGNAL);
-  osSignalSet(light_task_hdl,GLASS_PWR_TASK_UPS_PWR_ON_SIGNAL);
+  osSignalSet(glass_pwr_task_hdl,GLASS_PWR_TASK_UPS_PWR_ON_SIGNAL);
+  osSignalSet(fan_task_hdl,FAN_TASK_UPS_PWR_ON_SIGNAL);
  }
  }
 }
@@ -63,7 +65,8 @@ else
   APP_LOG_DEBUG("UPS状态切换为-->电池.\r\n");
   ups_status=UPS_TASK_STATUS_PWR_OFF;  
   osSignalSet(light_task_hdl,LIGHT_TASK_UPS_PWR_OFF_SIGNAL);
-  osSignalSet(light_task_hdl,GLASS_PWR_TASK_UPS_PWR_OFF_SIGNAL);
+  osSignalSet(glass_pwr_task_hdl,GLASS_PWR_TASK_UPS_PWR_OFF_SIGNAL);
+  osSignalSet(fan_task_hdl,FAN_TASK_UPS_PWR_OFF_SIGNAL);
  }
  }
 }

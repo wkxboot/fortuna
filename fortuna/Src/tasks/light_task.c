@@ -56,30 +56,35 @@ void light_task(void const * argument)
  signal=osSignalWait(LIGHT_TASK_ALL_SIGNALS,LIGHT_TASK_INTERVAL);
  if(signal.status==osEventSignal)
  {
- if(signal.value.signals & LIGHT_TASK_LIGHT_PWR_ON_SIGNAL)
+ if(signal.value.signals & LIGHT_TASK_LIGHT_TURN_ON_SIGNAL)
  { 
- light_task_light_turn_on();
+   if(is_light_turn_on_enable==APP_TRUE)
+   light_task_light_turn_on();
  }
- if(signal.value.signals & LIGHT_TASK_LIGHT_PWR_OFF_SIGNAL)
+ if(signal.value.signals & LIGHT_TASK_LIGHT_TURN_OFF_SIGNAL)
  {
   light_task_light_turn_off();
  }
- if(signal.value.signals & LIGHT_TASK_DEBUG_LIGHT_PWR_ON_SIGNAL)
+ if(signal.value.signals & LIGHT_TASK_DEBUG_LIGHT_TURN_ON_SIGNAL)
  {
   light_task_debug_light_turn_on();
  }
- if(signal.value.signals & LIGHT_TASK_DEBUG_LIGHT_PWR_OFF_SIGNAL)
+ if(signal.value.signals & LIGHT_TASK_DEBUG_LIGHT_TURN_OFF_SIGNAL)
  {
   light_task_debug_light_turn_off();
  }
  /*根据UPS状态设置灯光可控使能*/
  if(signal.value.signals & LIGHT_TASK_UPS_PWR_ON_SIGNAL)
  {
+  APP_LOG_DEBUG("LIGHT任务收到UPS变化.\r\n");
   is_light_turn_on_enable=APP_TRUE;
+  light_task_light_turn_on();
  }
  if(signal.value.signals & LIGHT_TASK_UPS_PWR_OFF_SIGNAL)
  {
+  APP_LOG_DEBUG("LIGHT任务收到UPS变化.\r\n");
   is_light_turn_on_enable=APP_FALSE;
+  light_task_light_turn_off();
  }
  
  

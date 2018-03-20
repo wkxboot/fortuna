@@ -119,6 +119,8 @@ void shopping_task(void const * argument)
   /*拷贝json中type的值到report close中的type*/
   result=json_get_item_value_by_name_from_json_str(http_response.json_str,report_close.type.name,report_close.type.value);
   
+  /*清除所有信号*/
+  osSignalWait(SHOPPING_TASK_ALL_SIGNALS,0);
   /*操作开锁*/
   osSignalSet(lock_task_hdl,LOCK_TASK_UNLOCK_SIGNAL);
   /*等待完成操作*/

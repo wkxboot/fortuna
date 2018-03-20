@@ -13,8 +13,9 @@ extern osThreadId ups_task_hdl;
 /*UPS信号异常跳变过滤次数*/
 #define  UPS_PWR_STATUS_HOLD_CNT_MAX                5
 
-#define  UPS_TASK_STATUS_PWR_ON                     1
 #define  UPS_TASK_STATUS_PWR_OFF                    0
+#define  UPS_TASK_STATUS_PWR_ON                     1
+#define  UPS_TASK_STATUS_INIT                       0xfe
 #define  UPS_TASK_STATUS_ERR                        0xff
 
 #endif

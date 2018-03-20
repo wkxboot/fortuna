@@ -12,9 +12,9 @@
 #define  LOCK_TASK_ALL_SIGNALS                    ((1<<7)-1)
 
 #define  LOCK_TASK_WAIT_TIMEOUT                   osWaitForever
-#define  LOCK_TASK_LOCK_TIMER_TIMEOUT             500
+#define  LOCK_TASK_LOCK_TIMER_TIMEOUT             600
+#define  LOCK_TASK_UNLOCK_TIMER_TIMEOUT           600
 #define  LOCK_TASK_AUTO_LOCK_TIMER_TIMEOUT        (10*1000)/*10秒钟无人开门自动上锁*/
-#define  LOCK_TASK_UNLOCK_TIMER_TIMEOUT           500
 
 #define  LOCK_TASK_LOCK_TYPE_AUTO                  1/*自动上锁*/
 #define  LOCK_TASK_LOCK_TYPE_MAN                   2/*手动上锁*/

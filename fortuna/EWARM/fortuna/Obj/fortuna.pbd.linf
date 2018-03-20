@@ -11,9 +11,11 @@ D:\development\st\stm32\src_code\fortuna\fortuna\EWARM\fortuna\Obj\cmsis_os.pbi
 D:\development\st\stm32\src_code\fortuna\fortuna\EWARM\fortuna\Obj\compressor_task.pbi
 D:\development\st\stm32\src_code\fortuna\fortuna\EWARM\fortuna\Obj\cpu_utils.pbi
 D:\development\st\stm32\src_code\fortuna\fortuna\EWARM\fortuna\Obj\croutine.pbi
+D:\development\st\stm32\src_code\fortuna\fortuna\EWARM\fortuna\Obj\debug_task.pbi
 D:\development\st\stm32\src_code\fortuna\fortuna\EWARM\fortuna\Obj\dma.pbi
 D:\development\st\stm32\src_code\fortuna\fortuna\EWARM\fortuna\Obj\door_task.pbi
 D:\development\st\stm32\src_code\fortuna\fortuna\EWARM\fortuna\Obj\event_groups.pbi
+D:\development\st\stm32\src_code\fortuna\fortuna\EWARM\fortuna\Obj\fan_task.pbi
 D:\development\st\stm32\src_code\fortuna\fortuna\EWARM\fortuna\Obj\freertos.pbi
 D:\development\st\stm32\src_code\fortuna\fortuna\EWARM\fortuna\Obj\glass_pwr_task.pbi
 D:\development\st\stm32\src_code\fortuna\fortuna\EWARM\fortuna\Obj\gpio.pbi
@@ -58,6 +60,7 @@ D:\development\st\stm32\src_code\fortuna\fortuna\EWARM\fortuna\Obj\sys_led_task.
 D:\development\st\stm32\src_code\fortuna\fortuna\EWARM\fortuna\Obj\system_stm32f1xx.pbi
 D:\development\st\stm32\src_code\fortuna\fortuna\EWARM\fortuna\Obj\tasks.pbi
 D:\development\st\stm32\src_code\fortuna\fortuna\EWARM\fortuna\Obj\temperature_task.pbi
+D:\development\st\stm32\src_code\fortuna\fortuna\EWARM\fortuna\Obj\tim.pbi
 D:\development\st\stm32\src_code\fortuna\fortuna\EWARM\fortuna\Obj\timers.pbi
 D:\development\st\stm32\src_code\fortuna\fortuna\EWARM\fortuna\Obj\ups_task.pbi
 D:\development\st\stm32\src_code\fortuna\fortuna\EWARM\fortuna\Obj\usart.pbi

@@ -122,6 +122,7 @@ void glass_pwr_task(void const * argument)
    {
     APP_LOG_DEBUG("加热玻璃收到UPS断开市电信号.\r\n");
     is_glass_pwr_turn_on_enable=APP_FALSE;
+    glass_pwr_task_turn_off();
    }   
   }
   

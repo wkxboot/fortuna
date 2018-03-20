@@ -63,7 +63,9 @@
 #include "display_led.h"
 #include "display_task.h"
 */
+#include "debug_task.h"
 #include "light_task.h"
+#include "fan_task.h"
 #include "sys_led_task.h"
 #include "glass_pwr_task.h"
 #include "temperature_task.h"
@@ -227,7 +229,7 @@ void StartDefaultTask(void const * argument)
 /* USER CODE BEGIN Application */
 static void create_user_tasks()
 {
-
+ 
   osThreadDef(shopping_task, shopping_task, osPriorityNormal, 0, 256);
   shopping_task_hdl = osThreadCreate(osThread(shopping_task), NULL); 
   APP_ASSERT(shopping_task_hdl);
@@ -252,13 +254,17 @@ static void create_user_tasks()
   lock_task_hdl = osThreadCreate(osThread(lock_task), NULL); 
   APP_ASSERT(lock_task_hdl);
   
-   osThreadDef(door_task, door_task, osPriorityNormal, 0, 256);
+  osThreadDef(door_task, door_task, osPriorityNormal, 0, 256);
   door_task_hdl = osThreadCreate(osThread(door_task), NULL); 
   APP_ASSERT(door_task_hdl);
   
-  osThreadDef(light_task, light_task, osPriorityNormal, 0, 128);
+  osThreadDef(light_task, light_task, osPriorityNormal, 0, 256);
   light_task_hdl = osThreadCreate(osThread(light_task), NULL); 
   APP_ASSERT(light_task_hdl);
+  
+  osThreadDef(fan_task, fan_task, osPriorityNormal, 0, 128);
+  fan_task_hdl = osThreadCreate(osThread(fan_task), NULL); 
+  APP_ASSERT(fan_task_hdl);
   
   osThreadDef(glass_pwr_task, glass_pwr_task, osPriorityNormal, 0, 128);
   glass_pwr_task_hdl = osThreadCreate(osThread(glass_pwr_task), NULL); 
@@ -271,6 +277,10 @@ static void create_user_tasks()
   osThreadDef(temperature_task, temperature_task, osPriorityNormal, 0, 256);
   temperature_task_hdl = osThreadCreate(osThread(temperature_task), NULL); 
   APP_ASSERT(temperature_task_hdl);
+  
+  osThreadDef(debug_task, debug_task, osPriorityNormal, 0, 256);
+  debug_task_hdl = osThreadCreate(osThread(debug_task), NULL); 
+  APP_ASSERT(debug_task_hdl);
   
   APP_LOG_INFO("######�?有的任务创建成功.\r\n"); 
 }

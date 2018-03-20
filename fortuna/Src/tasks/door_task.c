@@ -15,6 +15,11 @@ osThreadId door_task_hdl;
 
 static uint8_t door_status=DOOR_TASK_DOOR_STATUS_INIT;
 
+uint8_t door_task_get_door_status()
+{
+  return door_status;
+}
+
 void door_task(void const * argument)
 {
  bsp_status_t door_up_status,door_dwn_status;

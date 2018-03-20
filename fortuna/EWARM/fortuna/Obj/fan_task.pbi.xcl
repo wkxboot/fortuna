@@ -1,4 +1,4 @@
-"D:\development\st\stm32\src_code\fortuna\fortuna\Src\tasks\debug_task.c"
+"D:\development\st\stm32\src_code\fortuna\fortuna\Src\tasks\fan_task.c"
 -std=c11
 -ferror-limit=0
 -I
