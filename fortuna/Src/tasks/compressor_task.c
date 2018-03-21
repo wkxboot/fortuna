@@ -132,7 +132,7 @@ static void compressor_task_debug_pwr_turn_off()
 void compressor_task(void const * argument)
 {
  osEvent signal;
- APP_LOG_INFO("######压缩机任务开始.\r\n"); 
+ APP_LOG_INFO("@压缩机任务开始.\r\n"); 
  
  compressor_work_time_timer_init();
  compressor_rest_time_timer_init();

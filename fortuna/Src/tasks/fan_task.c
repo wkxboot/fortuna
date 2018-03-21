@@ -47,7 +47,7 @@ static void fan_task_debug_fan_turn_off()
 void fan_task(void const * argument)
 {
  osEvent signal;
- APP_LOG_INFO("######直流风扇任务开始.\r\n");
+ APP_LOG_INFO("@直流风扇任务开始.\r\n");
  /*首先关闭直流风扇*/
  fan_task_fan_turn_off();
  

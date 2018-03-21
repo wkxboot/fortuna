@@ -75,7 +75,7 @@ else
 /*UPS状态查询任务*/
 void ups_task(void const * argument)
 {
- APP_LOG_INFO("######UPS状态任务开始.\r\n");
+ APP_LOG_INFO("@UPS状态任务开始.\r\n");
  while(1)
  {
  osDelay(UPS_TASK_INTERVAL);

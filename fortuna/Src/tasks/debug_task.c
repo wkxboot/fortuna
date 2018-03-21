@@ -33,7 +33,7 @@ void debug_task(void const * argument)
 {
  app_bool_t debug_enable=APP_TRUE;
 
- APP_LOG_INFO("######调试任务开始.\r\n");
+ APP_LOG_INFO("@调试任务开始.\r\n");
 
  while(1)
  {

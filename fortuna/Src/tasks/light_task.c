@@ -47,7 +47,7 @@ static void light_task_debug_light_turn_off()
 void light_task(void const * argument)
 {
  osEvent signal;
- APP_LOG_INFO("######灯条任务开始.\r\n");
+ APP_LOG_INFO("@灯条任务开始.\r\n");
  /*首先关闭灯条*/
  light_task_light_turn_off();
  

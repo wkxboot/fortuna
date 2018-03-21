@@ -23,6 +23,8 @@ uint8_t door_task_get_door_status()
 void door_task(void const * argument)
 {
  bsp_status_t door_up_status,door_dwn_status;
+ APP_LOG_INFO("@门状态任务开始.\r\n");
+ 
  while(1)
  {
   osDelay(DOOR_TASK_INTERVAL);

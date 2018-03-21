@@ -216,7 +216,7 @@ static void lock_task_debug_unlock_lock()
 void lock_task(void const * argument)
 {
   osEvent sig;
-  APP_LOG_INFO("######锁任务开始.\r\n");
+  APP_LOG_INFO("@锁任务开始.\r\n");
   
   lock_timer_init();
   auto_lock_timer_init();

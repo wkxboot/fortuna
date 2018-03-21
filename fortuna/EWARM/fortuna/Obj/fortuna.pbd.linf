@@ -12,6 +12,8 @@ D:\development\st\stm32\src_code\fortuna\fortuna\EWARM\fortuna\Obj\compressor_ta
 D:\development\st\stm32\src_code\fortuna\fortuna\EWARM\fortuna\Obj\cpu_utils.pbi
 D:\development\st\stm32\src_code\fortuna\fortuna\EWARM\fortuna\Obj\croutine.pbi
 D:\development\st\stm32\src_code\fortuna\fortuna\EWARM\fortuna\Obj\debug_task.pbi
+D:\development\st\stm32\src_code\fortuna\fortuna\EWARM\fortuna\Obj\digit_led.pbi
+D:\development\st\stm32\src_code\fortuna\fortuna\EWARM\fortuna\Obj\display_task.pbi
 D:\development\st\stm32\src_code\fortuna\fortuna\EWARM\fortuna\Obj\dma.pbi
 D:\development\st\stm32\src_code\fortuna\fortuna\EWARM\fortuna\Obj\door_task.pbi
 D:\development\st\stm32\src_code\fortuna\fortuna\EWARM\fortuna\Obj\event_groups.pbi
@@ -20,7 +22,7 @@ D:\development\st\stm32\src_code\fortuna\fortuna\EWARM\fortuna\Obj\freertos.pbi
 D:\development\st\stm32\src_code\fortuna\fortuna\EWARM\fortuna\Obj\glass_pwr_task.pbi
 D:\development\st\stm32\src_code\fortuna\fortuna\EWARM\fortuna\Obj\gpio.pbi
 D:\development\st\stm32\src_code\fortuna\fortuna\EWARM\fortuna\Obj\heap_4.pbi
-D:\development\st\stm32\src_code\fortuna\fortuna\EWARM\fortuna\Obj\http_get_post.pbi
+D:\development\st\stm32\src_code\fortuna\fortuna\EWARM\fortuna\Obj\http.pbi
 D:\development\st\stm32\src_code\fortuna\fortuna\EWARM\fortuna\Obj\iwdg.pbi
 D:\development\st\stm32\src_code\fortuna\fortuna\EWARM\fortuna\Obj\json.pbi
 D:\development\st\stm32\src_code\fortuna\fortuna\EWARM\fortuna\Obj\light_task.pbi
@@ -59,6 +61,7 @@ D:\development\st\stm32\src_code\fortuna\fortuna\EWARM\fortuna\Obj\stm32f1xx_it.
 D:\development\st\stm32\src_code\fortuna\fortuna\EWARM\fortuna\Obj\sys_led_task.pbi
 D:\development\st\stm32\src_code\fortuna\fortuna\EWARM\fortuna\Obj\system_stm32f1xx.pbi
 D:\development\st\stm32\src_code\fortuna\fortuna\EWARM\fortuna\Obj\tasks.pbi
+D:\development\st\stm32\src_code\fortuna\fortuna\EWARM\fortuna\Obj\temperature_cache_task.pbi
 D:\development\st\stm32\src_code\fortuna\fortuna\EWARM\fortuna\Obj\temperature_task.pbi
 D:\development\st\stm32\src_code\fortuna\fortuna\EWARM\fortuna\Obj\tim.pbi
 D:\development\st\stm32\src_code\fortuna\fortuna\EWARM\fortuna\Obj\timers.pbi

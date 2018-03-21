@@ -3,22 +3,20 @@
 #include "cmsis_os.h"
 #include "app_common.h"
 #include "at_cmd_set.h"
+#include "string.h"
 #include "json.h"
-#include "http_get_post.h"
+#include "http.h"
 #define APP_LOG_MODULE_NAME   "[httpd]"
 #define APP_LOG_MODULE_LEVEL   APP_LOG_LEVEL_DEBUG    
 #include "app_log.h"
 #include "app_error.h"
 #include "stdlib.h"
 
-
-
-at_cmd_response_t at_cmd_response;
-
-osMutexId http_mutex_id;
-
 static void http_uint16_to_str(uint16_t num,uint8_t *ptr_str);
 
+static at_cmd_response_t at_cmd_response;
+
+osMutexId http_mutex_id;
 
 
 
@@ -125,7 +123,8 @@ app_bool_t http_init()
  }
  
  /*第三步 打开数据承载模式AT+SAPBR=1,1*/ 
- at_cmd_response.is_response_delay=AT_CMD_FALSE;
+ at_cmd_response.is_response_delay=AT_CMD_TRUE;
+ at_cmd_response.response_delay_timeout=HTTP_CONFIG_AT_CMD_SPECIAL_RESPONSE_TIMEOUT;
  at_cmd_response.response_timeout=HTTP_CONFIG_AT_CMD_SPECIAL_RESPONSE_TIMEOUT;
  status=at_ex_cmd_set("+SAPBR","1,1",&at_cmd_response);
  
@@ -189,12 +188,12 @@ err_handle:
 
 app_bool_t http_post(http_request_t *ptr_request,http_response_t *ptr_response,uint16_t response_timeout)
 {
-  at_cmd_status_t status;
-  app_bool_t result=APP_TRUE;
-  /*只有一个http POST通道所以要避免竞争*/
-  take_http_mutex();
+ at_cmd_status_t status;
+ app_bool_t result=APP_TRUE;
+ /*只有一个http POST通道所以要避免竞争*/
+ take_http_mutex();
   
-  /*第一步设置url AT+HTTPPARA="URL","http://xxxx"*/
+ /*第一步设置url AT+HTTPPARA="URL","http://xxxx"*/
  at_cmd_response.is_response_delay=AT_CMD_FALSE;
  at_cmd_response.response_timeout=HTTP_CONFIG_AT_CMD_NORMAL_RESPONSE_TIMEOUT;
  status=at_ex_cmd_set("+HTTPPARA",ptr_request->ptr_url,&at_cmd_response);
@@ -227,6 +226,7 @@ app_bool_t http_post(http_request_t *ptr_request,http_response_t *ptr_response,u
  if(status!=AT_CMD_STATUS_SUCCESS)
  {
   APP_LOG_ERROR("+HTTPPARA POST参数设置失败. status:%d.\r\n",status); 
+  result=APP_FALSE;
   goto err_handle;  
  }
  APP_LOG_DEBUG("+HTTPDATA POST设置成功. status:%d\r\n",status);
@@ -335,6 +335,57 @@ void http_make_request_size_time_to_str(uint16_t size,uint16_t time,uint8_t *ptr
   http_uint16_to_str(size,ptr_str);/*写入数据大小字符串3位*/
   ptr_str[4]=',';/*写入','字符串1位*/
   http_uint16_to_str(time,ptr_str+5);/*写入时间大小字符串3位*/
+}
+
+
+
+
+
+/*http模块状态监视*/
+app_bool_t http_device_status_monitor(http_monitor_response *ptr_monitor)
+{
+ uint8_t *ptr_start_addr;
+ app_bool_t result=APP_TRUE;
+ at_cmd_status_t status;
+ /*只有一个http POST通道所以要避免竞争*/
+ take_http_mutex(); 
+ 
+/*第一步查看信号质量AT+CSQ*/
+ at_cmd_response.is_response_delay=AT_CMD_FALSE;
+ at_cmd_response.response_timeout=HTTP_CONFIG_AT_CMD_NORMAL_RESPONSE_TIMEOUT;
+ status=at_ex_cmd_exe("+CSQ",&at_cmd_response);
+ if(status!=AT_CMD_STATUS_SUCCESS)
+ {
+   APP_LOG_ERROR("+CSQ 参数输入失败 status:%d.\r\n",status);
+   result=APP_FALSE;
+   goto err_handle;
+ }
+ status=at_cmd_find_expect_from_response(&at_cmd_response,"OK");
+ if(status!=AT_CMD_STATUS_SUCCESS)
+ {
+  APP_LOG_ERROR("+CSQ 读信号质量失败. status:%d.\r\n",status); 
+  result=APP_FALSE;
+  goto err_handle;  
+ }
+ APP_LOG_DEBUG("+CSQ 读信号质量成功. status:%d\r\n",status);
+ /*找到csq开始地址*/
+ ptr_start_addr=(uint8_t *)strstr((const char *)at_cmd_response.response,"+CSQ: ");
+ if(ptr_start_addr==NULL)
+ {
+ APP_LOG_ERROR("没有找到+CSQ.\r\n");
+ result=APP_FALSE;
+ goto err_handle; 
+ }
+  ptr_start_addr+=6;
+  ptr_monitor->rssi[0]=ptr_start_addr[0];
+  ptr_monitor->rssi[1]=ptr_start_addr[1];
+  ptr_monitor->rssi[2]=0;
+  APP_LOG_DEBUG("找到RSSI值.已拷贝.RSSI:%s\r\n",ptr_monitor->rssi);
+ 
+err_handle:
+ /*只有一个http POST通道所以要避免竞争*/
+ release_http_mutex(); 
+ return result;
 }
 
 #else

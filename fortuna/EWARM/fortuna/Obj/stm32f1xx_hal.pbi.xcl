@@ -20,11 +20,7 @@ D:\development\st\stm32\src_code\fortuna\fortuna\EWARM/../Drivers/CMSIS/Include
 -I
 D:\development\st\stm32\src_code\fortuna\fortuna\EWARM/../Src/tasks
 -I
-D:\development\st\stm32\src_code\fortuna\fortuna\EWARM/../Src/communication
--I
-D:\development\st\stm32\src_code\fortuna\fortuna\EWARM/../Src/communication/internet/http
--I
-D:\development\st\stm32\src_code\fortuna\fortuna\EWARM/../Src/communication/port
+D:\development\st\stm32\src_code\fortuna\fortuna\EWARM/../Src/http
 -I
 D:\development\st\stm32\src_code\fortuna\fortuna\EWARM/../Src/at_cmd_set
 -I
@@ -48,7 +44,7 @@ D:\development\st\stm32\src_code\fortuna\fortuna\EWARM/../Drivers/BSP/common
 -I
 D:\development\st\stm32\src_code\fortuna\fortuna\EWARM/../Drivers/BSP/components/ntc
 -I
-D:\development\st\stm32\src_code\fortuna\fortuna\EWARM/../Drivers/BSP/components/display_led
+D:\development\st\stm32\src_code\fortuna\fortuna\EWARM/../Drivers/BSP/components/digit_led
 -I
 C:\Program Files (x86)\IAR Systems\Embedded Workbench 8.0\arm\CMSIS\Include
 -I
@@ -74,11 +70,7 @@ D:\development\st\stm32\src_code\fortuna\fortuna\Drivers\CMSIS\Include
 -I
 D:\development\st\stm32\src_code\fortuna\fortuna\Src\tasks
 -I
-D:\development\st\stm32\src_code\fortuna\fortuna\Src\communication
--I
-D:\development\st\stm32\src_code\fortuna\fortuna\Src\communication\internet\http
--I
-D:\development\st\stm32\src_code\fortuna\fortuna\Src\communication\port
+D:\development\st\stm32\src_code\fortuna\fortuna\Src\http
 -I
 D:\development\st\stm32\src_code\fortuna\fortuna\Src\at_cmd_set
 -I
@@ -102,7 +94,7 @@ D:\development\st\stm32\src_code\fortuna\fortuna\Drivers\BSP\common
 -I
 D:\development\st\stm32\src_code\fortuna\fortuna\Drivers\BSP\components\ntc
 -I
-D:\development\st\stm32\src_code\fortuna\fortuna\Drivers\BSP\components\display_led
+D:\development\st\stm32\src_code\fortuna\fortuna\Drivers\BSP\components\digit_led
 -I
 C:\Program Files (x86)\IAR Systems\Embedded Workbench 8.0\arm\CMSIS\Include
 -D__CHAR_BITS__=8

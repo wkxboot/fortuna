@@ -56,13 +56,10 @@
 #include "shopping_task.h"
 #include "report_task.h"
 #include "watch_dog_task.h"
-
 #include "lock_task.h"
 #include "door_task.h"
-/*
-#include "display_led.h"
 #include "display_task.h"
-*/
+#include "temperature_cache_task.h"
 #include "debug_task.h"
 #include "light_task.h"
 #include "fan_task.h"
@@ -87,7 +84,6 @@
 osThreadId defaultTaskHandle;
 
 /* USER CODE BEGIN Variables */
-EventGroupHandle_t task_sync_evt_group_hdl;
 static void create_user_tasks();
 /* USER CODE END Variables */
 
@@ -153,7 +149,7 @@ __weak void vApplicationStackOverflowHook(xTaskHandle xTask, signed char *pcTask
    /* Run time stack overflow checking is performed if
    configCHECK_FOR_STACK_OVERFLOW is defined to 1 or 2. This hook function is
    called if a stack overflow is detected. */
-  APP_LOG_ERROR("%s任务栈溢�?.\r\n",pcTaskName);
+  APP_LOG_ERROR("%s任务栈溢出.\r\n",pcTaskName);
   APP_ERROR_HANDLER(0);
 }
 /* USER CODE END 4 */
@@ -229,7 +225,9 @@ void StartDefaultTask(void const * argument)
 /* USER CODE BEGIN Application */
 static void create_user_tasks()
 {
- 
+  task_sync_evt_group_hdl=xEventGroupCreate();
+  APP_ASSERT(task_sync_evt_group_hdl);
+  
   osThreadDef(shopping_task, shopping_task, osPriorityNormal, 0, 256);
   shopping_task_hdl = osThreadCreate(osThread(shopping_task), NULL); 
   APP_ASSERT(shopping_task_hdl);
@@ -242,7 +240,7 @@ static void create_user_tasks()
   watch_dog_task_hdl = osThreadCreate(osThread(watch_dog_task), NULL); 
   APP_ASSERT(watch_dog_task_hdl);
   
-  osThreadDef(compressor_task, compressor_task, osPriorityNormal, 0, 256);
+  osThreadDef(compressor_task, compressor_task, osPriorityNormal, 0, 128);
   compressor_task_hdl = osThreadCreate(osThread(compressor_task), NULL); 
   APP_ASSERT(compressor_task_hdl);
   
@@ -250,15 +248,15 @@ static void create_user_tasks()
   sys_led_task_hdl = osThreadCreate(osThread(sys_led_task), NULL); 
   APP_ASSERT(sys_led_task_hdl);
   
-  osThreadDef(lock_task, lock_task, osPriorityNormal, 0, 256);
+  osThreadDef(lock_task, lock_task, osPriorityNormal, 0, 128);
   lock_task_hdl = osThreadCreate(osThread(lock_task), NULL); 
   APP_ASSERT(lock_task_hdl);
   
-  osThreadDef(door_task, door_task, osPriorityNormal, 0, 256);
+  osThreadDef(door_task, door_task, osPriorityNormal, 0, 128);
   door_task_hdl = osThreadCreate(osThread(door_task), NULL); 
   APP_ASSERT(door_task_hdl);
   
-  osThreadDef(light_task, light_task, osPriorityNormal, 0, 256);
+  osThreadDef(light_task, light_task, osPriorityNormal, 0, 128);
   light_task_hdl = osThreadCreate(osThread(light_task), NULL); 
   APP_ASSERT(light_task_hdl);
   
@@ -274,15 +272,23 @@ static void create_user_tasks()
   ups_task_hdl = osThreadCreate(osThread(ups_task), NULL); 
   APP_ASSERT(ups_task_hdl);
   
-  osThreadDef(temperature_task, temperature_task, osPriorityNormal, 0, 256);
+  osThreadDef(temperature_task, temperature_task, osPriorityNormal, 0, 128);
   temperature_task_hdl = osThreadCreate(osThread(temperature_task), NULL); 
   APP_ASSERT(temperature_task_hdl);
+  
+  osThreadDef(temperature_cache_task, temperature_cache_task, osPriorityNormal, 0, 128);
+  temperature_cache_task_hdl = osThreadCreate(osThread(temperature_cache_task), NULL); 
+  APP_ASSERT(temperature_cache_task_hdl);
+  
+  osThreadDef(display_task, display_task, osPriorityNormal, 0, 128);
+  display_task_hdl = osThreadCreate(osThread(display_task), NULL); 
+  APP_ASSERT(display_task_hdl);
   
   osThreadDef(debug_task, debug_task, osPriorityNormal, 0, 256);
   debug_task_hdl = osThreadCreate(osThread(debug_task), NULL); 
   APP_ASSERT(debug_task_hdl);
   
-  APP_LOG_INFO("######�?有的任务创建成功.\r\n"); 
+  APP_LOG_INFO("@所有的任务创建成功.\r\n"); 
 }
 /* USER CODE END Application */
 

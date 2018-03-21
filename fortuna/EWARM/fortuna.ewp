@@ -350,9 +350,7 @@
                     <state>$PROJ_DIR$/../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS</state>
                     <state>$PROJ_DIR$/../Drivers/CMSIS/Include</state>
                     <state>$PROJ_DIR$/../Src/tasks</state>
-                    <state>$PROJ_DIR$/../Src/communication</state>
-                    <state>$PROJ_DIR$/../Src/communication/internet/http</state>
-                    <state>$PROJ_DIR$/../Src/communication/port</state>
+                    <state>$PROJ_DIR$/../Src/http</state>
                     <state>$PROJ_DIR$/../Src/at_cmd_set</state>
                     <state>$PROJ_DIR$/../Src/at_cmd_set/port</state>
                     <state>$PROJ_DIR$/../Src/json</state>
@@ -364,7 +362,7 @@
                     <state>$PROJ_DIR$/../Drivers/BSP/board</state>
                     <state>$PROJ_DIR$/../Drivers/BSP/common</state>
                     <state>$PROJ_DIR$/../Drivers/BSP/components/ntc</state>
-                    <state>$PROJ_DIR$/../Drivers/BSP/components/display_led</state>
+                    <state>$PROJ_DIR$/../Drivers/BSP/components/digit_led</state>
                 </option>
                 <option>
                     <name>CCStdIncCheck</name>
@@ -1065,31 +1063,10 @@
                 </file>
             </group>
             <group>
-                <name>communication</name>
-                <group>
-                    <name>internet</name>
-                    <group>
-                        <name>http</name>
-                        <file>
-                            <name>$PROJ_DIR$\..\Src\communication\internet\http\http_get_post.c</name>
-                        </file>
-                    </group>
-                    <group>
-                        <name>socket</name>
-                    </group>
-                    <group>
-                        <name>tcp</name>
-                    </group>
-                    <group>
-                        <name>udp</name>
-                    </group>
-                </group>
-                <group>
-                    <name>modbus_poll</name>
-                    <group>
-                        <name>port</name>
-                    </group>
-                </group>
+                <name>http</name>
+                <file>
+                    <name>$PROJ_DIR$\..\Src\http\http.c</name>
+                </file>
             </group>
             <group>
                 <name>json</name>
@@ -1104,6 +1081,9 @@
                 </file>
                 <file>
                     <name>$PROJ_DIR$\..\Src\tasks\debug_task.c</name>
+                </file>
+                <file>
+                    <name>$PROJ_DIR$\..\Src\tasks\display_task.c</name>
                 </file>
                 <file>
                     <name>$PROJ_DIR$\..\Src\tasks\door_task.c</name>
@@ -1128,6 +1108,9 @@
                 </file>
                 <file>
                     <name>$PROJ_DIR$\..\Src\tasks\sys_led_task.c</name>
+                </file>
+                <file>
+                    <name>$PROJ_DIR$\..\Src\tasks\temperature_cache_task.c</name>
                 </file>
                 <file>
                     <name>$PROJ_DIR$\..\Src\tasks\temperature_task.c</name>
@@ -1183,6 +1166,12 @@
             </group>
             <group>
                 <name>components</name>
+                <group>
+                    <name>digit_led</name>
+                    <file>
+                        <name>$PROJ_DIR$\..\Drivers\BSP\components\digit_led\digit_led.c</name>
+                    </file>
+                </group>
                 <group>
                     <name>ntc</name>
                     <file>

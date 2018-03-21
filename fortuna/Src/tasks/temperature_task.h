@@ -5,6 +5,7 @@
 /*外部使用*/
 int8_t get_temperature(uint8_t t_idx);
 int8_t get_average_temperature();
+uint8_t* get_average_temperature_str();
 /*温度任务*/
 void temperature_task(void const * argument);
 extern osThreadId temperature_task_hdl;

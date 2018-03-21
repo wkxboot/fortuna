@@ -151,7 +151,36 @@ int8_t get_average_temperature()
 return average_temperature.temperature;
 }
 
+uint8_t* get_average_temperature_str()
+{
 
+ uint8_t num= average_temperature.temperature;
+ uint8_t temp;
+ uint8_t str[]={'0','1','2','3','4','5','6','7','8','9'};
+ static uint8_t t_str[3];
+ if(num>99)
+ {
+  t_str[0]='9';
+  t_str[1]='9';
+  t_str[2]=0;
+ }
+ else if(num >9)
+ {   
+ temp=num/10;
+ t_str[0]=str[temp];
+ num%=10;
+ temp=num;
+ t_str[1]=str[temp];
+ t_str[2]=0;
+ }
+ else
+ {
+  temp=num;
+  t_str[0]=str[temp]; 
+  t_str[1]=0; 
+ }
+ return t_str;
+}
 
 
 void temperature_task(void const * argument)
@@ -159,7 +188,7 @@ void temperature_task(void const * argument)
  uint32_t sample_cusum[TEMPERATURE_CNT]={0};/*取样的累加和*/
  uint32_t sample_time=0;/*取样的时间*/
  uint16_t sample_cnt=0;/*取样的次数*/
- APP_LOG_INFO("######温度任务开始.\r\n");
+ APP_LOG_INFO("@温度探测任务开始.\r\n");
 /*温度信息初始化*/
  temperature_init();
  while(1)

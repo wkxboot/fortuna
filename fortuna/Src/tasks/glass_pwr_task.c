@@ -83,7 +83,7 @@ void glass_pwr_task(void const * argument)
  osEvent signal;
  /*加热玻璃状态*/
 
- APP_LOG_INFO("######玻璃温度控制任务开始.\r\n");
+ APP_LOG_INFO("@玻璃温度控制任务开始.\r\n");
  
  glass_pwr_timer_init();
  glass_pwr_task_turn_off();

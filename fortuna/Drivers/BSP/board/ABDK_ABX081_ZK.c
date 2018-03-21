@@ -1,6 +1,7 @@
 #include "FreeRTOS.h"
 #include "task.h"
 #include "cmsis_os.h"
+#include "main.h"
 #include "tim.h"
 #include "ABDK_ABX081_ZK.h"
 #define APP_LOG_MODULE_NAME   "[BSP]"

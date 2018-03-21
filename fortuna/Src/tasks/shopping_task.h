@@ -20,5 +20,6 @@ extern osThreadId shopping_task_hdl;
 #define  SHOPPING_TASK_DOOR_OPEN_SIGNAL                   (1<<5)
 #define  SHOPPING_TASK_ALL_SIGNALS                        ((1<<6)-1)
 
-
+/*同步事件*/
+#define  SHOPPING_TASK_SYNC_EVT                           (1<<1)
 #endif

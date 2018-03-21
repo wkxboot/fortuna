@@ -4,9 +4,11 @@
 #include "app_common.h"
 #include "string.h"
 #include "json.h"
-#include "http_get_post.h"
+#include "http.h"
 #include "shopping_task.h"
 #include "report_task.h"
+#include "ups_task.h"
+#include "temperature_task.h"
 
 #define APP_LOG_MODULE_NAME   "[report]"
 #define APP_LOG_MODULE_LEVEL   APP_LOG_LEVEL_DEBUG    
@@ -16,10 +18,14 @@
 
 osThreadId report_task_hdl;
 
-static http_response_t http_response;
-static http_request_t  http_request;
+static http_response_t report_response;
+static http_request_t  report_request;
+static http_monitor_response monitor_response;
+
+EventGroupHandle_t task_sync_evt_group_hdl;
 
 extern json_report_device_status_t  report_device;
+
 
 /*设备上报任务*/
 void report_task(void const * argument)
@@ -27,27 +33,57 @@ void report_task(void const * argument)
   app_bool_t result;
   uint8_t param_size;
   json_item_t item;
+  
+  APP_LOG_INFO("@上报设备状态任务开始.\r\n");
+
+  do
+  {
+  result=http_init();
+  }while(result!=APP_TRUE);
+  
+  APP_LOG_DEBUG("上报设备状态任务等待同步完成...\r\n");
+  /*等待任务同步*/
+  xEventGroupSync(task_sync_evt_group_hdl,REPORT_TASK_SYNC_EVT,SHOPPING_TASK_SYNC_EVT|REPORT_TASK_SYNC_EVT,osWaitForever); 
+  APP_LOG_DEBUG("上报设备状态任务等待同步完成.\r\n");
   while(1)
   {
   osDelay(REPORT_TASK_INTERVAL);
   /*上报设备状态*/
-  //get_ups_status();
-  //get_temperature();
+
   while(1)
   {
-  http_request.ptr_url="\"URL\",\"http://rack-brain-app-pre.jd.com/brain/reportDeviceStatus\"";
-  if(json_body_to_str(&report_device,http_request.param)!=APP_TRUE)
+  if(get_ups_status()==UPS_TASK_STATUS_PWR_ON)
+  {
+   json_set_item_name_value(&report_device.m_power,NULL,"1"); /*主电源状态*/ 
+  }
+  else
+  {
+   json_set_item_name_value(&report_device.m_power,NULL,"2"); /*主电源状态*/  
+  }
+  
+  json_set_item_name_value(&report_device.temperature,NULL,get_average_temperature_str());
+  
+  result=http_device_status_monitor(&monitor_response);  
+  if(result==APP_TRUE)
+  {
+  //strcpy((char *)report_device.ip.value,(char const *)monitor_response.ip);
+  strcpy((char *)report_device.rssi.value,(char const *)monitor_response.rssi);
+  }
+  
+  
+  report_request.ptr_url="\"URL\",\"http://rack-brain-app-pre.jd.com/brain/reportDeviceStatus\"";
+  if(json_body_to_str(&report_device,report_request.param)!=APP_TRUE)
   {
   APP_LOG_ERROR("report param err.\r\n");
   }
-  param_size=strlen((const char *)http_request.param);
-  http_make_request_size_time_to_str(param_size,2000,http_request.size_time);
+  param_size=strlen((const char *)report_request.param);
+  http_make_request_size_time_to_str(param_size,REPORT_TASK_DOWNLOAD_TIMEOUT,report_request.size_time);
   
-  result=http_post(&http_request,&http_response,HTTP_RESPONSE_TIMEOUT);
+  result=http_post(&report_request,&report_response,HTTP_RESPONSE_TIMEOUT);
   if(result==APP_TRUE)
   {
   json_set_item_name_value(&item,"code",NULL);
-  json_get_item_value_by_name_from_json_str(http_response.json_str,item.name,item.value); 
+  json_get_item_value_by_name_from_json_str(report_response.json_str,item.name,item.value); 
   /*服务器回应code:"0"*/
   if(strcmp((const char *)item.value,"\"0\"")==0)
   break;
