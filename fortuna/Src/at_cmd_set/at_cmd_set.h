@@ -1,8 +1,12 @@
 #ifndef  __AT_CMD_SET_H__
 #define  __AT_CMD_SET_H__
 
-#define    AT_CMD_SEND_TIMEOUT                 25
-#define    AT_CMD_RESPONSE_MAX_STR_SZIE        250
+#define    AT_CMD_SEND_TIMEOUT                       25
+#define    AT_CMD_RESPONSE_MAX_STR_SZIE              250
+
+#define    AT_CMD_CONFIG_NORMAL_RESPONSE_TIMEOUT     100
+#define    AT_CMD_CONFIG_SPECIAL_RESPONSE_TIMEOUT    5000
+
 typedef enum 
 {
   AT_CMD_FALSE=0,

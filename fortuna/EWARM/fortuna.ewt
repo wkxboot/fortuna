@@ -1183,9 +1183,9 @@
                 </file>
             </group>
             <group>
-                <name>http</name>
+                <name>service</name>
                 <file>
-                    <name>$PROJ_DIR$\..\Src\http\http.c</name>
+                    <name>$PROJ_DIR$\..\Src\service\service.c</name>
                 </file>
             </group>
             <group>

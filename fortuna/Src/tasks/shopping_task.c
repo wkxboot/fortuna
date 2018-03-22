@@ -4,7 +4,7 @@
 #include "app_common.h"
 #include "string.h"
 #include "json.h"
-#include "http.h"
+#include "service.h"
 #include "report_task.h"
 #include "shopping_task.h"
 #include "lock_task.h"
@@ -92,10 +92,10 @@ void shopping_task(void const * argument)
   APP_LOG_ERROR("pull open param err.\r\n");
   }
   param_size=strlen((const char *)shopping_request.param);
-  http_make_request_size_time_to_str(param_size,SHOPPING_TASK_DOWNLOAD_TIMEOUT,shopping_request.size_time);
+  service_http_make_request_size_time_to_str(param_size,SHOPPING_TASK_DOWNLOAD_TIMEOUT,shopping_request.size_time);
   while(1)
   {
-  result=http_post(&shopping_request,&shopping_response,HTTP_RESPONSE_TIMEOUT);
+  result=service_http_post(&shopping_request,&shopping_response,HTTP_RESPONSE_TIMEOUT);
   if(result==APP_TRUE)
   {
   json_set_item_name_value(&item,"code",NULL);
@@ -156,10 +156,10 @@ void shopping_task(void const * argument)
   APP_LOG_ERROR("report open param err.\r\n");
   }
   param_size=strlen((const char *)shopping_request.param);
-  http_make_request_size_time_to_str(param_size,SHOPPING_TASK_DOWNLOAD_TIMEOUT,shopping_request.size_time);
+  service_http_make_request_size_time_to_str(param_size,SHOPPING_TASK_DOWNLOAD_TIMEOUT,shopping_request.size_time);
   while(1)
   {
-  result=http_post(&shopping_request,&shopping_response,HTTP_RESPONSE_TIMEOUT);
+  result=service_http_post(&shopping_request,&shopping_response,HTTP_RESPONSE_TIMEOUT);
   if(result==APP_TRUE)
   {
   json_set_item_name_value(&item,"code",NULL);
@@ -201,10 +201,10 @@ void shopping_task(void const * argument)
   APP_LOG_ERROR("report close param err.\r\n");
   }
   param_size=strlen((const char *)shopping_request.param);
-  http_make_request_size_time_to_str(param_size,SHOPPING_TASK_DOWNLOAD_TIMEOUT,shopping_request.size_time);
+  service_http_make_request_size_time_to_str(param_size,SHOPPING_TASK_DOWNLOAD_TIMEOUT,shopping_request.size_time);
   while(1)
   {
-  result=http_post(&shopping_request,&shopping_response,HTTP_RESPONSE_TIMEOUT);
+  result=service_http_post(&shopping_request,&shopping_response,HTTP_RESPONSE_TIMEOUT);
   if(result==APP_TRUE)
   {
   json_set_item_name_value(&item,"code",NULL);

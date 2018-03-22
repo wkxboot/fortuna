@@ -65,6 +65,9 @@ typedef enum
  COMPRESSOR_PWR_CTL_OFF=GPIO_PIN_RESET,
  COMPRESSOR_PWR_STATUS_ON=GPIO_PIN_SET,
  COMPRESSOR_PWR_STATUS_OFF=GPIO_PIN_RESET,
+  /*GPRS模块*/
+ GPRS_MODULE_PWR_CTL_ON=GPIO_PIN_SET,
+ GPRS_MODULE_PWR_CTL_OFF=GPIO_PIN_RESET,
 }bsp_status_t;
 
 /*获取锁舌传感器状态*/
@@ -106,7 +109,8 @@ void BSP_LIGHT_TURN_ON_OFF(bsp_status_t status);
 void BSP_COMPRESSOR_TURN_ON_OFF(bsp_status_t status);
 /*直流风扇输出控制*/
 void BSP_FAN_TURN_ON_OFF(bsp_status_t status);
-
+/*GPRS模块控制--IO控制*/
+void BSP_GPRS_MODULE_PWR_CTL(bsp_status_t status);
 
 
 

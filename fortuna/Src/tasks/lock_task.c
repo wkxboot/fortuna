@@ -86,8 +86,7 @@ static void lock_timer_expired(void const * argument)
   
   lock_task_lock_door();
   lock_task_turn_on_lock_led();
-  osSignalSet(fan_task_hdl,FAN_TASK_FAN_TURN_ON_SIGNAL);
-  osSignalSet(glass_pwr_task_hdl,FAN_TASK_FAN_TURN_ON_SIGNAL);
+
  }
  else
  {
@@ -155,8 +154,6 @@ static void unlock_timer_expired(void const * argument)
   lock_task_unlock_door();
   auto_lock_timer_start();
   lock_task_turn_on_unlock_led();
-  osSignalSet(fan_task_hdl,FAN_TASK_FAN_TURN_OFF_SIGNAL);
-  osSignalSet(glass_pwr_task_hdl,FAN_TASK_FAN_TURN_ON_SIGNAL);
  }
  else
  {
@@ -189,14 +186,14 @@ static void lock_task_unlock_lock()
 /*关锁成功时 打开橙色led和风扇*/
 static void lock_task_turn_on_lock_led()
 {
- APP_LOG_DEBUG("打开橙色门灯和风扇.\r\n");
+ APP_LOG_DEBUG("打开橙色门灯.\r\n");
  BSP_LED_TURN_ON_OFF(DOOR_GREEN_LED,LED_CTL_ON); 
  BSP_LED_TURN_ON_OFF(DOOR_ORANGE_LED,LED_CTL_OFF);
 }
 /*开锁成功时 打开绿色led，关闭风扇*/
 static void lock_task_turn_on_unlock_led()
 {
- APP_LOG_DEBUG("打开绿色门灯.关闭风扇.\r\n");
+ APP_LOG_DEBUG("打开绿色门灯.\r\n");
  BSP_LED_TURN_ON_OFF(DOOR_ORANGE_LED,LED_CTL_ON); 
  BSP_LED_TURN_ON_OFF(DOOR_GREEN_LED,LED_CTL_OFF); 
 }
@@ -259,6 +256,9 @@ void lock_task(void const * argument)
     /*收到门打开后 停止自动关锁定时器*/
     auto_lock_timer_stop();
     lock_task_unlock_lock();/*避免死锁 重复开锁一次*/
+    /*门打开后关闭风扇和加热玻璃*/
+    osSignalSet(fan_task_hdl,FAN_TASK_FAN_TURN_OFF_SIGNAL);
+    osSignalSet(glass_pwr_task_hdl,GLASS_PWR_TASK_TURN_OFF_SIGNAL);
    }
    /*收到门的状态变为关闭*/
    if(sig.value.signals & LOCK_TASK_DOOR_STATUS_CLOSE_SIGNAL)
@@ -267,6 +267,9 @@ void lock_task(void const * argument)
     unlock_timer_stop();
     lock_timer_start();
     lock_task_lock_lock();/*马上尝试关锁*/
+   /*门关闭后打开风扇和加热玻璃*/
+    osSignalSet(fan_task_hdl,FAN_TASK_FAN_TURN_ON_SIGNAL);
+    osSignalSet(glass_pwr_task_hdl,GLASS_PWR_TASK_TURN_ON_SIGNAL);
    }   
    /*收到调试开锁信号 打开*/
    if(sig.value.signals & LOCK_TASK_DEBUG_UNLOCK_SIGNAL)

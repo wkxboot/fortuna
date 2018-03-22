@@ -147,6 +147,9 @@ void BSP_FAN_TURN_ON_OFF(bsp_status_t status)
  HAL_GPIO_WritePin(FAN_CTL_POS_GPIO_Port,FAN_CTL_POS_Pin,(GPIO_PinState)status);   
 }
 
-
-
+/*GPRS模块控制--IO控制*/
+void BSP_GPRS_MODULE_PWR_CTL(bsp_status_t status)
+{
+ HAL_GPIO_WritePin(GPRS_MODULE_PWR_CTL_POS_GPIO_Port,GPRS_MODULE_PWR_CTL_POS_Pin,(GPIO_PinState)status);  
+}
 

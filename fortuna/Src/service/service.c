@@ -3,74 +3,73 @@
 #include "cmsis_os.h"
 #include "app_common.h"
 #include "at_cmd_set.h"
+#include "service.h"
 #include "string.h"
 #include "json.h"
-#include "http.h"
-#define APP_LOG_MODULE_NAME   "[httpd]"
+#include "ABDK_ABX081_ZK.h"
+#define APP_LOG_MODULE_NAME   "[service]"
 #define APP_LOG_MODULE_LEVEL   APP_LOG_LEVEL_DEBUG    
 #include "app_log.h"
 #include "app_error.h"
 #include "stdlib.h"
 
-static void http_uint16_to_str(uint16_t num,uint8_t *ptr_str);
-
+/*服务互斥体*/
+osMutexId service_mutex_id;
 static at_cmd_response_t at_cmd_response;
+static uint8_t service_net_err_cnt,service_device_err_cnt;
 
-osMutexId http_mutex_id;
+static void service_uint16_to_str(uint16_t num,uint8_t *ptr_str);
+/*处理GPRS通信错误 如通信失败*/
+static app_bool_t service_handle_net_err(app_bool_t result);
+/*处理GPRS设备错误 如死机*/
+static app_bool_t service_handle_device_err(app_bool_t result);
 
+static app_bool_t service_init();
+static app_bool_t service_http_init();
 
-
-static void http_mutex_init()
+void service_mutex_init()
 {
    /*创建互斥体*/
-  if(http_mutex_id==NULL)
+  if(service_mutex_id==NULL)
   {
-   osMutexDef(http_mutex);
-   http_mutex_id=osMutexCreate(osMutex(http_mutex)); 
-   APP_ASSERT(http_mutex_id);
+   osMutexDef(service_mutex);
+   service_mutex_id=osMutexCreate(osMutex(service_mutex)); 
+   APP_ASSERT(service_mutex_id);
   }
 }
 
 /*获取互斥体*/
-static void take_http_mutex()
+void take_service_mutex()
 {
- 
- if(osMutexWait(http_mutex_id,osWaitForever)!=osOK)
+ if(osMutexWait(service_mutex_id,osWaitForever)!=osOK)
  {
   APP_ERROR_HANDLER(0);
  }
-
 }
 
 /*释放互斥体*/
-static void release_http_mutex()
+void release_service_mutex()
 {
-  
- if(osMutexRelease(http_mutex_id)!=osOK)
+ 
+ if(osMutexRelease(service_mutex_id)!=osOK)
  {
   APP_ERROR_HANDLER(0);
  }
-
 }
 
 #if (AT_MODULE == SIM900A_MODULE )  
 
-
-
-app_bool_t http_init()
+static app_bool_t service_init()
 {
+ service_mutex_init();
+ at_cmd_init();
+ 
  app_bool_t result=APP_TRUE;
  at_cmd_status_t status;
- if(http_mutex_id==NULL)
- http_mutex_init();
- 
- at_cmd_init();
-
- /*需要等待模块启动完毕*/
- osDelay(5000);
- /*进入AT测试模式*/
+  /*进入AT测试模式*/
+ APP_LOG_ERROR("进入AT命令测试模式...\r\n");
  at_cmd_response.is_response_delay=AT_CMD_FALSE;
- at_cmd_response.response_timeout=HTTP_CONFIG_AT_CMD_NORMAL_RESPONSE_TIMEOUT;
+ at_cmd_response.response_timeout=AT_CMD_CONFIG_NORMAL_RESPONSE_TIMEOUT;
  status=at_cmd_string("AT",&at_cmd_response);
  if(status!=AT_CMD_STATUS_SUCCESS)
  {
@@ -85,11 +84,20 @@ app_bool_t http_init()
   result=APP_FALSE;
   goto err_handle;  
  }
- APP_LOG_DEBUG("AT命令测试成功. status:%d.\r\n",status); 
+ APP_LOG_DEBUG("AT命令测试成功.GPRS模块复位成功.status:%d.\r\n",status); 
+ 
+ err_handle:
+ return result;
+}
 
+static app_bool_t service_http_init()
+{
+ app_bool_t result=APP_TRUE;
+ at_cmd_status_t status;
+ 
  /*第一步 设置数据承载模式AT+SAPBR=3,1,"CONTYPE","GPRS" */
  at_cmd_response.is_response_delay=AT_CMD_FALSE;
- at_cmd_response.response_timeout=HTTP_CONFIG_AT_CMD_NORMAL_RESPONSE_TIMEOUT;
+ at_cmd_response.response_timeout=AT_CMD_CONFIG_NORMAL_RESPONSE_TIMEOUT;
  status=at_ex_cmd_set("+SAPBR","3,1,\"CONTYPE\",\"GPRS\"",&at_cmd_response);
  if(status!=AT_CMD_STATUS_SUCCESS)
  {
@@ -106,7 +114,7 @@ app_bool_t http_init()
  }
  /*第二步 设置数据运营商AT+SAPBR=3,1,"APN","CMNET" */
  at_cmd_response.is_response_delay=AT_CMD_FALSE;
- at_cmd_response.response_timeout=HTTP_CONFIG_AT_CMD_NORMAL_RESPONSE_TIMEOUT;
+ at_cmd_response.response_timeout=AT_CMD_CONFIG_NORMAL_RESPONSE_TIMEOUT;
  status=at_ex_cmd_set("+SAPBR","3,1,\"APN\",\"CMNET\"",&at_cmd_response);
  if(status!=AT_CMD_STATUS_SUCCESS)
  {
@@ -124,29 +132,28 @@ app_bool_t http_init()
  
  /*第三步 打开数据承载模式AT+SAPBR=1,1*/ 
  at_cmd_response.is_response_delay=AT_CMD_TRUE;
- at_cmd_response.response_delay_timeout=HTTP_CONFIG_AT_CMD_SPECIAL_RESPONSE_TIMEOUT;
- at_cmd_response.response_timeout=HTTP_CONFIG_AT_CMD_SPECIAL_RESPONSE_TIMEOUT;
+ at_cmd_response.response_delay_timeout=AT_CMD_CONFIG_SPECIAL_RESPONSE_TIMEOUT;
+ at_cmd_response.response_timeout=AT_CMD_CONFIG_SPECIAL_RESPONSE_TIMEOUT;
  status=at_ex_cmd_set("+SAPBR","1,1",&at_cmd_response);
  
  if(status!=AT_CMD_STATUS_SUCCESS)
  {
-   APP_LOG_ERROR("+SAPBRP打开承载模式参数输入失败 status:%d.\r\n",status); 
-   result=APP_FALSE;
-   goto err_handle;
+  APP_LOG_ERROR("+SAPBRP打开承载模式参数输入失败. status:%d.\r\n",status); 
+  result=APP_FALSE;
+  goto err_handle;
  }
  status=at_cmd_find_expect_from_response(&at_cmd_response,"OK");
  if(status!=AT_CMD_STATUS_SUCCESS)
- { 
-   /*如果回应没有OK，就默认是已经打开的*/
-   if(status==AT_CMD_STATUS_INVALID_RESPONSE)
-   {
-    APP_LOG_ERROR("++SAPBR打开承载模式参数已经设置成功. status:%d.\r\n",status); 
-   } 
+ {
+  APP_LOG_ERROR("+SAPBR打开承载模式参数设置失败. status:%d.\r\n",status); 
+  result=APP_FALSE;
+  goto err_handle;
  }
- APP_LOG_DEBUG("++SAPBR打开承载模式参数设置成功. status:%d.\r\n",status); 
+ APP_LOG_DEBUG("+SAPBR打开承载模式参数设置成功. status:%d.\r\n",status); 
+
  /*第四步 http初始化AT+HTTPINIT*/
  at_cmd_response.is_response_delay=AT_CMD_FALSE;
- at_cmd_response.response_timeout=HTTP_CONFIG_AT_CMD_SPECIAL_RESPONSE_TIMEOUT;
+ at_cmd_response.response_timeout=AT_CMD_CONFIG_SPECIAL_RESPONSE_TIMEOUT;
  status=at_ex_cmd_exe("+HTTPINIT",&at_cmd_response);
 
  if(status!=AT_CMD_STATUS_SUCCESS)
@@ -158,16 +165,14 @@ app_bool_t http_init()
  status=at_cmd_find_expect_from_response(&at_cmd_response,"OK");
  if(status!=AT_CMD_STATUS_SUCCESS)
  {
-   /*如果回应没有OK，就默认是已经初始化完成*/
-   if(status==AT_CMD_STATUS_INVALID_RESPONSE)
-   {
-    APP_LOG_ERROR("++HTTPINIT参数已经成功. status:%d.\r\n",status); 
-   }
+  APP_LOG_ERROR("+HTTPINIT参数设置失败. status:%d.\r\n",status); 
+  result=APP_FALSE;
+  goto err_handle;
  }
- APP_LOG_DEBUG("++HTTPINIT参数设置成功. status:%d\r\n",status);
-  /*第五步设置内容类型AT+HTTPPARA="CONTENT","application/json"*/
+ APP_LOG_DEBUG("+HTTPINIT参数设置成功. status:%d\r\n",status);
+ /*第五步设置内容类型AT+HTTPPARA="CONTENT","application/json"*/
  at_cmd_response.is_response_delay=AT_CMD_FALSE;
- at_cmd_response.response_timeout=HTTP_CONFIG_AT_CMD_NORMAL_RESPONSE_TIMEOUT;
+ at_cmd_response.response_timeout=AT_CMD_CONFIG_NORMAL_RESPONSE_TIMEOUT;
  status=at_ex_cmd_set("+HTTPPARA","\"CONTENT\",\"application/json\"",&at_cmd_response);
  if(status!=AT_CMD_STATUS_SUCCESS)
  {
@@ -186,16 +191,17 @@ err_handle:
  return result;
 }
 
-app_bool_t http_post(http_request_t *ptr_request,http_response_t *ptr_response,uint16_t response_timeout)
+
+app_bool_t service_http_post(http_request_t *ptr_request,http_response_t *ptr_response,uint16_t response_timeout)
 {
  at_cmd_status_t status;
  app_bool_t result=APP_TRUE;
  /*只有一个http POST通道所以要避免竞争*/
- take_http_mutex();
+ take_service_mutex();
   
  /*第一步设置url AT+HTTPPARA="URL","http://xxxx"*/
  at_cmd_response.is_response_delay=AT_CMD_FALSE;
- at_cmd_response.response_timeout=HTTP_CONFIG_AT_CMD_NORMAL_RESPONSE_TIMEOUT;
+ at_cmd_response.response_timeout=AT_CMD_CONFIG_NORMAL_RESPONSE_TIMEOUT;
  status=at_ex_cmd_set("+HTTPPARA",ptr_request->ptr_url,&at_cmd_response);
  if(status!=AT_CMD_STATUS_SUCCESS)
  {
@@ -214,7 +220,7 @@ app_bool_t http_post(http_request_t *ptr_request,http_response_t *ptr_response,u
  
  /*第二步设置POST数据大小和超时时间AT+HTTPDATA=size,timeout*/
  at_cmd_response.is_response_delay=AT_CMD_FALSE;
- at_cmd_response.response_timeout=HTTP_CONFIG_AT_CMD_NORMAL_RESPONSE_TIMEOUT;
+ at_cmd_response.response_timeout=AT_CMD_CONFIG_NORMAL_RESPONSE_TIMEOUT;
  status=at_ex_cmd_set("+HTTPDATA",ptr_request->size_time,&at_cmd_response);
  if(status!=AT_CMD_STATUS_SUCCESS)
  {
@@ -233,7 +239,7 @@ app_bool_t http_post(http_request_t *ptr_request,http_response_t *ptr_response,u
  
  /*第三步设置缓存POST数据“......”*/
  at_cmd_response.is_response_delay=AT_CMD_FALSE;
- at_cmd_response.response_timeout=HTTP_CONFIG_AT_CMD_NORMAL_RESPONSE_TIMEOUT;
+ at_cmd_response.response_timeout=AT_CMD_CONFIG_NORMAL_RESPONSE_TIMEOUT;
  status=at_cmd_string(ptr_request->param,&at_cmd_response);
  if(status!=AT_CMD_STATUS_SUCCESS)
  {
@@ -253,7 +259,7 @@ app_bool_t http_post(http_request_t *ptr_request,http_response_t *ptr_response,u
  /*第四步启动http POST*/
  at_cmd_response.is_response_delay=AT_CMD_TRUE;
  at_cmd_response.response_delay_timeout=response_timeout;
- at_cmd_response.response_timeout=HTTP_CONFIG_AT_CMD_SPECIAL_RESPONSE_TIMEOUT;
+ at_cmd_response.response_timeout=AT_CMD_CONFIG_SPECIAL_RESPONSE_TIMEOUT;
  status=at_ex_cmd_set("+HTTPACTION","1",&at_cmd_response);
  if(status!=AT_CMD_STATUS_SUCCESS)
  {
@@ -279,7 +285,7 @@ app_bool_t http_post(http_request_t *ptr_request,http_response_t *ptr_response,u
  APP_LOG_DEBUG("POST数据到服务器成功. status:%d.\r\n",status); 
  /*第五步读取回应的数据*/
  at_cmd_response.is_response_delay=AT_CMD_FALSE;
- at_cmd_response.response_timeout=HTTP_CONFIG_AT_CMD_NORMAL_RESPONSE_TIMEOUT;
+ at_cmd_response.response_timeout=AT_CMD_CONFIG_NORMAL_RESPONSE_TIMEOUT;
  status=at_ex_cmd_exe("+HTTPREAD",&at_cmd_response);
  if(status!=AT_CMD_STATUS_SUCCESS)
  {
@@ -298,11 +304,12 @@ app_bool_t http_post(http_request_t *ptr_request,http_response_t *ptr_response,u
  ptr_response->size=at_cmd_response.size;
  APP_LOG_DEBUG("http回复中找到json格式.\r\n");
 err_handle:
- release_http_mutex();
+ service_handle_net_err(result);
+ release_service_mutex();
  return result;
 }
 
-static void http_uint16_to_str(uint16_t num,uint8_t *ptr_str)
+static void service_uint16_to_str(uint16_t num,uint8_t *ptr_str)
 {
  uint8_t temp;
  uint8_t i;
@@ -330,29 +337,27 @@ static void http_uint16_to_str(uint16_t num,uint8_t *ptr_str)
  *ptr_str=0;
 }
 
-void http_make_request_size_time_to_str(uint16_t size,uint16_t time,uint8_t *ptr_str)
+void service_http_make_request_size_time_to_str(uint16_t size,uint16_t time,uint8_t *ptr_str)
 {
-  http_uint16_to_str(size,ptr_str);/*写入数据大小字符串3位*/
+  service_uint16_to_str(size,ptr_str);/*写入数据大小字符串3位*/
   ptr_str[4]=',';/*写入','字符串1位*/
-  http_uint16_to_str(time,ptr_str+5);/*写入时间大小字符串3位*/
+  service_uint16_to_str(time,ptr_str+5);/*写入时间大小字符串3位*/
 }
 
 
-
-
-
-/*http模块状态监视*/
-app_bool_t http_device_status_monitor(http_monitor_response *ptr_monitor)
+/*获取rssi值*/
+app_bool_t service_get_rssi_str(uint8_t *ptr_rssi_str)
 {
- uint8_t *ptr_start_addr;
+ uint8_t *ptr_start_addr=ptr_rssi_str;
+ uint8_t i;
  app_bool_t result=APP_TRUE;
  at_cmd_status_t status;
  /*只有一个http POST通道所以要避免竞争*/
- take_http_mutex(); 
+ take_service_mutex(); 
  
 /*第一步查看信号质量AT+CSQ*/
  at_cmd_response.is_response_delay=AT_CMD_FALSE;
- at_cmd_response.response_timeout=HTTP_CONFIG_AT_CMD_NORMAL_RESPONSE_TIMEOUT;
+ at_cmd_response.response_timeout=AT_CMD_CONFIG_NORMAL_RESPONSE_TIMEOUT;
  status=at_ex_cmd_exe("+CSQ",&at_cmd_response);
  if(status!=AT_CMD_STATUS_SUCCESS)
  {
@@ -367,27 +372,163 @@ app_bool_t http_device_status_monitor(http_monitor_response *ptr_monitor)
   result=APP_FALSE;
   goto err_handle;  
  }
- APP_LOG_DEBUG("+CSQ 读信号质量成功. status:%d\r\n",status);
- /*找到csq开始地址*/
- ptr_start_addr=(uint8_t *)strstr((const char *)at_cmd_response.response,"+CSQ: ");
- if(ptr_start_addr==NULL)
+ for(i=0;i<at_cmd_response.size;i++)
  {
- APP_LOG_ERROR("没有找到+CSQ.\r\n");
- result=APP_FALSE;
- goto err_handle; 
+  if(at_cmd_response.response[i]>='0' && at_cmd_response.response[i]<='9')
+  {
+   *ptr_start_addr++=at_cmd_response.response[i];
+  }
+  if(at_cmd_response.response[i]==',')
+   break;
  }
-  ptr_start_addr+=6;
-  ptr_monitor->rssi[0]=ptr_start_addr[0];
-  ptr_monitor->rssi[1]=ptr_start_addr[1];
-  ptr_monitor->rssi[2]=0;
-  APP_LOG_DEBUG("找到RSSI值.已拷贝.RSSI:%s\r\n",ptr_monitor->rssi);
+  *ptr_start_addr=0;
+  APP_LOG_DEBUG("找到RSSI值.已拷贝.RSSI:%s\r\n",ptr_rssi_str);
  
 err_handle:
+ service_handle_device_err(result);
  /*只有一个http POST通道所以要避免竞争*/
- release_http_mutex(); 
+ release_service_mutex(); 
  return result;
 }
 
+app_bool_t service_get_imei_str(uint8_t *ptr_imei_str)
+{
+ app_bool_t result=APP_TRUE;
+ uint8_t i;
+ at_cmd_status_t status;
+ /*只有一个http POST通道所以要避免竞争*/
+ take_service_mutex();  
+ at_cmd_response.is_response_delay=AT_CMD_FALSE;
+ at_cmd_response.response_timeout=AT_CMD_CONFIG_NORMAL_RESPONSE_TIMEOUT;
+ status=at_ex_cmd_exe("+GSN",&at_cmd_response);
+ if(status!=AT_CMD_STATUS_SUCCESS)
+ {
+   APP_LOG_ERROR("获取IMEI参数输入失败 status:%d.\r\n",status);
+   result=APP_FALSE;
+   goto err_handle;  
+ }
+ status=at_cmd_find_expect_from_response(&at_cmd_response,"OK");
+ if(status!=AT_CMD_STATUS_SUCCESS)
+ {
+  APP_LOG_ERROR("+获取IMEI失败. status:%d.\r\n",status);
+  result=APP_FALSE;
+  goto err_handle;  
+ }
+ for(i=0;i<at_cmd_response.size;i++)
+ {
+  if(at_cmd_response.response[i]>='0' && at_cmd_response.response[i]<='9')
+  {
+   memcpy(ptr_imei_str,(const void*)&at_cmd_response.response[i],IMEI_STR_SIZE);
+   *(ptr_imei_str+IMEI_STR_SIZE)=0;
+   break;
+  }
+ }
+ APP_LOG_DEBUG("获取IMEI成功.IMEI=%s.\r\n",ptr_imei_str);
+ 
+err_handle:
+ service_handle_device_err(result);
+ /*只有一个http POST通道所以要避免竞争*/
+ release_service_mutex(); 
+ return result;
+}
+
+app_bool_t service_reset()
+{
+ app_bool_t result=APP_TRUE;
+
+reset_start: 
+ APP_LOG_WARNING("GPRS模块正在复位...\r\n");
+ BSP_GPRS_MODULE_PWR_CTL(GPRS_MODULE_PWR_CTL_OFF);
+ osDelay(SERVICE_RESET_HOLD_ON_TIME);
+
+ BSP_GPRS_MODULE_PWR_CTL(GPRS_MODULE_PWR_CTL_ON);
+ osDelay(SERVICE_RESET_WAIT_TIME);
+ 
+service_init_start:
+ result=service_init();
+ if(result==APP_FALSE)
+ {
+  service_device_err_cnt++;
+  APP_LOG_ERROR("service_device_err_cnt= %d.\r\n",service_device_err_cnt);
+  if(service_device_err_cnt>=SERVICE_DEVICE_ERR_CNT_MAX)
+  {
+   APP_LOG_ERROR("GPRS模块复位失败.再次尝试复位.\r\n");
+   service_device_err_cnt=0; 
+   goto reset_start;
+  }
+  goto service_init_start;
+ }
+ service_device_err_cnt=0;
+ APP_LOG_INFO("GPRS模块复位成功.\r\n");
+ 
+
+ /*http 参数初始化*/
+service_http_init_start: 
+ result=service_http_init();
+ if(result==APP_FALSE)
+ {
+  service_device_err_cnt++;
+  if(service_device_err_cnt>=SERVICE_DEVICE_ERR_CNT_MAX)
+  {
+   APP_LOG_ERROR("http初始化失败.需要复位...\r\n");
+   service_device_err_cnt=0; 
+   goto reset_start;
+  }
+  goto service_http_init_start;
+ }
+ APP_LOG_INFO("http初始化成功.\r\n");
+ service_device_err_cnt=0;
+ 
+ return result;
+}
+/*处理GPRS通信错误 如通信失败*/
+static app_bool_t service_handle_net_err(app_bool_t result)
+{
+ if(result==APP_FALSE)
+ {
+  service_net_err_cnt++;
+  APP_LOG_ERROR("service_net_err_cnt= %d.\r\n",service_net_err_cnt);
+  
+  if(service_net_err_cnt>=SERVICE_NET_ERR_CNT_MAX)
+  {
+   service_net_err_cnt=0;
+   service_reset();/*如果复位不成功 会一直尝试复位 直到成功*/ 
+  }
+ }
+ else
+ {
+ service_net_err_cnt=0;  
+ }
+return APP_TRUE;
+}
+/*处理GPRS设备错误 如死机*/
+static app_bool_t service_handle_device_err(app_bool_t result)
+{
+ if(result==APP_FALSE)
+ {
+  service_device_err_cnt++;
+  APP_LOG_ERROR("service_device_err_cnt= %d.\r\n",service_device_err_cnt);
+  
+  if(service_device_err_cnt>=SERVICE_DEVICE_ERR_CNT_MAX)
+  {
+   service_device_err_cnt=0;
+   service_reset();/*如果复位不成功 会一直尝试复位 直到成功*/ 
+  }
+ }
+ else
+ {
+ service_device_err_cnt=0;  
+ }
+return APP_TRUE;
+}
 #else
 
+
+
+
 #endif
+
+
+
+
+

@@ -20,7 +20,7 @@ D:\development\st\stm32\src_code\fortuna\fortuna\EWARM/../Drivers/CMSIS/Include
 -I
 D:\development\st\stm32\src_code\fortuna\fortuna\EWARM/../Src/tasks
 -I
-D:\development\st\stm32\src_code\fortuna\fortuna\EWARM/../Src/http
+D:\development\st\stm32\src_code\fortuna\fortuna\EWARM/../Src/service
 -I
 D:\development\st\stm32\src_code\fortuna\fortuna\EWARM/../Src/at_cmd_set
 -I
@@ -70,7 +70,7 @@ D:\development\st\stm32\src_code\fortuna\fortuna\Drivers\CMSIS\Include
 -I
 D:\development\st\stm32\src_code\fortuna\fortuna\Src\tasks
 -I
-D:\development\st\stm32\src_code\fortuna\fortuna\Src\http
+D:\development\st\stm32\src_code\fortuna\fortuna\Src\service
 -I
 D:\development\st\stm32\src_code\fortuna\fortuna\Src\at_cmd_set
 -I
