@@ -1,6 +1,7 @@
 #include "FreeRTOS.h"
 #include "task.h"
 #include "cmsis_os.h"
+#include "app_common.h"
 #include "modbus_poll.h"
 #include "mb_poll_port_timer.h"
 #define APP_LOG_MODULE_NAME   "[mb_poll_port_timer]"

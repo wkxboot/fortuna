@@ -1,14 +1,14 @@
 #include "FreeRTOS.h"
 #include "task.h"
 #include "cmsis_os.h"
-#include "fortuna_common.h"
+#include "app_common.h"
 #include "scales.h"
 #include "host_comm_task.h"
 #include "scale_comm_task.h"
 #include "scale_func_task.h"
 #include "scale_poll_task.h"
 #include "modbus_poll.h"
-#include "ABDK_ZNHG_ZK.h"
+#include "ABDK_AHG081_ZK.h"
 #define APP_LOG_MODULE_NAME   "[modbus_poll]"
 #define APP_LOG_MODULE_LEVEL   APP_LOG_LEVEL_INFO    
 #include "app_log.h"
@@ -22,7 +22,7 @@ extern EventGroupHandle_t task_sync_evt_group_hdl;
  */
 void scale_comm_task(void const * argument)
 {
-  APP_LOG_INFO("######电子秤MODBUS主机通信任务开始.\r\n");
+  APP_LOG_INFO("@电子秤MODBUS主机通信任务开始.\r\n");
   /*初始化参数.*/
   modbus_poll_init();
   /*RS485通信半双工模式 发送前RS485为发送状态*/

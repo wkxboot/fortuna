@@ -37,10 +37,13 @@ typedef enum
  UPS_PWR_STATUS_ON=GPIO_PIN_SET,/*UPS连接了主电源*/
  UPS_PWR_STATUS_OFF=GPIO_PIN_RESET,/*UPS断开了主电源*/
  /*锁*/
- LOCK_CTL_OPEN=GPIO_PIN_SET,
- LOCK_CTL_CLOSE=GPIO_PIN_RESET,
- LOCK_STATUS_OPEN=GPIO_PIN_SET,
- LOCK_STATUS_CLOSE=GPIO_PIN_RESET,
+ LOCK_CTL_UNLOCK=GPIO_PIN_SET,
+ LOCK_CTL_LOCK=GPIO_PIN_RESET,
+ LOCK_STATUS_UNLOCK=GPIO_PIN_SET,
+ LOCK_STATUS_LOCK=GPIO_PIN_RESET,
+ /*门的状态*/
+ DOOR_STATUS_OPEN=GPIO_PIN_SET,
+ DOOR_STATUS_CLOSE=GPIO_PIN_RESET,
  /*灯条*/
  LIGHT_CTL_ON=GPIO_PIN_RESET,
  LIGHT_CTL_OFF=GPIO_PIN_SET,
@@ -74,52 +77,54 @@ typedef enum
 }bsp_status_t;
 
 /*获取锁舌传感器状态*/
-bsp_status_t BSP_get_lock_status();
+bsp_status_t bsp_get_lock_status();
 /*获取开锁按键状态*/
-bsp_status_t BSP_get_lock_sw_status();
+bsp_status_t bsp_get_lock_sw_status();
 /*获取UPS1状态*/
-bsp_status_t BSP_get_ups1_status();
+bsp_status_t bsp_get_ups1_status();
 /*获取UPS2状态*/
-bsp_status_t BSP_get_ups2_status();
+bsp_status_t bsp_get_ups2_status();
 /*获取门上部传感器状态*/
-bsp_status_t BSP_get_door_up_status();
+bsp_status_t bsp_get_door_up_status();
 /*获取门下部传感器状态*/
-bsp_status_t BSP_get_door_dwn_status();
+bsp_status_t bsp_get_door_dwn_status();
 /*获取W/T重量温度切换按键状态*/
-bsp_status_t BSP_get_wt_sw_status();
+bsp_status_t bsp_get_wt_sw_status();
 /*获取货架层数切换按键状态*/
-bsp_status_t BSP_get_w_sw_status();
+bsp_status_t bsp_get_w_sw_status();
 /*获取货校准按键按键状态*/
-bsp_status_t BSP_get_calibrate_sw_status();
+bsp_status_t bsp_get_calibrate_sw_status();
 /*获取功能按键1按键状态*/
-bsp_status_t BSP_get_func1_sw_status();
+bsp_status_t bsp_get_func1_sw_status();
 /*获取功能按键2按键状态*/
-bsp_status_t BSP_get_func2_sw_status();
+bsp_status_t bsp_get_func2_sw_status();
 /*获取压缩机电源状态*/
-bsp_status_t BSP_get_compressor_pwr_status();
+bsp_status_t bsp_get_compressor_pwr_status();
 /*获取玻璃加热电源状态*/
-bsp_status_t BSP_get_glass_pwr_status();
+bsp_status_t bsp_get_glass_pwr_status();
 /*获取灯带状态*/
-bsp_status_t BSP_get_light_status();
+bsp_status_t bsp_get_light_status();
 
 /*led灯控制*/
-void BSP_LED_TURN_ON_OFF(uint8_t led,bsp_status_t state);
+void BSP_LED_TURN_ON_OFF(uint8_t led,bsp_status_t status);
 /*RS485接收控制*/
 void BSP_RS485_RX_ENABLE();
 /*RS485发送控制*/
 void BSP_RS485_TX_ENABLE();
 /*交流电控制*/
-void BSP_AC_TURN_ON_OFF(uint8_t ac,bsp_status_t state);
+void BSP_AC_TURN_ON_OFF(uint8_t ac,bsp_status_t status);
 /*锁控制*/
-void BSP_LOCK_TURN_ON_OFF(bsp_status_t state);
+void BSP_LOCK_CTL(bsp_status_t status);
 /*玻璃加热电源控制*/
-void BSP_GLASS_PWR_TURN_ON_OFF(bsp_status_t state);
+void BSP_GLASS_PWR_TURN_ON_OFF(bsp_status_t status);
 /*灯带控制*/
-void BSP_LIGHT_TURN_ON_OFF(bsp_status_t state);
+void BSP_LIGHT_TURN_ON_OFF(bsp_status_t status);
+/*风扇控制*/
+void BSP_FAN_TURN_ON_OFF(bsp_status_t status);
 /*压缩机控制*/
-void BSP_COMPRESSOR_TURN_ON_OFF(bsp_status_t state);
+void BSP_COMPRESSOR_TURN_ON_OFF(bsp_status_t status);
 /*12V输出控制*/
-void BSP_DC12V_TURN_ON_OFF(bsp_status_t state);
+void BSP_DC12V_TURN_ON_OFF(bsp_status_t status);
 /*24V输出控制--IO控制*/
 void BSP_DC124V_TURN_ON_OFF(bsp_status_t status);
 

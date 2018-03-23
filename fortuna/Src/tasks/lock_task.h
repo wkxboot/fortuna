@@ -1,38 +1,29 @@
 #ifndef  __LOCK_TASK_H__
 #define  __LOCK_TASK_H__
-#include "fortuna_common.h"
+#include "app_common.h"
 
 
-#define  LOCK_TASK_INTERVAL                    50/*锁和门的状态更新间隔*/
-#define  LOCK_TASK_LOCK_TIMEOUT                500/*开锁的时间 只开一次 jd要求*/
+#define  LOCK_TASK_LOCK_SIGNAL                    (1<<0)
+#define  LOCK_TASK_UNLOCK_SIGNAL                  (1<<2)
+#define  LOCK_TASK_DOOR_STATUS_CLOSE_SIGNAL       (1<<3)
+#define  LOCK_TASK_DOOR_STATUS_OPEN_SIGNAL        (1<<4)
+#define  LOCK_TASK_DEBUG_LOCK_SIGNAL              (1<<5)
+#define  LOCK_TASK_DEBUG_UNLOCK_SIGNAL            (1<<6) 
+#define  LOCK_TASK_ALL_SIGNALS                    ((1<<7)-1)
 
-typedef struct
-{
- uint8_t type;
- uint8_t lock;
- union 
- {
- uint8_t  param8[2];
- uint16_t param16;
- };
-}lock_msg_t;
+#define  LOCK_TASK_WAIT_TIMEOUT                   osWaitForever
+#define  LOCK_TASK_LOCK_TIMER_TIMEOUT             600
+#define  LOCK_TASK_UNLOCK_TIMER_TIMEOUT           600
+#define  LOCK_TASK_AUTO_LOCK_TIMER_TIMEOUT        (10*1000)/*10秒钟无人开门自动上锁*/
 
-uint8_t get_lock_state();
-uint8_t get_door_state();
+#define  LOCK_TASK_LOCK_TYPE_AUTO                  1/*自动上锁*/
+#define  LOCK_TASK_LOCK_TYPE_MAN                   2/*手动上锁*/
+
+#define  LOCK_EXCEPTION_NONE                       3
+#define  LOCK_EXCEPTION_HAPPEN                     4
 
 /*锁任务*/
 void lock_task(void const * argument);
 extern osThreadId lock_task_hdl;
-extern osMessageQId lock_task_msg_q_id;
-
-/*锁任务消息*/
-#define  LOCK_TASK_LOCK_LOCK_MSG                1
-#define  LOCK_TASK_UNLOCK_LOCK_MSG              2
-
-/*协议约定锁的状态值*/
-#define  LOCK_TASK_STATE_LOCKED                 0
-#define  LOCK_TASK_STATE_UNLOCKED               1
-#define  LOCK_TASK_STATE_ERR                    0xff
-
 
 #endif

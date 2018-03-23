@@ -2,7 +2,8 @@
 #include "task.h"
 #include "cmsis_os.h"
 #include "string.h"
-#include "fortuna_common.h"
+#include "app_common.h"
+#include "ABDK_AHG081_ZK.h"
 #include "scales.h"
 #include "comm_protocol.h"
 #include "host_comm_task.h"
@@ -10,15 +11,16 @@
 #include "comm_port_timer.h"
 #include "scale_func_task.h"
 #include "lock_task.h"
+#include "door_task.h"
 #include "compressor_task.h"
 #include "temperature_task.h"
-#include "dc12v_task.h"
+#include "dc_task.h"
 #include "light_task.h"
 #include "glass_pwr_task.h"
 #include "ups_task.h"
 #include "debug_task.h"
 #include "cpu_utils.h"
-#include "ABDK_ZNHG_ZK.h"
+
 #define APP_LOG_MODULE_NAME   "[debug]"
 #define APP_LOG_MODULE_LEVEL   APP_LOG_LEVEL_DEBUG    
 #include "app_log.h"
@@ -37,11 +39,11 @@ static uint8_t origin_addr,offset,cmd_len,recv_len;
 /*RTT调试任务*/
 void debug_task(void const * argument)
 {
- fortuna_bool_t debug_enable=FORTUNA_TRUE;
+ app_bool_t debug_enable=APP_TRUE;
 
- fortuna_bool_t ret;
+ app_bool_t ret;
 
- APP_LOG_INFO("######调试任务开始.\r\n");
+ APP_LOG_INFO("@调试任务开始.\r\n");
 
  while(1)
  {
@@ -51,7 +53,7 @@ void debug_task(void const * argument)
   if(data_cnt==0)
     continue;  
   data_cnt=SEGGER_RTT_Read(0,cmd,DEBUG_CMD_MAX_LEN);
-  if(debug_enable!=FORTUNA_TRUE)
+  if(debug_enable!=APP_TRUE)
     continue;
   APP_LOG_DEBUG("读的字节数：%d\r\n",data_cnt);  
   if(data_cnt>DEBUG_CMD_MAX_LEN-1)
@@ -74,7 +76,7 @@ void debug_task(void const * argument)
   APP_LOG_DEBUG("获取净重...\r\n"); 
   ret=scale_obtain_net_weight(origin_addr,0);
   /*执行成功*/
-  if(ret==FORTUNA_TRUE)
+  if(ret==APP_TRUE)
   {
   int16_t net_weight[SCALES_CNT_MAX];
   get_net_weight(0,net_weight);
@@ -106,7 +108,7 @@ void debug_task(void const * argument)
 
  ret=scale_lock_operation(origin_addr,SCALE_UNLOCK_VALUE);
   /*执行成功*/
- if(ret==FORTUNA_TRUE)
+ if(ret==APP_TRUE)
  {
   APP_LOG_DEBUG("电子秤解锁成功.\r\n");
  }
@@ -132,7 +134,7 @@ void debug_task(void const * argument)
 
  ret=scale_lock_operation(origin_addr,SCALE_LOCK_VALUE);
   /*执行成功*/
- if(ret==FORTUNA_TRUE)
+ if(ret==APP_TRUE)
  {
   APP_LOG_DEBUG("电子秤上锁成功.\r\n");
  }
@@ -157,7 +159,7 @@ void debug_task(void const * argument)
  APP_LOG_DEBUG("电子秤去皮...\r\n");
  ret=scale_remove_tare(origin_addr,SCALE_AUTO_TARE_WEIGHT_VALUE);
   /*执行成功*/
- if(ret==FORTUNA_TRUE)
+ if(ret==APP_TRUE)
  {
   APP_LOG_DEBUG("电子秤去皮成功.\r\n");
  }
@@ -182,7 +184,7 @@ void debug_task(void const * argument)
  APP_LOG_DEBUG("电子秤设置清零范围...\r\n");
  
  ret=scale_manully_zero_range(origin_addr,SCALE_ZERO_RANGE_VALUE);
- if(ret==FORTUNA_TRUE)
+ if(ret==APP_TRUE)
  {
   APP_LOG_DEBUG("%2d#电子秤设置清零范围成功.\r\n");
  }
@@ -206,10 +208,10 @@ void debug_task(void const * argument)
  origin_addr-='0';
  APP_LOG_DEBUG("电子秤清零...\r\n");
  ret=scale_remove_tare(origin_addr,0);/*首先设置皮重为0*/
- if(ret==FORTUNA_TRUE)
+ if(ret==APP_TRUE)
  {
  ret=scale_clear_zero(origin_addr,0);
- if(ret==FORTUNA_TRUE)
+ if(ret==APP_TRUE)
  {
   APP_LOG_DEBUG("电子秤清零成功.\r\n");
  }
@@ -240,7 +242,7 @@ void debug_task(void const * argument)
  APP_LOG_DEBUG("电子秤设置最大称重值...\r\n");
  
  ret=scale_set_max_weight(origin_addr,SCALE_MAX_WEIGHT_VALUE);
- if(ret==FORTUNA_TRUE)
+ if(ret==APP_TRUE)
  {
   APP_LOG_DEBUG("电子秤设置最大称重值成功.\r\n");
  }
@@ -266,7 +268,7 @@ void debug_task(void const * argument)
  APP_LOG_DEBUG("电子秤设置分度值...\r\n");
  
  ret=scale_set_division(origin_addr,SCALE_DIVISION_VALUE);
- if(ret==FORTUNA_TRUE)
+ if(ret==APP_TRUE)
  {
   APP_LOG_DEBUG("电子秤设置分度值成功.\r\n");
  }
@@ -303,7 +305,7 @@ void debug_task(void const * argument)
  APP_LOG_DEBUG("电子秤标定内码值...\r\n");
  
  ret=scale_calibrate_code(origin_addr,value);
- if(ret==FORTUNA_TRUE)
+ if(ret==APP_TRUE)
  {
   APP_LOG_DEBUG("电子秤标定内码值成功.\r\n");
  }
@@ -340,7 +342,7 @@ err_handle0:
  APP_LOG_DEBUG("电子秤标定测量值...\r\n");
  
  ret=scale_calibrate_measurement(origin_addr,value);
- if(ret==FORTUNA_TRUE)
+ if(ret==APP_TRUE)
  {
   APP_LOG_DEBUG("电子秤标定测量值成功.\r\n");
  }
@@ -377,7 +379,7 @@ err_handle1:
  APP_LOG_DEBUG("电子秤标定重量值...\r\n");
  
  ret=scale_calibrate_weight(origin_addr,value);
- if(ret==FORTUNA_TRUE)
+ if(ret==APP_TRUE)
  {
   APP_LOG_DEBUG("电子秤标定重量值成功.\r\n");
  }
@@ -400,7 +402,7 @@ err_handle2:
  } 
  /*向压缩机任务发送开机信号*/
  APP_LOG_DEBUG("向压缩机任务发送开机信号.\r\n");
- osSignalSet(compressor_task_hdl,COMPRESSOR_TASK_PWR_ON_SIGNAL);
+ osSignalSet(compressor_task_hdl,COMPRESSOR_TASK_DEBUG_PWR_TURN_ON_SIGNAL);
  continue;
  }
  /*关闭压缩机*/
@@ -414,7 +416,7 @@ err_handle2:
  } 
  /*向压缩机任务发送关机信号*/
  APP_LOG_DEBUG("向压缩机任务发送关机信号.\r\n");
- osSignalSet(compressor_task_hdl,COMPRESSOR_TASK_PWR_OFF_SIGNAL);
+ osSignalSet(compressor_task_hdl,COMPRESSOR_TASK_DEBUG_PWR_TURN_OFF_SIGNAL);
  continue;
  }
  /*打开所有灯带*/
@@ -428,7 +430,7 @@ err_handle2:
  } 
  /*向灯带任务发送打开信号*/
  APP_LOG_DEBUG("向灯带任务发送打开信号.\r\n");
- osSignalSet(light_task_hdl,LIGHT_TASK_LIGHT_1_PWR_ON_SIGNAL|LIGHT_TASK_LIGHT_2_PWR_ON_SIGNAL);
+ osSignalSet(light_task_hdl,LIGHT_TASK_DEBUG_LIGHT_TURN_ON_SIGNAL);
  continue;
  }
  /*关闭所有灯带*/
@@ -442,7 +444,7 @@ err_handle2:
  } 
  /*向灯带任务发送关闭信号*/
  APP_LOG_DEBUG("向灯带任务发送关闭信号.\r\n");
- osSignalSet(light_task_hdl,LIGHT_TASK_LIGHT_1_PWR_OFF_SIGNAL|LIGHT_TASK_LIGHT_2_PWR_OFF_SIGNAL);
+ osSignalSet(light_task_hdl,LIGHT_TASK_DEBUG_LIGHT_TURN_OFF_SIGNAL);
  continue;
  } 
  
@@ -455,12 +457,12 @@ err_handle2:
  APP_LOG_ERROR("12V命令长度非法.\r\n");
  continue;
  } 
- /*向12V任务发送打开信号*/
- APP_LOG_DEBUG("向12V任务发送打开信号.\r\n");
- osSignalSet(dc12v_task_hdl,DC12V_TASK_12V_1_PWR_ON_SIGNAL|DC12V_TASK_12V_2_PWR_ON_SIGNAL);
+ /*向DC任务发送打开信号*/
+ APP_LOG_DEBUG("向DC任务发送打开信号.\r\n");
+ osSignalSet(dc_task_hdl,DC_TASK_12V_PWR_ON_SIGNAL|DC_TASK_24V_PWR_ON_SIGNAL);
  continue;
  } 
- /*关闭所有12V*/
+ /*关闭所有DC*/
  cmd_len=strlen(DEBUG_TASK_CMD_PWR_OFF_12V);
  if(memcmp((const char*)cmd,DEBUG_TASK_CMD_PWR_OFF_12V,cmd_len)==0)
  { 
@@ -469,9 +471,9 @@ err_handle2:
  APP_LOG_ERROR("12V命令长度非法.\r\n");
  continue;
  } 
- /*向12V任务发送关闭信号*/
+ /*向DC任务发送关闭信号*/
  APP_LOG_DEBUG("向12V任务发送关闭信号.\r\n");
- osSignalSet(dc12v_task_hdl,DC12V_TASK_12V_1_PWR_OFF_SIGNAL|DC12V_TASK_12V_2_PWR_OFF_SIGNAL);
+ osSignalSet(dc_task_hdl,DC_TASK_12V_PWR_OFF_SIGNAL|DC_TASK_24V_PWR_OFF_SIGNAL);
  continue;
  } 
  /*打开玻璃电源*/
@@ -485,7 +487,7 @@ err_handle2:
  } 
  /*玻璃电源任务发送打开信号*/
  APP_LOG_DEBUG("玻璃电源任务发送打开信号.\r\n");
- osSignalSet(glass_pwr_task_hdl,GLASS_PWR_TASK_ON_SIGNAL);
+ osSignalSet(glass_pwr_task_hdl,GLASS_PWR_TASK_DEBUG_TURN_ON_SIGNAL);
  continue;
  } 
   /*关闭玻璃电源*/
@@ -499,7 +501,7 @@ err_handle2:
  } 
  /*玻璃电源任务发送关闭信号*/
  APP_LOG_DEBUG("玻璃电源任务发送关闭信号.\r\n");
- osSignalSet(glass_pwr_task_hdl,GLASS_PWR_TASK_OFF_SIGNAL);
+ osSignalSet(glass_pwr_task_hdl,GLASS_PWR_TASK_DEBUG_TURN_OFF_SIGNAL);
  continue;
  } 
  
@@ -513,9 +515,9 @@ err_handle2:
  continue;
  } 
  /*获取UPS状态*/
- uint8_t state;
- state=get_ups_state();
- if(state==UPS_TASK_STATE_PWR_ON)
+ uint8_t status;
+ status=ups_task_get_ups_status();
+ if(status==UPS_TASK_STATUS_PWR_ON)
  {
   APP_LOG_DEBUG("UPS状态--接通市电.\r\n");
  }
@@ -535,9 +537,9 @@ err_handle2:
  continue;
  } 
  /*获取锁状态*/
- uint8_t state;
- state=get_lock_state();
- if(state==LOCK_TASK_STATE_LOCKED)
+ uint8_t status;
+ status=bsp_get_lock_status();
+ if(status==LOCK_STATUS_LOCK)
  {
   APP_LOG_DEBUG("锁状态--关闭.\r\n");
  }
@@ -557,9 +559,9 @@ err_handle2:
  continue;
  } 
  /*获取门状态*/
- uint8_t state;
- state=get_door_state();
- if(state==LOCK_TASK_STATE_LOCKED)
+ uint8_t status;
+ status=door_task_get_door_status();
+ if(status==DOOR_TASK_DOOR_STATUS_CLOSE)
  {
   APP_LOG_DEBUG("门状态--关闭.\r\n");
  }
@@ -656,10 +658,7 @@ err_handle2:
   APP_LOG_ERROR("开锁命令长度非法.\r\n");
   continue;
  }
- lock_msg_t msg;
- msg.type=LOCK_TASK_UNLOCK_LOCK_MSG;
- APP_LOG_DEBUG("向锁任务发送开锁消息.\r\n");
- osMessagePut(lock_task_msg_q_id,*(uint32_t*)&msg,0);
+ osSignalSet(lock_task_hdl,LOCK_TASK_DEBUG_UNLOCK_SIGNAL);
  continue;
  }
  /*关锁*/
@@ -671,10 +670,7 @@ err_handle2:
   APP_LOG_ERROR("关锁命令长度非法.\r\n");
   continue;
  }
- lock_msg_t msg;
- msg.type=LOCK_TASK_LOCK_LOCK_MSG;
- APP_LOG_DEBUG("向锁任务发送关锁消息.\r\n");
- osMessagePut(lock_task_msg_q_id,*(uint32_t*)&msg,0);
+ osSignalSet(lock_task_hdl,LOCK_TASK_DEBUG_UNLOCK_SIGNAL);
  continue;
  }
  /*打开门指示灯*/

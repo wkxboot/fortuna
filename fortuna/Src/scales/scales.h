@@ -1,8 +1,8 @@
 #ifndef    __SCALES_H__
 #define    __SCALES_H__
-#include "fortuna_common.h"
 
-fortuna_bool_t get_net_weight(uint8_t sclae,int16_t *ptr_net_weight);
+
+app_bool_t get_net_weight(uint8_t sclae,int16_t *ptr_net_weight);
 
 /*定义是否需要 净重读写操作互斥 目前不需要没问题*/
 #define  SCALE_NET_WEIGHT_MUTEX_ENABLE                 1
@@ -130,30 +130,30 @@ void scale_init();
 #endif
 
 /*电子秤手动清零范围设置*/
-fortuna_bool_t scale_manully_zero_range(uint8_t scale,uint32_t scale_param);
+app_bool_t scale_manully_zero_range(uint8_t scale,uint32_t scale_param);
 /*电子秤清零操作*/
-fortuna_bool_t scale_clear_zero(uint8_t scale,uint32_t scale_param);
+app_bool_t scale_clear_zero(uint8_t scale,uint32_t scale_param);
 /*电子秤去皮操作*/
-fortuna_bool_t scale_remove_tare(uint8_t scale,uint32_t scale_param);
+app_bool_t scale_remove_tare(uint8_t scale,uint32_t scale_param);
 
 /*电子秤内码值校准操作*/
-fortuna_bool_t scale_calibrate_code(uint8_t scale,uint32_t scale_param);
+app_bool_t scale_calibrate_code(uint8_t scale,uint32_t scale_param);
 /*电子秤测量值校准操作*/
-fortuna_bool_t scale_calibrate_measurement(uint8_t scale,uint32_t scale_param);
+app_bool_t scale_calibrate_measurement(uint8_t scale,uint32_t scale_param);
 /*电子秤测量值校准操作*/
-fortuna_bool_t scale_calibrate_measurement(uint8_t scale,uint32_t scale_param);
+app_bool_t scale_calibrate_measurement(uint8_t scale,uint32_t scale_param);
 /*电子秤重量校准操作*/
-fortuna_bool_t scale_calibrate_weight(uint8_t scale,uint32_t scale_param);
+app_bool_t scale_calibrate_weight(uint8_t scale,uint32_t scale_param);
 /*电子秤获取净重操作*/
-fortuna_bool_t scale_obtain_net_weight(uint8_t scale,uint32_t scale_param);
+app_bool_t scale_obtain_net_weight(uint8_t scale,uint32_t scale_param);
 /*电子秤获取固件版本操作*/
-fortuna_bool_t scale_obtain_firmware_version(uint8_t scale,uint32_t scale_param);
+app_bool_t scale_obtain_firmware_version(uint8_t scale,uint32_t scale_param);
 /*电子秤设置最大称重值操作*/
-fortuna_bool_t scale_set_max_weight(uint8_t scale,uint32_t scale_param);
+app_bool_t scale_set_max_weight(uint8_t scale,uint32_t scale_param);
 /*电子秤设置分度值操作*/
-fortuna_bool_t scale_set_division(uint8_t scale,uint32_t scale_param);
+app_bool_t scale_set_division(uint8_t scale,uint32_t scale_param);
 /*电子秤设备锁操作*/
-fortuna_bool_t scale_lock_operation(uint8_t scale,uint32_t scale_param);
+app_bool_t scale_lock_operation(uint8_t scale,uint32_t scale_param);
 
 
 #endif

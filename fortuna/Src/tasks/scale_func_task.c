@@ -1,6 +1,7 @@
 #include "FreeRTOS.h"
 #include "task.h"
 #include "cmsis_os.h"
+#include "app_common.h"
 #include "comm_protocol.h"
 #include "host_comm_task.h"
 #include "scale_func_task.h"
@@ -22,8 +23,8 @@ void scale_func_task(void const * argument)
 {
  osEvent msg;
  scale_msg_t scale_msg;
- fortuna_bool_t ret;
- APP_LOG_INFO("######电子秤功能任务开始.\r\n");
+ app_bool_t ret;
+ APP_LOG_INFO("@电子秤功能任务开始.\r\n");
  /*创建自己的消息队列*/
  osMessageQDef(scale_func_task_msg,6,uint32_t);
  scale_func_msg_q_id=osMessageCreate(osMessageQ(scale_func_task_msg),scale_func_task_hdl);
@@ -48,7 +49,7 @@ void scale_func_task(void const * argument)
  case  SCALE_FUNC_TASK_CLEAR_ZERO_WEIGHT_MSG:
    APP_LOG_DEBUG("收到清零消息.\r\n");
    ret=scale_clear_zero(scale_msg.scale,scale_msg.param16);
-   if(ret==FORTUNA_TRUE)
+   if(ret==APP_TRUE)
    {
    APP_LOG_DEBUG("电子秤清零成功.\r\n");
    APP_LOG_DEBUG("向通信任务发送清零成功信号.\r\n");
@@ -67,7 +68,7 @@ void scale_func_task(void const * argument)
    else/*自动取当前毛重值为皮重*/
    ret=scale_remove_tare(scale_msg.scale,SCALE_AUTO_TARE_WEIGHT_VALUE); 
     /*全部执行成功*/
-   if(ret==FORTUNA_TRUE)
+   if(ret==APP_TRUE)
    {
    APP_LOG_DEBUG("电子秤去皮成功.\r\n");
    APP_LOG_DEBUG("向通信任务发送去皮成功信号.\r\n");
@@ -84,7 +85,7 @@ void scale_func_task(void const * argument)
    APP_LOG_DEBUG("收到标定内码消息.\r\n");
    ret=scale_calibrate_code(scale_msg.scale,scale_msg.param16);
     /*全部执行成功*/
-  if(ret==FORTUNA_TRUE)
+  if(ret==APP_TRUE)
    {
    APP_LOG_DEBUG("电子秤标定内码成功.\r\n");
    APP_LOG_DEBUG("向通信任务发送标定内码成功信号.\r\n");
@@ -102,7 +103,7 @@ void scale_func_task(void const * argument)
    APP_LOG_DEBUG("收到标定测量值消息.\r\n");
    ret=scale_calibrate_measurement(scale_msg.scale,scale_msg.param16);
     /*全部执行成功*/
-  if(ret==FORTUNA_TRUE)
+  if(ret==APP_TRUE)
    {
    APP_LOG_DEBUG("电子秤标定测量值成功.\r\n");
    APP_LOG_DEBUG("向通信任务发送标定测量值成功信号.\r\n");
@@ -119,7 +120,7 @@ void scale_func_task(void const * argument)
    APP_LOG_DEBUG("收到标定重量消息.\r\n");
    ret=scale_calibrate_weight(scale_msg.scale,scale_msg.param16);
     /*全部执行成功*/
-  if(ret==FORTUNA_TRUE)
+  if(ret==APP_TRUE)
    {
    APP_LOG_DEBUG("电子秤标定重量成功.\r\n");
    APP_LOG_DEBUG("向通信任务发送标定重量成功信号.\r\n");
@@ -139,7 +140,7 @@ void scale_func_task(void const * argument)
   /*电子秤获取净重操作*/
    ret= scale_obtain_net_weight(scale_msg.scale,scale_msg.param16);
     /*全部执行成功*/
-   if(ret==FORTUNA_TRUE)
+   if(ret==APP_TRUE)
    {
    APP_LOG_DEBUG("电子秤获取净重成功.\r\n");
    APP_LOG_DEBUG("向净重轮询任务发送获取净重成功信号.\r\n");
@@ -156,7 +157,7 @@ void scale_func_task(void const * argument)
    APP_LOG_DEBUG("收到获取电子秤固件版本信息.\r\n");
    ret= scale_obtain_firmware_version(scale_msg.scale,scale_msg.param16);
    /*全部执行成功*/
-   if(ret==FORTUNA_TRUE)
+   if(ret==APP_TRUE)
    {
    APP_LOG_DEBUG("电子秤获取固件版本成功.\r\n");
    APP_LOG_DEBUG("向重量任务发送获取固件版本成功信号.\r\n");
@@ -172,7 +173,7 @@ void scale_func_task(void const * argument)
     APP_LOG_DEBUG("收到设置最大值指令消息.\r\n");
     ret= scale_set_max_weight(scale_msg.scale,scale_msg.param16);  
     /*全部执行成功*/
-   if(ret==FORTUNA_TRUE)
+   if(ret==APP_TRUE)
    {
    APP_LOG_DEBUG("电子秤设置最大值成功.\r\n");
    APP_LOG_DEBUG("向重量轮询任务发送设置最大值成功信号.\r\n");
@@ -189,7 +190,7 @@ void scale_func_task(void const * argument)
     APP_LOG_DEBUG("收到设置分度值指令消息.\r\n");
     ret= scale_set_division(scale_msg.scale,scale_msg.param16);  
     /*全部执行成功*/
-   if(ret==FORTUNA_TRUE)
+   if(ret==APP_TRUE)
    {
    APP_LOG_DEBUG("电子秤设置分度值成功.\r\n");
    APP_LOG_DEBUG("向通信任务发送设置分度值成功信号.\r\n");
@@ -206,7 +207,7 @@ void scale_func_task(void const * argument)
    APP_LOG_DEBUG("收到锁操作消息.\r\n");
    ret= scale_lock_operation(scale_msg.scale,scale_msg.param16);  
     /*全部执行成功*/
-   if(ret==FORTUNA_TRUE)
+   if(ret==APP_TRUE)
    {
    APP_LOG_DEBUG("电子秤执行锁指令成功.\r\n");
    APP_LOG_DEBUG("向通信任务发送执行锁指令成功信号.\r\n");

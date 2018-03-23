@@ -1,7 +1,5 @@
 #ifndef  __COMM_PROTOCOL__H__
 #define  __COMM_PROTOCOL__H__
-#include "fortuna_common.h"
-#include "scales.h"
 
 typedef enum
 {
@@ -55,10 +53,10 @@ comm_status_t comm_send_fsm(uint8_t *ptr_buff,uint8_t send_len);
 #define  COMM_TASK_CALIBRATE_SCALE_MEASUREMENT_ERR_SIGNAL  (1<<12)
 #define  COMM_TASK_CALIBRATE_SCALE_WEIGHT_OK_SIGNAL        (1<<13)
 #define  COMM_TASK_CALIBRATE_SCALE_WEIGHT_ERR_SIGNAL       (1<<14)
-#define  COMM_TASK_UNLOCK_LOCK_OK_SIGNAL                   (1<<15)
-#define  COMM_TASK_UNLOCK_LOCK_ERR_SIGNAL                  (1<<16)
-#define  COMM_TASK_LOCK_LOCK_OK_SIGNAL                     (1<<17)
-#define  COMM_TASK_LOCK_LOCK_ERR_SIGNAL                    (1<<18)
+#define  COMM_TASK_LOCK_LOCK_SUCCESS_SIGNAL                (1<<15)
+#define  COMM_TASK_LOCK_LOCK_FAIL_SIGNAL                   (1<<16)
+#define  COMM_TASK_UNLOCK_LOCK_SUCCESS_SIGNAL              (1<<17)
+#define  COMM_TASK_UNLOCK_LOCK_FAIL_SIGNAL                 (1<<18)
 
 
 /*通信任务子函数超时时间*/
@@ -119,6 +117,26 @@ comm_status_t comm_send_fsm(uint8_t *ptr_buff,uint8_t send_len);
 #define  COMM_CMD41_EXECUTE_RESULT_SIZE                 1
 #define  COMM_CMD51_EXECUTE_RESULT_SIZE                 2
 
+/*门/锁/UPS的状态*/
+typedef enum
+{
+ LOCK_LOCK_SUCCESS=1,
+ LOCK_LOCK_FAIL=0,
+ LOCK_UNLOCK_SUCCESS=1,
+ LOCK_UNLOCK_FAIL=1,
+ 
+ LOCK_LOCKED=0,
+ LOCK_UNLOCKED=1,
+ LOCK_LOCKING=2,
+ LOCK_FAULT=0xFF,
+ UPS_PWR_ON=1,
+ UPS_PWR_OFF=2,
+ UPS_FAULT=0xFF
+}obj_status_t;
 
+/*长虹id*/
+#define  VENDOR_ID_CHANGHONG                          0x11
+/*固件版本号v1.0*/   
+#define  FIRMWARE_VERSION                             0x01
 
 #endif

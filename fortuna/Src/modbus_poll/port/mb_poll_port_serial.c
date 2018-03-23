@@ -1,6 +1,7 @@
 #include "FreeRTOS.h"
 #include "task.h"
 #include "cmsis_os.h"
+#include "app_common.h"
 #include "usart.h"
 #include "app_error.h"
 #include "modbus_poll.h"

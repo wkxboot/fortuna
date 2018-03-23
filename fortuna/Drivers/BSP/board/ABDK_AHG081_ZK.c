@@ -12,74 +12,74 @@
 
 
 /*获取锁舌传感器状态*/
-bsp_status_t BSP_get_lock_status()
+bsp_status_t bsp_get_lock_status()
 {
  return (bsp_status_t)HAL_GPIO_ReadPin(LOCK_STATUS_POS_GPIO_Port,LOCK_STATUS_POS_Pin);
 }
 /*获取开锁按键状态*/
-bsp_status_t BSP_get_lock_sw_status()
+bsp_status_t bsp_get_lock_sw_status()
 {
  return (bsp_status_t)HAL_GPIO_ReadPin(LOCK_SW_STATUS_POS_GPIO_Port,LOCK_SW_STATUS_POS_Pin);
 }
 
 /*获取UPS 1状态*/
-bsp_status_t BSP_get_ups1_status()
+bsp_status_t bsp_get_ups1_status()
 {
  return (bsp_status_t)HAL_GPIO_ReadPin(UPS_1_STATUS_POS_GPIO_Port,UPS_1_STATUS_POS_Pin);
 }
 /*获取UPS 状态*/
-bsp_status_t BSP_get_ups2_status()
+bsp_status_t bsp_get_ups2_status()
 {
  return (bsp_status_t)HAL_GPIO_ReadPin(UPS_2_STATUS_POS_GPIO_Port,UPS_2_STATUS_POS_Pin);
 }
 
 /*获取门上部传感器状态*/
-bsp_status_t BSP_get_door_up_status()
+bsp_status_t bsp_get_door_up_status()
 {
 return (bsp_status_t)HAL_GPIO_ReadPin(DOOR_STATUS_UP_POS_GPIO_Port,DOOR_STATUS_UP_POS_Pin);
 }
 /*获取门下部传感器状态*/
-bsp_status_t BSP_get_door_dwn_status()
+bsp_status_t bsp_get_door_dwn_status()
 {
 return (bsp_status_t)HAL_GPIO_ReadPin(DOOR_STATUS_DWN_POS_GPIO_Port,DOOR_STATUS_DWN_POS_Pin);
 }
 /*获取W/T重量温度切换按键状态*/
-bsp_status_t BSP_get_wt_sw_status()
+bsp_status_t bsp_get_wt_sw_status()
 {
 return (bsp_status_t)HAL_GPIO_ReadPin(W_T_SW_STATUS_POS_GPIO_Port,W_T_SW_STATUS_POS_Pin);
 }
 /*获取货架层数切换按键状态*/
-bsp_status_t BSP_get_w_sw_status()
+bsp_status_t bsp_get_w_sw_status()
 {
 return (bsp_status_t)HAL_GPIO_ReadPin(W_SW_STATUS_POS_GPIO_Port,W_SW_STATUS_POS_Pin);
 }
 
 /*获取校准按键按键状态*/
-bsp_status_t BSP_get_calibrate_sw_status()
+bsp_status_t bsp_get_calibrate_sw_status()
 {
 return (bsp_status_t)HAL_GPIO_ReadPin(CALIBRATE_SW_STATUS_POS_GPIO_Port,CALIBRATE_SW_STATUS_POS_Pin);
 }
 /*获取功能按键1按键状态*/
-bsp_status_t BSP_get_func1_sw_status()
+bsp_status_t bsp_get_func1_sw_status()
 {
 return (bsp_status_t)HAL_GPIO_ReadPin(FUNC1_SW_STATUS_POS_GPIO_Port,FUNC1_SW_STATUS_POS_Pin);
 }
 /*获取功能按键2按键状态*/
-bsp_status_t BSP_get_func2_sw_status()
+bsp_status_t bsp_get_func2_sw_status()
 {
 return (bsp_status_t)HAL_GPIO_ReadPin(FUNC2_SW_STATUS_POS_GPIO_Port,FUNC2_SW_STATUS_POS_Pin);
 }
 
 /*获取压缩机电源状态*/
 static bsp_status_t bsp_compressor_pwr_status=COMPRESSOR_PWR_STATUS_OFF;
-bsp_status_t BSP_get_compressor_pwr_status()
+bsp_status_t bsp_get_compressor_pwr_status()
 {
  return bsp_compressor_pwr_status;  
 }
 
 /*获取玻璃加热电源状态*/
 static bsp_status_t bsp_glass_pwr_status=GLASS_PWR_STATUS_OFF;
-bsp_status_t BSP_get_glass_pwr_status()
+bsp_status_t bsp_get_glass_pwr_status()
 {
  return bsp_glass_pwr_status;
 }
@@ -90,7 +90,7 @@ static bsp_status_t bsp_light_status=LIGHT_STATUS_ON;
 /*风扇状态*/
 static bsp_status_t bsp_fan_status=LIGHT_STATUS_ON;
 
-bsp_status_t BSP_get_light_status()
+bsp_status_t bsp_get_light_status()
 {
  return bsp_light_status;
 }
@@ -146,7 +146,7 @@ void BSP_AC_TURN_ON_OFF(uint8_t ac,bsp_status_t status)
  }  
 }
 /*锁操作*/
-void BSP_LOCK_TURN_ON_OFF(bsp_status_t status)
+void BSP_LOCK_CTL(bsp_status_t status)
 {
  HAL_GPIO_WritePin(LOCK_CTL_POS_GPIO_Port,LOCK_CTL_POS_Pin,(GPIO_PinState)status); 
 }

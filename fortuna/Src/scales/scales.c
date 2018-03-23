@@ -1,7 +1,7 @@
 #include "FreeRTOS.h"
 #include "task.h"
 #include "cmsis_os.h"
-#include "fortuna_common.h"   
+#include "app_common.h"
 #include "scales.h"
 #include "modbus_poll.h"
 #define APP_LOG_MODULE_NAME   "[scales]"
@@ -45,7 +45,7 @@ scale_info_t *seek_scale(uint8_t id)
 }
 
 /*获取净重值*/
-fortuna_bool_t get_net_weight(uint8_t id,int16_t *ptr_net_weight)
+app_bool_t get_net_weight(uint8_t id,int16_t *ptr_net_weight)
 {
   scale_info_t *ptr_scale;
   APP_ASSERT(ptr_net_weight);
@@ -53,13 +53,13 @@ fortuna_bool_t get_net_weight(uint8_t id,int16_t *ptr_net_weight)
   if(ptr_scale)
   {
   *ptr_net_weight=ptr_scale->net_weight;
-  return FORTUNA_TRUE;
+  return APP_TRUE;
   }
-  return FORTUNA_FALSE;
+  return APP_FALSE;
 }
 
 /*设置净重值*/
-fortuna_bool_t set_net_weight(uint8_t id,int32_t net_weight)
+app_bool_t set_net_weight(uint8_t id,int32_t net_weight)
 {
   scale_info_t *ptr_scale;
   ptr_scale=seek_scale(id);
@@ -84,9 +84,9 @@ fortuna_bool_t set_net_weight(uint8_t id,int32_t net_weight)
     ptr_scale->net_weight= (int16_t)net_weight;
   }
   ptr_scale->timeout_cnt=0;
-  return FORTUNA_TRUE;
+  return APP_TRUE;
   } 
-  return FORTUNA_FALSE;
+  return APP_FALSE;
 }
 
 /*更新超时错误次数*/
@@ -121,11 +121,11 @@ void check_scale_cnt(uint8_t id,uint8_t *ptr_scale_start,uint8_t *ptr_scale_end)
 
 
 /*电子秤手动清零范围设置*/
-fortuna_bool_t scale_manully_zero_range(uint8_t id,uint32_t scale_param)
+app_bool_t scale_manully_zero_range(uint8_t id,uint32_t scale_param)
 {
  uint8_t scale_end,scale_start;
  uint16_t param[DEVICE_MANUALLY_CLEAR_RANGE_REG_CNT];
- fortuna_bool_t ret=FORTUNA_TRUE;
+ app_bool_t ret=APP_TRUE;
  mb_poll_status_t err_code;
  /*计算电子秤数量*/
  check_scale_cnt(id,&scale_start,&scale_end);
@@ -141,7 +141,7 @@ fortuna_bool_t scale_manully_zero_range(uint8_t id,uint32_t scale_param)
   err_code=modbus_poll_write_multiple_registers(id,DEVICE_MANUALLY_CLEAR_RANGE_REG_ADDR,DEVICE_MANUALLY_CLEAR_RANGE_REG_CNT,param);
   if(err_code!=MODBUS_POLL_STATUS_SUCCESS)
   {
-  ret=FORTUNA_FALSE;
+  ret=APP_FALSE;
   APP_LOG_ERROR("%2d#电子秤设置手动置零范围失败.\r\n",id);
   return ret;/*只要有一个称出现错误就立即返回 减少响应时间*/
   }
@@ -154,11 +154,11 @@ fortuna_bool_t scale_manully_zero_range(uint8_t id,uint32_t scale_param)
  return ret;
 }
 /*电子秤清零*/
-fortuna_bool_t scale_clear_zero(uint8_t id,uint32_t scale_param)
+app_bool_t scale_clear_zero(uint8_t id,uint32_t scale_param)
 {
  uint8_t scale_end,scale_start;
  uint16_t param[DEVICE_MANUALLY_CLEAR_REG_CNT];
- fortuna_bool_t ret=FORTUNA_TRUE;
+ app_bool_t ret=APP_TRUE;
  mb_poll_status_t err_code;
  /*计算电子秤数量*/
  check_scale_cnt(id,&scale_start,&scale_end);
@@ -174,7 +174,7 @@ fortuna_bool_t scale_clear_zero(uint8_t id,uint32_t scale_param)
   err_code=modbus_poll_write_multiple_registers(id,DEVICE_MANUALLY_CLEAR_REG_ADDR,DEVICE_MANUALLY_CLEAR_REG_CNT,param);
   if(err_code!=MODBUS_POLL_STATUS_SUCCESS)
   {
-  ret=FORTUNA_FALSE;
+  ret=APP_FALSE;
   APP_LOG_ERROR("%2d#电子秤清零失败.\r\n",id);
   return ret;/*只要有一个称出现错误就立即返回 减少响应时间*/
   }
@@ -188,11 +188,11 @@ fortuna_bool_t scale_clear_zero(uint8_t id,uint32_t scale_param)
 }
 
 /*电子秤去皮/设置皮重值*/
-fortuna_bool_t scale_remove_tare(uint8_t id,uint32_t scale_param)
+app_bool_t scale_remove_tare(uint8_t id,uint32_t scale_param)
 {
  uint8_t scale_end,scale_start;
  uint16_t param[DEVICE_TARE_WEIGHT_REG_CNT];
- fortuna_bool_t ret=FORTUNA_TRUE;
+ app_bool_t ret=APP_TRUE;
  mb_poll_status_t err_code;
  /*计算电子秤数量*/
  check_scale_cnt(id,&scale_start,&scale_end);
@@ -208,7 +208,7 @@ fortuna_bool_t scale_remove_tare(uint8_t id,uint32_t scale_param)
   err_code=modbus_poll_write_multiple_registers(id,DEVICE_TARE_WEIGHT_REG_ADDR,DEVICE_TARE_WEIGHT_REG_CNT,param);
   if(err_code!=MODBUS_POLL_STATUS_SUCCESS)
   {
-  ret=FORTUNA_FALSE;
+  ret=APP_FALSE;
   APP_LOG_ERROR("%2d#电子秤去皮失败.\r\n",id);
   return ret;/*只要有一个称出现错误就立即返回 减少响应时间*/
   }
@@ -223,12 +223,12 @@ fortuna_bool_t scale_remove_tare(uint8_t id,uint32_t scale_param)
 
 
 /*电子秤标定内码值*/
-fortuna_bool_t scale_calibrate_code(uint8_t id,uint32_t scale_param)
+app_bool_t scale_calibrate_code(uint8_t id,uint32_t scale_param)
 {
  uint8_t scale_end,scale_start;
  uint16_t param[DEVICE_ZERO_CODE_REG_CNT];
  uint16_t reg_addr,reg_cnt;
- fortuna_bool_t ret=FORTUNA_TRUE;
+ app_bool_t ret=APP_TRUE;
  mb_poll_status_t err_code;
  
  if(scale_param==0)
@@ -257,7 +257,7 @@ fortuna_bool_t scale_calibrate_code(uint8_t id,uint32_t scale_param)
   err_code=modbus_poll_write_multiple_registers(id,reg_addr,reg_cnt,param);
   if(err_code!=MODBUS_POLL_STATUS_SUCCESS)
   {
-  ret=FORTUNA_FALSE;
+  ret=APP_FALSE;
   APP_LOG_ERROR("%2d#电子秤内码值标定失败.\r\n",id);
   return ret;/*只要有一个称出现错误就立即返回 减少响应时间*/
   }
@@ -272,12 +272,12 @@ fortuna_bool_t scale_calibrate_code(uint8_t id,uint32_t scale_param)
 
 
 /*电子秤标定测量值*/
-fortuna_bool_t scale_calibrate_measurement(uint8_t id,uint32_t scale_param)
+app_bool_t scale_calibrate_measurement(uint8_t id,uint32_t scale_param)
 {
  uint8_t scale_end,scale_start;
  uint16_t param[DEVICE_ZERO_MEASUREMENT_REG_CNT];
  uint16_t reg_addr,reg_cnt;
- fortuna_bool_t ret=FORTUNA_TRUE;
+ app_bool_t ret=APP_TRUE;
  mb_poll_status_t err_code;
  
  if(scale_param==0)
@@ -306,7 +306,7 @@ fortuna_bool_t scale_calibrate_measurement(uint8_t id,uint32_t scale_param)
   err_code=modbus_poll_write_multiple_registers(id,reg_addr,reg_cnt,param);
   if(err_code!=MODBUS_POLL_STATUS_SUCCESS)
   {
-  ret=FORTUNA_FALSE;
+  ret=APP_FALSE;
   APP_LOG_ERROR("%2d#电子秤测量值标定失败.\r\n",id);
   return ret;/*只要有一个称出现错误就立即返回 减少响应时间*/
   }
@@ -320,12 +320,12 @@ fortuna_bool_t scale_calibrate_measurement(uint8_t id,uint32_t scale_param)
 }
 
 /*电子秤重量校准*/
-fortuna_bool_t scale_calibrate_weight(uint8_t id,uint32_t scale_param)
+app_bool_t scale_calibrate_weight(uint8_t id,uint32_t scale_param)
 {
  uint8_t scale_end,scale_start;
  uint16_t param[DEVICE_ZERO_CALIBRATE_REG_CNT];
  uint16_t reg_addr,reg_cnt;
- fortuna_bool_t ret=FORTUNA_TRUE;
+ app_bool_t ret=APP_TRUE;
  mb_poll_status_t err_code;
  
  if(scale_param==0)
@@ -354,7 +354,7 @@ fortuna_bool_t scale_calibrate_weight(uint8_t id,uint32_t scale_param)
   err_code=modbus_poll_write_multiple_registers(id,reg_addr,reg_cnt,param);
   if(err_code!=MODBUS_POLL_STATUS_SUCCESS)
   {
-  ret=FORTUNA_FALSE;
+  ret=APP_FALSE;
   APP_LOG_ERROR("%2d#电子秤重量值标定失败.\r\n",id);
   return ret;/*只要有一个称出现错误就立即返回 减少响应时间*/
   }
@@ -369,12 +369,12 @@ fortuna_bool_t scale_calibrate_weight(uint8_t id,uint32_t scale_param)
 
 
 /*电子秤获取净重*/
-fortuna_bool_t scale_obtain_net_weight(uint8_t id,uint32_t scale_param)
+app_bool_t scale_obtain_net_weight(uint8_t id,uint32_t scale_param)
 {
  uint8_t scale_end,scale_start;
  uint16_t weight[DEVICE_NET_WEIGHT_REG_CNT];
  int32_t net_weight;
- fortuna_bool_t ret=FORTUNA_TRUE;
+ app_bool_t ret=APP_TRUE;
  mb_poll_status_t err_code;
  /*计算电子秤数量*/
  check_scale_cnt(id,&scale_start,&scale_end);
@@ -386,7 +386,7 @@ fortuna_bool_t scale_obtain_net_weight(uint8_t id,uint32_t scale_param)
   err_code=modbus_poll_read_holding_registers(id,DEVICE_NET_WEIGHT_REG_ADDR,DEVICE_NET_WEIGHT_REG_CNT,weight);
   if(err_code!=MODBUS_POLL_STATUS_SUCCESS)
   {
-  ret=FORTUNA_FALSE;
+  ret=APP_FALSE;
   scale_timeout_update(id);
   APP_LOG_ERROR("%2d#电子秤获取净重失败.\r\n",id);
   }
@@ -394,7 +394,7 @@ fortuna_bool_t scale_obtain_net_weight(uint8_t id,uint32_t scale_param)
   {
   net_weight=(int32_t)uint32_big_decode_uint16(weight);
   set_net_weight(id,net_weight);
-  APP_LOG_DEBUG("%2d#电子秤获取净重成功.\r\n",id);
+  APP_LOG_DEBUG("%2d#电子秤获取净重成功--> %d g.\r\n",id,net_weight);
   }
   osDelay(SCALE_OPERATION_INTERVAL);
  }
@@ -402,11 +402,11 @@ fortuna_bool_t scale_obtain_net_weight(uint8_t id,uint32_t scale_param)
 }
 
 /*电子秤获取固件版本*/
-fortuna_bool_t scale_obtain_firmware_version(uint8_t id,uint32_t scale_param)
+app_bool_t scale_obtain_firmware_version(uint8_t id,uint32_t scale_param)
 {
  uint8_t scale_end,scale_start;
  uint16_t version[DEVICE_FIRMWARE_VERTION_REG_CNT];
- fortuna_bool_t ret=FORTUNA_TRUE;
+ app_bool_t ret=APP_TRUE;
  mb_poll_status_t err_code;
  /*计算电子秤数量*/
  check_scale_cnt(id,&scale_start,&scale_end);
@@ -418,7 +418,7 @@ fortuna_bool_t scale_obtain_firmware_version(uint8_t id,uint32_t scale_param)
   err_code=modbus_poll_read_holding_registers(id,DEVICE_FIRMWARE_VERTION_REG_ADDR,DEVICE_FIRMWARE_VERTION_REG_CNT,version);
   if(err_code!=MODBUS_POLL_STATUS_SUCCESS)
   {
-  ret=FORTUNA_FALSE;
+  ret=APP_FALSE;
   APP_LOG_ERROR("%2d#电子秤获取固件版本失败.\r\n",id);
   return ret;/*只要有一个称出现错误就立即返回 减少响应时间*/
   }
@@ -432,11 +432,11 @@ fortuna_bool_t scale_obtain_firmware_version(uint8_t id,uint32_t scale_param)
 }
 
 /*电子秤设置最大称重值*/
-fortuna_bool_t scale_set_max_weight(uint8_t id,uint32_t scale_param)
+app_bool_t scale_set_max_weight(uint8_t id,uint32_t scale_param)
 {
  uint8_t scale_end,scale_start;
  uint16_t param[DEVICE_MAX_WEIGHT_REG_CNT];
- fortuna_bool_t ret=FORTUNA_TRUE;
+ app_bool_t ret=APP_TRUE;
  mb_poll_status_t err_code;
  /*计算电子秤数量*/
  check_scale_cnt(id,&scale_start,&scale_end);
@@ -451,7 +451,7 @@ fortuna_bool_t scale_set_max_weight(uint8_t id,uint32_t scale_param)
    err_code=modbus_poll_write_multiple_registers(id,DEVICE_MAX_WEIGHT_REG_ADDR,DEVICE_MAX_WEIGHT_REG_CNT,param);
   if(err_code!=MODBUS_POLL_STATUS_SUCCESS)
   {
-  ret=FORTUNA_FALSE;
+  ret=APP_FALSE;
   APP_LOG_ERROR("%2d#电子秤设置最大称重值失败.\r\n",id);
   return ret;/*只要有一个称出现错误就立即返回 减少响应时间*/
   }
@@ -465,11 +465,11 @@ fortuna_bool_t scale_set_max_weight(uint8_t id,uint32_t scale_param)
 }
 
 /*电子秤设置分度值*/
-fortuna_bool_t scale_set_division(uint8_t id,uint32_t scale_param)
+app_bool_t scale_set_division(uint8_t id,uint32_t scale_param)
 {
  uint8_t scale_end,scale_start;
  uint16_t param[DEVICE_DIVISION_REG_CNT];
- fortuna_bool_t ret=FORTUNA_TRUE;
+ app_bool_t ret=APP_TRUE;
  mb_poll_status_t err_code;
  /*计算电子秤数量*/
  check_scale_cnt(id,&scale_start,&scale_end);
@@ -484,7 +484,7 @@ fortuna_bool_t scale_set_division(uint8_t id,uint32_t scale_param)
   err_code=modbus_poll_write_multiple_registers(id,DEVICE_DIVISION_REG_ADDR,DEVICE_DIVISION_REG_CNT,param);
   if(err_code!=MODBUS_POLL_STATUS_SUCCESS)
   {
-  ret=FORTUNA_FALSE;
+  ret=APP_FALSE;
   APP_LOG_ERROR("%2d#电子秤设置分度值失败.\r\n",id);
   return ret;/*只要有一个称出现错误就立即返回 减少响应时间*/
   }
@@ -498,11 +498,11 @@ fortuna_bool_t scale_set_division(uint8_t id,uint32_t scale_param)
 }
 
 /*电子秤设备锁*/
-fortuna_bool_t scale_lock_operation(uint8_t id,uint32_t scale_param)
+app_bool_t scale_lock_operation(uint8_t id,uint32_t scale_param)
 {
  uint8_t scale_end,scale_start;
  uint16_t param[DEVICE_LOCK_REG_CNT];
- fortuna_bool_t ret=FORTUNA_TRUE;
+ app_bool_t ret=APP_TRUE;
  mb_poll_status_t err_code;
  /*计算电子秤数量*/
  check_scale_cnt(id,&scale_start,&scale_end);
@@ -525,7 +525,7 @@ fortuna_bool_t scale_lock_operation(uint8_t id,uint32_t scale_param)
   err_code=modbus_poll_write_multiple_registers(id,DEVICE_LOCK_REG_ADDR,DEVICE_LOCK_REG_CNT,param);
   if(err_code!=MODBUS_POLL_STATUS_SUCCESS)
   {
-  ret=FORTUNA_FALSE;
+  ret=APP_FALSE;
   APP_LOG_ERROR("%2d#电子秤锁操作失败.\r\n",id);
   return ret;/*只要有一个称出现错误就立即返回 减少响应时间*/
   }

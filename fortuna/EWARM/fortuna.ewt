@@ -1206,19 +1206,25 @@
             <group>
                 <name>tasks</name>
                 <file>
-                    <name>$PROJ_DIR$\..\Src\tasks\calibrate_memory_task.c</name>
+                    <name>$PROJ_DIR$\..\Src\tasks\calibrate_cache_task.c</name>
                 </file>
                 <file>
                     <name>$PROJ_DIR$\..\Src\tasks\compressor_task.c</name>
                 </file>
                 <file>
-                    <name>$PROJ_DIR$\..\Src\tasks\dc12v_task.c</name>
+                    <name>$PROJ_DIR$\..\Src\tasks\dc_task.c</name>
                 </file>
                 <file>
                     <name>$PROJ_DIR$\..\Src\tasks\debug_task.c</name>
                 </file>
                 <file>
                     <name>$PROJ_DIR$\..\Src\tasks\display_task.c</name>
+                </file>
+                <file>
+                    <name>$PROJ_DIR$\..\Src\tasks\door_task.c</name>
+                </file>
+                <file>
+                    <name>$PROJ_DIR$\..\Src\tasks\fan_task.c</name>
                 </file>
                 <file>
                     <name>$PROJ_DIR$\..\Src\tasks\glass_pwr_task.c</name>
@@ -1248,7 +1254,7 @@
                     <name>$PROJ_DIR$\..\Src\tasks\sys_led_task.c</name>
                 </file>
                 <file>
-                    <name>$PROJ_DIR$\..\Src\tasks\temperature_memory_task.c</name>
+                    <name>$PROJ_DIR$\..\Src\tasks\temperature_cache_task.c</name>
                 </file>
                 <file>
                     <name>$PROJ_DIR$\..\Src\tasks\temperature_task.c</name>
@@ -1260,7 +1266,7 @@
                     <name>$PROJ_DIR$\..\Src\tasks\watch_dog_task.c</name>
                 </file>
                 <file>
-                    <name>$PROJ_DIR$\..\Src\tasks\weight_memory_task.c</name>
+                    <name>$PROJ_DIR$\..\Src\tasks\weight_cache_task.c</name>
                 </file>
             </group>
             <file>
@@ -1308,9 +1314,9 @@
             <group>
                 <name>components</name>
                 <group>
-                    <name>display_led</name>
+                    <name>digit_led</name>
                     <file>
-                        <name>$PROJ_DIR$\..\Drivers\BSP\components\display_led\display_led.c</name>
+                        <name>$PROJ_DIR$\..\Drivers\BSP\components\digit_led\digit_led.c</name>
                     </file>
                 </group>
                 <group>

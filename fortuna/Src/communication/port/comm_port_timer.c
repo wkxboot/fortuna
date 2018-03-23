@@ -1,6 +1,7 @@
 #include "FreeRTOS.h"
 #include "task.h"
 #include "cmsis_os.h"
+#include "app_common.h"
 #include "usart.h"
 #include "comm_protocol.h"
 #include "host_comm_task.h"

@@ -1,6 +1,7 @@
 #include "FreeRTOS.h"
 #include "task.h"
 #include "cmsis_os.h"
+#include "app_common.h"
 #include "usart.h"
 #include "comm_protocol.h"
 #include "host_comm_task.h"
@@ -32,7 +33,7 @@ comm_status_t xcomm_port_serial_init()
  return COMM_OK;
 }
 
-void xcomm_port_serial_enable(fortuna_bool_t rx_bool,fortuna_bool_t tx_bool)
+void xcomm_port_serial_enable(app_bool_t rx_bool,app_bool_t tx_bool)
 {
  if(rx_bool)
   {

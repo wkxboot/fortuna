@@ -1,7 +1,7 @@
 #include "FreeRTOS.h"
 #include "task.h"
 #include "cmsis_os.h"
-#include "fortuna_common.h"
+#include "app_common.h"
 #include "comm_protocol.h"
 #include "comm_port_serial.h"
 #include "comm_port_timer.h"
@@ -25,7 +25,7 @@ void host_comm_task(void const * argument)
  osEvent signals;
  uint8_t *ptr_buff,recv_len,send_len;
  comm_status_t status;
- APP_LOG_INFO("######与主机通信任务开始.\r\n");
+ APP_LOG_INFO("@与主机通信任务开始.\r\n");
  status=comm_init();
  if(status!=COMM_OK)
  {

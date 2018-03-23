@@ -1,10 +1,10 @@
 #include "FreeRTOS.h"
 #include "task.h"
 #include "cmsis_os.h"
-#include "fortuna_common.h"
+#include "app_common.h"
+#include "ABDK_AHG081_ZK.h"
 #include "ntc_3950.h"
 #include "temperature_task.h"
-#include "ABDK_ZNHG_ZK.h"
 #include "adc.h"
 #define APP_LOG_MODULE_NAME   "[temperature]"
 #define APP_LOG_MODULE_LEVEL   APP_LOG_LEVEL_INFO    
@@ -124,7 +124,7 @@ void temperature_task(void const * argument)
  uint32_t sample_cusum[TEMPERATURE_CNT]={0};/*取样的累加和*/
  uint32_t sample_time=0;/*取样的时间*/
  uint16_t sample_cnt=0;/*取样的次数*/
- APP_LOG_INFO("######温度任务开始.\r\n");
+ APP_LOG_INFO("@温度任务开始.\r\n");
 /*温度信息初始化*/
  temperature_init();
  while(1)

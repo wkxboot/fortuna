@@ -1,7 +1,8 @@
 #include "FreeRTOS.h"
 #include "task.h"
 #include "cmsis_os.h"
-#include "fortuna_common.h"
+#include "app_common.h"
+#include "ABDK_AHG081_ZK.h"
 #include "scales.h"
 #include "comm_protocol.h"
 #include "host_comm_task.h"
@@ -10,6 +11,7 @@
 #include "comm_port_timer.h"
 #include "scale_func_task.h"
 #include "lock_task.h"
+#include "door_task.h"
 #include "ups_task.h"
 #include "temperature_task.h"
 #define APP_LOG_MODULE_NAME   "[protocol]"
@@ -84,7 +86,7 @@ void HOST_PROTOCOL_CRITICAL_REGION_EXIT()
 void comm_fsm_timer_expired()
 {
  /*禁止串口发送接收*/
- xcomm_port_serial_enable(FORTUNA_FALSE,FORTUNA_FALSE); 
+ xcomm_port_serial_enable(APP_FALSE,APP_FALSE); 
  xcomm_port_serial_timer_stop();
  /*关闭串口接收，方便后续数据处理*/
  APP_LOG_DEBUG("接收完一帧数据.发送信号.\r\n");
@@ -131,7 +133,7 @@ if(xcomm_port_serial_timer_init()!=COMM_OK)
  APP_LOG_ERROR("通信串口定时器初始化错误！\r\n");
  }
  /*等待新的数据*/
- xcomm_port_serial_enable(FORTUNA_TRUE,FORTUNA_FALSE); 
+ xcomm_port_serial_enable(APP_TRUE,APP_FALSE); 
  return status;
  
 }
@@ -162,7 +164,7 @@ send_cnt--;/*更新待发送数量*/
 else
 {
  /*等待新的数据*/
- xcomm_port_serial_enable(FORTUNA_TRUE,FORTUNA_FALSE); 
+ xcomm_port_serial_enable(APP_TRUE,APP_FALSE); 
  osSignalSet(host_comm_task_hdl,HOST_COMM_TASK_SEND_FSM_OVER_SIGNAL);  
 }
 }
@@ -190,7 +192,7 @@ comm_status_t comm_send_fsm(uint8_t *ptr_buff,uint8_t send_len)
   ptr_send_buff=ptr_buff;
   //HOST_PROTOCOL_CRITICAL_REGION_EXIT();
   /*启动发送*/
-  xcomm_port_serial_enable(FORTUNA_FALSE,FORTUNA_TRUE); 
+  xcomm_port_serial_enable(APP_FALSE,APP_TRUE); 
   return COMM_OK;
 }
 
@@ -243,14 +245,14 @@ APP_LOG_ERROR("协议数据错误.\r\n");
 
 parse_err_handle:
   /*等待新数据*/
- xcomm_port_serial_enable(FORTUNA_TRUE,FORTUNA_FALSE); 
+ xcomm_port_serial_enable(APP_TRUE,APP_FALSE); 
  return status;
 }
 
 /*命令码0x01 置零 处理函数*/
 static comm_status_t comm_cmd01_process(uint8_t *ptr_param,uint8_t param_len,uint8_t *ptr_send_len) 
 {
-  fortuna_bool_t ret;
+  app_bool_t ret;
   uint8_t scale;
   APP_LOG_DEBUG("执行命令0x01.置零指令.\r\n");
   if(param_len!=COMM_CMD01_PARAM_SIZE)
@@ -269,11 +271,11 @@ static comm_status_t comm_cmd01_process(uint8_t *ptr_param,uint8_t param_len,uin
  APP_LOG_DEBUG("第一步发送设置皮重为0消息.\r\n");
  /*1首先设置皮重为0*/
  ret=scale_remove_tare(scale,0);
- if(ret==FORTUNA_FALSE)
+ if(ret==APP_FALSE)
  goto comm_clear_zero_err_handle;
  /*2首先手动置零*/
  ret=scale_clear_zero(scale,0);
- if(ret==FORTUNA_FALSE)
+ if(ret==APP_FALSE)
  goto comm_clear_zero_err_handle;
  /*回填操作结果*/
  /*更新需要发送的数据长度*/
@@ -294,7 +296,7 @@ comm_clear_zero_err_handle:
 /*命令码0x02 校准 处理函数*/
 static comm_status_t comm_cmd02_process(uint8_t *ptr_param,uint8_t param_len,uint8_t *ptr_send_len) 
 {
- fortuna_bool_t ret;
+ app_bool_t ret;
  uint8_t scale;
  uint16_t weight;
  APP_LOG_DEBUG("执行命令0x02.校准指令.\r\n");
@@ -317,19 +319,19 @@ static comm_status_t comm_cmd02_process(uint8_t *ptr_param,uint8_t param_len,uin
  APP_LOG_DEBUG("第一步发送设置皮重为0消息.\r\n");
   /*1校准时应该把皮重值清零*/
   ret=scale_remove_tare(scale,0);
-  if(ret==FORTUNA_FALSE)
+  if(ret==APP_FALSE)
   goto comm_calibrate_err_handle;
   /*2标定内码值*/
   ret=scale_calibrate_code(scale,weight);
-  if(ret==FORTUNA_FALSE)
+  if(ret==APP_FALSE)
   goto comm_calibrate_err_handle;
    /*3标定测量值*/
   ret=scale_calibrate_measurement(scale,weight);
-  if(ret==FORTUNA_FALSE)
+  if(ret==APP_FALSE)
   goto comm_calibrate_err_handle;
    /*4标定砝码值*/
   ret=scale_calibrate_weight(scale,weight);
-  if(ret==FORTUNA_FALSE)
+  if(ret==APP_FALSE)
   goto comm_calibrate_err_handle;
  /*回填操作结果*/
  APP_LOG_DEBUG("命令0x02执行成功.\r\n");
@@ -423,7 +425,7 @@ static comm_status_t comm_cmd11_process(uint8_t *ptr_param,uint8_t param_len,uin
    APP_LOG_ERROR("命令0x11参数长度%d不匹配.\r\n",param_len);
    return COMM_ERR;
  }
- state=get_door_state();;
+ state=door_task_get_door_status();;
  /*回填门的状态*/
  ptr_param[0]=state;
  APP_LOG_DEBUG("获取的门的状态：%d\r\n", ptr_param[0]);
@@ -437,21 +439,17 @@ static comm_status_t comm_cmd11_process(uint8_t *ptr_param,uint8_t param_len,uin
 static comm_status_t comm_cmd21_process(uint8_t *ptr_param,uint8_t param_len,uint8_t *ptr_send_len) 
 {
   osEvent signal;
-  lock_msg_t msg;
   APP_LOG_DEBUG("执行命令0x21.开锁指令.\r\n");
   if(param_len!=COMM_CMD21_PARAM_SIZE)
   {
    APP_LOG_ERROR("命令0x21参数长度%d不匹配.\r\n",param_len);
    return COMM_ERR;
   }
-  msg.type=LOCK_TASK_UNLOCK_LOCK_MSG;
-  /*向锁任务发送开锁消息*/
-  APP_LOG_DEBUG("向锁任务发送开锁消息.\r\n");
-  osMessagePut(lock_task_msg_q_id,*(uint32_t*)&msg,0);
+  osSignalSet(lock_task_hdl,LOCK_TASK_LOCK_SIGNAL);
   /*等待处理返回*/
   APP_LOG_DEBUG("等待锁任务返回结果...\r\n");
-  signal=osSignalWait(COMM_TASK_UNLOCK_LOCK_OK_SIGNAL|COMM_TASK_UNLOCK_LOCK_ERR_SIGNAL,COMM_TASK_UNLOCK_LOCK_TIMEOUT);
-  if(signal.status==osEventSignal && (signal.value.signals & COMM_TASK_UNLOCK_LOCK_OK_SIGNAL))
+  signal=osSignalWait(COMM_TASK_UNLOCK_LOCK_SUCCESS_SIGNAL|COMM_TASK_UNLOCK_LOCK_FAIL_SIGNAL,COMM_TASK_UNLOCK_LOCK_TIMEOUT);
+  if(signal.status==osEventSignal && (signal.value.signals & COMM_TASK_UNLOCK_LOCK_SUCCESS_SIGNAL))
   {
    /*回填操作结果*/
    ptr_param[0]=COMM_CMD21_EXECUTE_RESULT_SUCCESS;
@@ -475,21 +473,19 @@ static comm_status_t comm_cmd21_process(uint8_t *ptr_param,uint8_t param_len,uin
 static comm_status_t comm_cmd22_process(uint8_t *ptr_param,uint8_t param_len,uint8_t *ptr_send_len) 
 {
   osEvent signal;
-  lock_msg_t msg;
   APP_LOG_DEBUG("执行命令0x22.关锁指令.\r\n");
   if(param_len!=COMM_CMD22_PARAM_SIZE)
   {
    APP_LOG_ERROR("命令0x22参数长度%d不匹配.\r\n",param_len);
    return COMM_ERR;
   }
-  msg.type=LOCK_TASK_LOCK_LOCK_MSG;
   /*向锁任务发送关锁消息*/
   APP_LOG_DEBUG("向锁任务发送关锁消息.\r\n");
-  osMessagePut(lock_task_msg_q_id,*(uint32_t*)&msg,0);
+  osSignalSet(lock_task_hdl,LOCK_TASK_UNLOCK_SIGNAL);
   /*等待处理返回*/
   APP_LOG_DEBUG("等待锁任务返回结果...\r\n");
-  signal=osSignalWait(COMM_TASK_LOCK_LOCK_OK_SIGNAL|COMM_TASK_LOCK_LOCK_ERR_SIGNAL,COMM_TASK_LOCK_LOCK_TIMEOUT);
-  if(signal.status==osEventSignal && (signal.value.signals & COMM_TASK_LOCK_LOCK_OK_SIGNAL))
+  signal=osSignalWait(COMM_TASK_LOCK_LOCK_SUCCESS_SIGNAL|COMM_TASK_LOCK_LOCK_SUCCESS_SIGNAL,COMM_TASK_LOCK_LOCK_TIMEOUT);
+  if(signal.status==osEventSignal && (signal.value.signals & COMM_TASK_LOCK_LOCK_SUCCESS_SIGNAL))
   {
    /*回填操作结果*/
    ptr_param[0]=COMM_CMD22_EXECUTE_RESULT_SUCCESS; 
@@ -512,16 +508,24 @@ static comm_status_t comm_cmd22_process(uint8_t *ptr_param,uint8_t param_len,uin
 /*命令码0x23 查询锁的状态 处理函数*/
 static comm_status_t comm_cmd23_process(uint8_t *ptr_param,uint8_t param_len,uint8_t *ptr_send_len) 
 {
- uint8_t state; 
+ uint8_t status; 
  APP_LOG_DEBUG("执行命令0x23.查询锁的状态.\r\n");
  if(param_len!=COMM_CMD23_PARAM_SIZE)
  {
    APP_LOG_ERROR("命令0x23参数长度%d不匹配.\r\n",param_len);
    return COMM_ERR;
  }
- state=get_lock_state();
+ if(bsp_get_lock_status()==LOCK_STATUS_UNLOCK)
+ {
+  status= LOCK_UNLOCKED;
+ }
+ else
+ {
+  status= LOCK_LOCKED;
+ }
+
  /*回填锁的状态*/
- ptr_param[0]=state;
+ ptr_param[0]=status;
  APP_LOG_DEBUG("获取的锁的状态：%d\r\n",ptr_param[0]);
  /*更新需要发送的数据长度*/
  *ptr_send_len+=COMM_CMD23_EXECUTE_RESULT_SIZE;
@@ -531,16 +535,23 @@ static comm_status_t comm_cmd23_process(uint8_t *ptr_param,uint8_t param_len,uin
 /*命令码0x31 查询UPS的状态 处理函数*/
 static comm_status_t comm_cmd31_process(uint8_t *ptr_param,uint8_t param_len,uint8_t *ptr_send_len) 
 {
- uint8_t state; 
+ uint8_t status; 
  APP_LOG_DEBUG("执行命令0x31.查询UPS的状态.\r\n");
  if(param_len!=COMM_CMD31_PARAM_SIZE)
  {
    APP_LOG_ERROR("命令0x31参数长度%d不匹配.\r\n",param_len);
    return COMM_ERR;
  }
- state=get_ups_state();
+ if(ups_task_get_ups_status()==UPS_TASK_STATUS_PWR_ON)
+ {
+  status=UPS_PWR_ON;
+ }
+ else
+ {
+  status=UPS_PWR_OFF;  
+ }
  /*回填称重数量*/
- ptr_param[0]=state;
+ ptr_param[0]=status;
  APP_LOG_DEBUG("获取的UPS的状态：%d\r\n",ptr_param[0]);
  /*更新需要发送的数据长度*/
  *ptr_send_len+=COMM_CMD31_EXECUTE_RESULT_SIZE;

@@ -1,6 +1,7 @@
 #include "FreeRTOS.h"
 #include "task.h"
 #include "cmsis_os.h"
+#include "app_common.h"
 #include "host_comm_task.h"
 #include "scale_comm_task.h"
 #include "scale_func_task.h"
@@ -20,8 +21,8 @@ extern EventGroupHandle_t task_sync_evt_group_hdl;
  */
 void scale_poll_task(void const * argument)
 {
- fortuna_bool_t ret;
- APP_LOG_INFO("######电子秤轮询任务开始.\r\n");
+ app_bool_t ret;
+ APP_LOG_INFO("@电子秤轮询任务开始.\r\n");
  /*创建自己的消息队列*/
  osMessageQDef(scale_poll_task_msg,6,uint32_t);
  scale_poll_msg_q_id=osMessageCreate(osMessageQ(scale_poll_task_msg),scale_poll_task_hdl);
@@ -48,7 +49,7 @@ void scale_poll_task(void const * argument)
  {
   ret= scale_obtain_net_weight(1,0);
    /*全部执行成功*/
-  if(ret==FORTUNA_TRUE)
+  if(ret==APP_TRUE)
   {
   APP_LOG_DEBUG("电子秤获取净重成功.\r\n");
   }

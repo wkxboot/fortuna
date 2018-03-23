@@ -3,7 +3,7 @@
 
 
 
-#define  MB_POLL_PORT_SERIAL_BAUDRATE         57600
+#define  MB_POLL_PORT_SERIAL_BAUDRATE         115200
 
 
 
