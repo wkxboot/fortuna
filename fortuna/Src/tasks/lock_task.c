@@ -52,7 +52,14 @@ static void lock_task_debug_unlock_lock();
 
 
 
-uint8_t  lock_type=LOCK_TASK_LOCK_TYPE_MAN;
+static uint8_t lock_type=LOCK_TASK_LOCK_TYPE_MAN;
+static uint8_t lock_exception=LOCK_EXCEPTION_NONE;
+
+/*获取锁的异常状态*/
+uint8_t lock_task_get_lock_exception()
+{
+  return lock_exception;
+}
 
 static void lock_timer_init()
 {
@@ -86,13 +93,17 @@ static void lock_timer_expired(void const * argument)
   
   lock_task_lock_door();
   lock_task_turn_on_lock_led();
-
+  /*取消锁异常状态*/
+  lock_exception=LOCK_EXCEPTION_NONE;
  }
  else
  {
   APP_LOG_DEBUG("向购物任务发送关锁失败信号.\r\n");
   osSignalSet(shopping_task_hdl,SHOPPING_TASK_LOCK_LOCK_FAIL_SIGNAL); 
   lock_task_unlock_lock();
+  
+  /*置为锁异常状态*/
+  lock_exception=LOCK_EXCEPTION_HAPPEN;
  }
 }
 
@@ -154,6 +165,9 @@ static void unlock_timer_expired(void const * argument)
   lock_task_unlock_door();
   auto_lock_timer_start();
   lock_task_turn_on_unlock_led();
+  
+  /*取消锁异常状态*/
+  lock_exception=LOCK_EXCEPTION_NONE;
  }
  else
  {
@@ -161,6 +175,9 @@ static void unlock_timer_expired(void const * argument)
   osSignalSet(shopping_task_hdl,SHOPPING_TASK_UNLOCK_LOCK_FAIL_SIGNAL); 
   /*如果开锁失败就立刻把锁锁死*/
   lock_task_lock_lock();
+  
+  /*置为锁异常状态*/
+  lock_exception=LOCK_EXCEPTION_HAPPEN;
  }
 }
 

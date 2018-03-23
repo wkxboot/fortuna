@@ -84,6 +84,26 @@ static app_bool_t service_init()
   result=APP_FALSE;
   goto err_handle;  
  }
+ /**/
+ APP_LOG_ERROR("进入AT命令测试模式...\r\n");
+ at_cmd_response.is_response_delay=AT_CMD_FALSE;
+ at_cmd_response.response_timeout=AT_CMD_CONFIG_NORMAL_RESPONSE_TIMEOUT;
+ status=at_cmd_string("AT",&at_cmd_response);
+ if(status!=AT_CMD_STATUS_SUCCESS)
+ {
+   APP_LOG_ERROR("AT命令测试失败 status:%d.\r\n",status);
+   result=APP_FALSE;
+   goto err_handle;
+ }
+ status=at_cmd_find_expect_from_response(&at_cmd_response,"OK");
+ if(status!=AT_CMD_STATUS_SUCCESS)
+ {
+  APP_LOG_ERROR("AT命令测试失败. status:%d.\r\n",status); 
+  result=APP_FALSE;
+  goto err_handle;  
+ }
+ 
+ 
  APP_LOG_DEBUG("AT命令测试成功.GPRS模块复位成功.status:%d.\r\n",status); 
  
  err_handle:
@@ -150,7 +170,7 @@ static app_bool_t service_http_init()
   goto err_handle;
  }
  APP_LOG_DEBUG("+SAPBR打开承载模式参数设置成功. status:%d.\r\n",status); 
-
+ 
  /*第四步 http初始化AT+HTTPINIT*/
  at_cmd_response.is_response_delay=AT_CMD_FALSE;
  at_cmd_response.response_timeout=AT_CMD_CONFIG_SPECIAL_RESPONSE_TIMEOUT;
@@ -391,39 +411,50 @@ err_handle:
  return result;
 }
 
-app_bool_t service_get_imei_str(uint8_t *ptr_imei_str)
+/*获取IP地址字符串*/
+app_bool_t service_get_ip_str(uint8_t *ptr_ip_str)
 {
  app_bool_t result=APP_TRUE;
- uint8_t i;
+ uint8_t len,*ptr_start,*ptr_end;
  at_cmd_status_t status;
  /*只有一个http POST通道所以要避免竞争*/
  take_service_mutex();  
  at_cmd_response.is_response_delay=AT_CMD_FALSE;
  at_cmd_response.response_timeout=AT_CMD_CONFIG_NORMAL_RESPONSE_TIMEOUT;
- status=at_ex_cmd_exe("+GSN",&at_cmd_response);
+ status=at_ex_cmd_set("+SAPBR","2,1",&at_cmd_response);
  if(status!=AT_CMD_STATUS_SUCCESS)
  {
-   APP_LOG_ERROR("获取IMEI参数输入失败 status:%d.\r\n",status);
+   APP_LOG_ERROR("获取IP参数输入失败 status:%d.\r\n",status);
    result=APP_FALSE;
    goto err_handle;  
  }
  status=at_cmd_find_expect_from_response(&at_cmd_response,"OK");
  if(status!=AT_CMD_STATUS_SUCCESS)
  {
-  APP_LOG_ERROR("+获取IMEI失败. status:%d.\r\n",status);
+  APP_LOG_ERROR("+获取IP失败. status:%d.\r\n",status);
   result=APP_FALSE;
   goto err_handle;  
  }
- for(i=0;i<at_cmd_response.size;i++)
+ ptr_start=(uint8_t *)strstr((const char *)at_cmd_response.response,"\"");/*IP地址开始标志*/
+ if(ptr_start==NULL)
  {
-  if(at_cmd_response.response[i]>='0' && at_cmd_response.response[i]<='9')
-  {
-   memcpy(ptr_imei_str,(const void*)&at_cmd_response.response[i],IMEI_STR_SIZE);
-   *(ptr_imei_str+IMEI_STR_SIZE)=0;
-   break;
-  }
+  APP_LOG_ERROR("+回应中无IP字符串.\r\n");
+  result=APP_FALSE;
+  goto err_handle;   
  }
- APP_LOG_DEBUG("获取IMEI成功.IMEI=%s.\r\n",ptr_imei_str);
+ 
+ ptr_end=(uint8_t *)strstr((const char *)(ptr_start+1),"\"");/*IP地址结束标志*/
+ if(ptr_end==NULL)
+ {
+  APP_LOG_ERROR("+回应中无IP字符串. .\r\n");
+  result=APP_FALSE;
+  goto err_handle;   
+ }
+len=ptr_end-ptr_start+1;
+memcpy(ptr_ip_str,(const void*)ptr_start,len);
+
+ptr_ip_str[len]=0;
+APP_LOG_DEBUG("获取ip成功.ip=%s.\r\n",ptr_ip_str);
  
 err_handle:
  service_handle_device_err(result);

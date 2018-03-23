@@ -8,7 +8,7 @@ void door_task(void const * argument);
 /*获取门的状态*/
 uint8_t door_task_get_door_status();
 
-#define  DOOR_TASK_INTERVAL                     50/*门状态监测间隔50ms*/
+#define  DOOR_TASK_INTERVAL                     500/*门状态监测间隔500ms*/
 
 
 #define  DOOR_TASK_DOOR_STATUS_OPEN             1

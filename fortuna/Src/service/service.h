@@ -46,7 +46,11 @@ app_bool_t service_http_post(http_request_t *ptr_request,http_response_t *ptr_re
 void service_http_make_request_size_time_to_str(uint16_t size,uint16_t time,uint8_t *ptr_str);
 /*获取rssi值*/
 app_bool_t service_get_rssi_str(uint8_t *ptr_rssi_str);
+/*获取IP地址字符串*/
+app_bool_t service_get_ip_str(uint8_t *ptr_ip_str);
+/*获取IMEI字符串*/
 app_bool_t service_get_imei_str(uint8_t *ptr_imei_str);
+
 app_bool_t service_reset();
 
 

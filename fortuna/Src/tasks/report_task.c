@@ -4,11 +4,13 @@
 #include "app_common.h"
 #include "string.h"
 #include "json.h"
+#include "lock_task.h"
+#include "ups_task.h"
+#include "temperature_task.h"
 #include "service.h"
 #include "shopping_task.h"
 #include "report_task.h"
-#include "ups_task.h"
-#include "temperature_task.h"
+
 
 #define APP_LOG_MODULE_NAME   "[report]"
 #define APP_LOG_MODULE_LEVEL   APP_LOG_LEVEL_DEBUG    
@@ -42,11 +44,16 @@ void report_task(void const * argument)
   {
   result=service_get_imei_str(report_device.pid.value);
   }while(result==APP_FALSE);
+ 
+  json_set_item_name_value(report_device.push_id,NULL,report_device.pid.value); 
+  */
+  /*获取IP地址*/
   do
   {
-  result=service_get_imei_str(report_device.push_id.value);
-  }while(result==APP_FALSE);
-  */
+  result=service_get_ip_str(report_device.ip.value);
+  }while(result==APP_FALSE);  
+  
+    
   APP_LOG_DEBUG("上报设备状态任务等待同步完成...\r\n");
   /*等待任务同步*/
   xEventGroupSync(task_sync_evt_group_hdl,REPORT_TASK_SYNC_EVT,SHOPPING_TASK_SYNC_EVT|REPORT_TASK_SYNC_EVT,osWaitForever); 
@@ -69,8 +76,19 @@ void report_task(void const * argument)
   /*温度值*/
   json_set_item_name_value(&report_device.temperature,NULL,get_average_temperature_str());
   /*信号质量*/
-
   service_get_rssi_str(report_device.rssi.value);
+  /*锁的异常状态*/
+  if(lock_task_get_lock_exception()==LOCK_EXCEPTION_NONE)
+  {
+  /*锁的异常状态*/
+  json_set_item_name_value(&report_device.lock,NULL,"1"); 
+  }
+  else
+  {
+  /*锁的异常状态*/
+  json_set_item_name_value(&report_device.lock,NULL,"2");  
+  }
+  
   
   report_request.ptr_url="\"URL\",\"http://rack-brain-app-pre.jd.com/brain/reportDeviceStatus\"";
   if(json_body_to_str(&report_device,report_request.param)!=APP_TRUE)

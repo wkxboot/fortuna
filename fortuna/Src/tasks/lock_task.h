@@ -19,11 +19,14 @@
 #define  LOCK_TASK_LOCK_TYPE_AUTO                  1/*自动上锁*/
 #define  LOCK_TASK_LOCK_TYPE_MAN                   2/*手动上锁*/
 
+#define  LOCK_EXCEPTION_NONE                       3
+#define  LOCK_EXCEPTION_HAPPEN                     4
 
 /*锁任务*/
 void lock_task(void const * argument);
 extern osThreadId lock_task_hdl;
 
-
+/*获取锁的异常状态*/
+uint8_t lock_task_get_lock_exception();
 
 #endif
