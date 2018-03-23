@@ -53,6 +53,7 @@
 #include "adc.h"
 #include "dma.h"
 #include "iwdg.h"
+#include "tim.h"
 #include "usart.h"
 #include "gpio.h"
 
@@ -111,6 +112,7 @@ int main(void)
   MX_ADC3_Init();
   MX_UART5_Init();
   MX_UART4_Init();
+  MX_TIM4_Init();
 
   /* USER CODE BEGIN 2 */
 

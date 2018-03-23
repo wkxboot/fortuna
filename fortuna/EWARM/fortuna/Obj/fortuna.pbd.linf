@@ -1,5 +1,5 @@
 ﻿D:\development\st\stm32\src_code\fortuna\fortuna\EWARM\fortuna\Obj\fortuna.pbd
-D:\development\st\stm32\src_code\fortuna\fortuna\EWARM\fortuna\Obj\ABDK_ZNHG_ZK.pbi
+D:\development\st\stm32\src_code\fortuna\fortuna\EWARM\fortuna\Obj\ABDK_AHG081_ZK.pbi
 D:\development\st\stm32\src_code\fortuna\fortuna\EWARM\fortuna\Obj\adc.pbi
 D:\development\st\stm32\src_code\fortuna\fortuna\EWARM\fortuna\Obj\app_error.pbi
 D:\development\st\stm32\src_code\fortuna\fortuna\EWARM\fortuna\Obj\app_log.pbi
@@ -68,6 +68,7 @@ D:\development\st\stm32\src_code\fortuna\fortuna\EWARM\fortuna\Obj\system_stm32f
 D:\development\st\stm32\src_code\fortuna\fortuna\EWARM\fortuna\Obj\tasks.pbi
 D:\development\st\stm32\src_code\fortuna\fortuna\EWARM\fortuna\Obj\temperature_memory_task.pbi
 D:\development\st\stm32\src_code\fortuna\fortuna\EWARM\fortuna\Obj\temperature_task.pbi
+D:\development\st\stm32\src_code\fortuna\fortuna\EWARM\fortuna\Obj\tim.pbi
 D:\development\st\stm32\src_code\fortuna\fortuna\EWARM\fortuna\Obj\timers.pbi
 D:\development\st\stm32\src_code\fortuna\fortuna\EWARM\fortuna\Obj\ups_task.pbi
 D:\development\st\stm32\src_code\fortuna\fortuna\EWARM\fortuna\Obj\usart.pbi

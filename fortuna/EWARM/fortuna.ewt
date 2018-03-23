@@ -1288,6 +1288,9 @@
                 <name>$PROJ_DIR$\..\Src\stm32f1xx_it.c</name>
             </file>
             <file>
+                <name>$PROJ_DIR$\..\Src\tim.c</name>
+            </file>
+            <file>
                 <name>$PROJ_DIR$\..\Src\usart.c</name>
             </file>
         </group>
@@ -1299,7 +1302,7 @@
             <group>
                 <name>board</name>
                 <file>
-                    <name>$PROJ_DIR$\..\Drivers\BSP\board\ABDK_ZNHG_ZK.c</name>
+                    <name>$PROJ_DIR$\..\Drivers\BSP\board\ABDK_AHG081_ZK.c</name>
                 </file>
             </group>
             <group>

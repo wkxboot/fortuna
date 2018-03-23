@@ -944,7 +944,7 @@
                     <item>idx</item>
                     <item>scale</item>
                     <item>modbus_adu</item>
-                    <item></item>
+                    <item />
                 </expressions>
                 <col-names>
                     <item>Expression</item>

@@ -226,7 +226,7 @@ void StartDefaultTask(void const * argument)
 /* USER CODE BEGIN Application */
 static void create_user_tasks()
 {
- /*创建任务同步事件组*/
+ /*创建任务同步事件�?*/
   task_sync_evt_group_hdl=xEventGroupCreate();
   APP_ASSERT(task_sync_evt_group_hdl);
   
@@ -234,15 +234,15 @@ static void create_user_tasks()
   osThreadDef(host_comm_task, host_comm_task, osPriorityNormal, 0, 256);
   host_comm_task_hdl = osThreadCreate(osThread(host_comm_task), NULL); 
   APP_ASSERT(host_comm_task_hdl);
-  /*创建电子秤功能任务*/
+  /*创建电子秤功能任�?*/
   osThreadDef(scale_func_task, scale_func_task, osPriorityNormal, 0, 256);
   scale_func_task_hdl = osThreadCreate(osThread(scale_func_task), NULL); 
   APP_ASSERT(scale_func_task_hdl);
-  /*创建电子秤轮询任务*/
+  /*创建电子秤轮询任�?*/
   osThreadDef(scale_poll_task, scale_poll_task, osPriorityNormal, 0, 256);
   scale_poll_task_hdl = osThreadCreate(osThread(scale_poll_task), NULL); 
   APP_ASSERT(scale_poll_task_hdl);
-  /*创建电子秤通信任务*/
+  /*创建电子秤�?�信任务*/
   osThreadDef(scale_comm_task, scale_comm_task, osPriorityNormal, 0, 256);
   scale_comm_task_hdl = osThreadCreate(osThread(scale_comm_task), NULL); 
   APP_ASSERT(scale_comm_task_hdl);
@@ -258,7 +258,7 @@ static void create_user_tasks()
   osThreadDef(lock_task, lock_task, osPriorityNormal, 0, 256);
   lock_task_hdl = osThreadCreate(osThread(lock_task), NULL); 
   APP_ASSERT(lock_task_hdl);
-  /*创建数码管显示任务*/
+  /*创建数码管显示任�?*/
   osThreadDef(display_task, display_task, osPriorityNormal, 0, 256);
   display_task_hdl = osThreadCreate(osThread(display_task), NULL); 
   APP_ASSERT(display_task_hdl);
@@ -266,7 +266,7 @@ static void create_user_tasks()
   osThreadDef(switch_task,switch_task, osPriorityNormal, 0, 256);
   switch_task_hdl = osThreadCreate(osThread(switch_task), NULL); 
   APP_ASSERT(switch_task_hdl);
-  /*创建压缩机任务*/
+  /*创建压缩机任�?*/
   osThreadDef(compressor_task, compressor_task, osPriorityNormal, 0, 256);
   compressor_task_hdl = osThreadCreate(osThread(compressor_task), NULL); 
   APP_ASSERT(compressor_task_hdl);
@@ -307,7 +307,7 @@ static void create_user_tasks()
   calibrate_memory_task_hdl = osThreadCreate(osThread(calibrate_memory_task), NULL); 
   APP_ASSERT(calibrate_memory_task_hdl);
 
-  APP_LOG_INFO("######所有的任务创建成功.\r\n"); 
+  APP_LOG_INFO("######�?有的任务创建成功.\r\n"); 
 }
 /* USER CODE END Application */
 
