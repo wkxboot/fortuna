@@ -114,26 +114,24 @@ static void update_temperature_warning()
  static app_bool_t is_high_t_warning_send=APP_FALSE;
  static app_bool_t is_low_t_warning_send=APP_FALSE;
  
- if(average_temperature.temperature!=TEMPERATURE_TASK_ERR_T_VALUE)
- {
-   if(average_temperature.temperature!=TEMPERATURE_TASK_ERR_T_VALUE && \
-      average_temperature.temperature>COMPRESSOR_TASK_T_MAX         && \
-      is_high_t_warning_send==APP_FALSE)
-   {
-     APP_LOG_DEBUG("向压缩机发送开压缩机信号.\r\n");
-     osSignalSet(compressor_task_hdl,COMPRESSOR_TASK_PWR_TURN_ON_SIGNAL);
-     is_high_t_warning_send=APP_TRUE;
-     is_low_t_warning_send=APP_FALSE;
-   }
-   if((average_temperature.temperature==TEMPERATURE_TASK_ERR_T_VALUE || \
-       average_temperature.temperature<COMPRESSOR_TASK_T_MIN) && is_low_t_warning_send==APP_FALSE)
-   {
-     APP_LOG_DEBUG("向压缩机发送关压缩机信号.\r\n");
-     osSignalSet(compressor_task_hdl,COMPRESSOR_TASK_PWR_TURN_OFF_SIGNAL);
-     is_high_t_warning_send=APP_FALSE;
-     is_low_t_warning_send=APP_TRUE;
-   }
- }
+ if(average_temperature.temperature!=TEMPERATURE_TASK_ERR_T_VALUE && \
+    average_temperature.temperature>COMPRESSOR_TASK_T_MAX         && \
+    is_high_t_warning_send==APP_FALSE)
+  {
+   APP_LOG_DEBUG("向压缩机发送开压缩机信号.\r\n");
+   osSignalSet(compressor_task_hdl,COMPRESSOR_TASK_PWR_TURN_ON_SIGNAL);
+   is_high_t_warning_send=APP_TRUE;
+   is_low_t_warning_send=APP_FALSE;
+  }
+ if((average_temperature.temperature==TEMPERATURE_TASK_ERR_T_VALUE || \
+    average_temperature.temperature<COMPRESSOR_TASK_T_MIN) && is_low_t_warning_send==APP_FALSE)
+  {
+   APP_LOG_DEBUG("向压缩机发送关压缩机信号.\r\n");
+   osSignalSet(compressor_task_hdl,COMPRESSOR_TASK_PWR_TURN_OFF_SIGNAL);
+   is_high_t_warning_send=APP_FALSE;
+   is_low_t_warning_send=APP_TRUE;
+  }
+
 }
 
 

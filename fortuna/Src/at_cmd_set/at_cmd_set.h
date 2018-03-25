@@ -1,8 +1,13 @@
 #ifndef  __AT_CMD_SET_H__
 #define  __AT_CMD_SET_H__
 
+
+
+#define    MAX_ADU_SIZE                              300
+
+
 #define    AT_CMD_SEND_TIMEOUT                       25
-#define    AT_CMD_RESPONSE_MAX_STR_SZIE              250
+#define    AT_CMD_RESPONSE_MAX_STR_SZIE              MAX_ADU_SIZE
 
 #define    AT_CMD_CONFIG_NORMAL_RESPONSE_TIMEOUT     100
 #define    AT_CMD_CONFIG_SPECIAL_RESPONSE_TIMEOUT    5000
@@ -18,7 +23,7 @@ typedef struct
   at_cmd_bool_t is_response_delay;
   uint16_t response_timeout;
   uint16_t response_delay_timeout;
-volatile uint8_t size;
+volatile uint16_t size;
 volatile uint8_t response[AT_CMD_RESPONSE_MAX_STR_SZIE];
 }at_cmd_response_t;
 

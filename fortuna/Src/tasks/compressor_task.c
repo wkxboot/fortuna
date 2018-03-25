@@ -84,6 +84,7 @@ static void compressor_rest_time_timer_expired(void const * argument)
 {
  int8_t t;
  APP_LOG_DEBUG("压缩机到达最小休息时长.可以被开启.\r\n");
+ is_compressor_enable_pwr_turn_on=APP_TRUE;/*使能打开压缩机*/
  /*检查当前温度*/
  t=get_average_temperature();
  if(t>COMPRESSOR_TASK_T_MAX)
@@ -117,12 +118,12 @@ static void compressor_task_pwr_turn_off()
 
 static void compressor_task_debug_pwr_turn_on()
 {
+ APP_LOG_DEBUG("调试打开压缩机！\r\n");
  BSP_COMPRESSOR_TURN_ON_OFF(COMPRESSOR_PWR_CTL_ON); 
 }
 static void compressor_task_debug_pwr_turn_off()
 {
- compressor_work_time_timer_stop();
- APP_LOG_DEBUG("关闭压缩机！\r\n");
+ APP_LOG_DEBUG("调试关闭压缩机！\r\n");
  BSP_COMPRESSOR_TURN_ON_OFF(COMPRESSOR_PWR_CTL_OFF); 
 }
 

@@ -30,34 +30,34 @@ static void shopping_task_init()
 {
 /*拉取开门指令json*/
 pull_open.header.item_cnt=2;
-json_set_item_name_value(&pull_open.pid,"\"pid\"","\"011201711022810\""); 
-json_set_item_name_value(&pull_open.version,"\"version\"","\"12\""); 
+json_set_item_name_value(&pull_open.pid,"\"pid\"",EXPERIMENT_IMEI); /*测试用 imei */
+json_set_item_name_value(&pull_open.version,"\"version\"",FIRMWARE_VERSION); 
 /*开门上报json*/
 report_open.header.item_cnt=5;
-json_set_item_name_value(&report_open.pid,"\"pid\"","\"011201711022810\""); 
-json_set_item_name_value(&report_open.version,"\"version\"","\"12\"");  
+json_set_item_name_value(&report_open.pid,"\"pid\"",EXPERIMENT_IMEI); 
+json_set_item_name_value(&report_open.version,"\"version\"",FIRMWARE_VERSION);  
 json_set_item_name_value(&report_open.open,"\"open\"",NULL); 
 json_set_item_name_value(&report_open.open_uuid,"\"openUuid\"",NULL); 
 json_set_item_name_value(&report_open.error,"\"error\"",NULL);  
 /*关门上报json*/
 report_close.header.item_cnt=6;
-json_set_item_name_value(&report_close.pid,"\"pid\"","\"011201711022810\""); 
-json_set_item_name_value(&report_close.version,"\"version\"","\"12\""); 
-json_set_item_name_value(&report_close.user_pin,"\"userPin\"","\"011201711022810\""); 
+json_set_item_name_value(&report_close.pid,"\"pid\"",EXPERIMENT_IMEI); 
+json_set_item_name_value(&report_close.version,"\"version\"",FIRMWARE_VERSION); 
+json_set_item_name_value(&report_close.user_pin,"\"userPin\"",NULL); 
 json_set_item_name_value(&report_close.open_uuid,"\"openUuid\"",NULL);  
 json_set_item_name_value(&report_close.type,"\"type\"",NULL); 
-json_set_item_name_value(&report_close.auto_lock,"\"autoLock\"","0"); 
+json_set_item_name_value(&report_close.auto_lock,"\"autoLock\"",NULL); 
 /*设备状态上报json*/
 report_device.header.item_cnt=11;
-json_set_item_name_value(&report_device.pid,"\"pid\"","\"011201711022810\""); 
-json_set_item_name_value(&report_device.version,"\"version\"","\"12\"");    
-json_set_item_name_value(&report_device.ip,"\"ip\"","\"12.34.56.78\"");  
+json_set_item_name_value(&report_device.pid,"\"pid\"",EXPERIMENT_IMEI); 
+json_set_item_name_value(&report_device.version,"\"version\"",FIRMWARE_VERSION);    
+json_set_item_name_value(&report_device.ip,"\"ip\"",EXPERIMENT_IP);  
 json_set_item_name_value(&report_device.m_power,"\"mPower\"","1"); /*主电源状态*/
 json_set_item_name_value(&report_device.e_power,"\"ePower\"","1"); /*备用电源状态*/ 
 json_set_item_name_value(&report_device.lock,"\"lock\"","1");  /*锁状态*/ 
-json_set_item_name_value(&report_device.net,"\"net\"","12");  
-json_set_item_name_value(&report_device.rssi,"\"rssi\"","29"); 
-json_set_item_name_value(&report_device.push_id,"\"pushId\"","\"011201711022810\""); 
+json_set_item_name_value(&report_device.net,"\"net\"",EXPERIMENT_NET);  
+json_set_item_name_value(&report_device.rssi,"\"rssi\"",EXPERIMENT_RSSI); 
+json_set_item_name_value(&report_device.push_id,"\"pushId\"",EXPERIMENT_IMEI); 
 json_set_item_name_value(&report_device.boot,"\"boot\"","1");  /*启动状态*/ 
 json_set_item_name_value(&report_device.temperature,"\"temperature\"","12"); /*温度*/   
 }
@@ -81,6 +81,13 @@ void shopping_task(void const * argument)
  /*等待任务同步*/
  xEventGroupSync(task_sync_evt_group_hdl,SHOPPING_TASK_SYNC_EVT,SHOPPING_TASK_SYNC_EVT|REPORT_TASK_SYNC_EVT,osWaitForever); 
  APP_LOG_DEBUG("购物任务同步完成.\r\n");
+ /*拷贝需要的imei*/
+ /*
+ service_cpy_imei_str_to(pull_open.pid.value);
+ service_cpy_imei_str_to(report_open.pid.value);
+ service_cpy_imei_str_to(report_close.pid.value);
+ */
+ 
  while(1)
  {
   osDelay(SHOPPING_TASK_INTERVAL); 

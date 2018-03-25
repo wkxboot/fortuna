@@ -27,6 +27,15 @@ static app_bool_t service_handle_device_err(app_bool_t result);
 static app_bool_t service_init();
 static app_bool_t service_http_init();
 
+
+/*获取运营商字符串*/
+static app_bool_t service_get_operator_str(uint8_t *ptr_operator_str);
+/*获取IMEI字符串*/
+static app_bool_t service_get_imei_str(uint8_t *ptr_imei_str);
+
+static uint8_t operator_str[5];
+static uint8_t imei_str[20];
+
 void service_mutex_init()
 {
    /*创建互斥体*/
@@ -67,7 +76,7 @@ static app_bool_t service_init()
  app_bool_t result=APP_TRUE;
  at_cmd_status_t status;
   /*进入AT测试模式*/
- APP_LOG_ERROR("进入AT命令测试模式...\r\n");
+ APP_LOG_DEBUG("进入AT命令测试模式...\r\n");
  at_cmd_response.is_response_delay=AT_CMD_FALSE;
  at_cmd_response.response_timeout=AT_CMD_CONFIG_NORMAL_RESPONSE_TIMEOUT;
  status=at_cmd_string("AT",&at_cmd_response);
@@ -84,26 +93,19 @@ static app_bool_t service_init()
   result=APP_FALSE;
   goto err_handle;  
  }
- /**/
- APP_LOG_ERROR("进入AT命令测试模式...\r\n");
- at_cmd_response.is_response_delay=AT_CMD_FALSE;
- at_cmd_response.response_timeout=AT_CMD_CONFIG_NORMAL_RESPONSE_TIMEOUT;
- status=at_cmd_string("AT",&at_cmd_response);
- if(status!=AT_CMD_STATUS_SUCCESS)
+ /*获取运营商代码*/
+ if(service_get_operator_str(operator_str)==APP_FALSE)
  {
-   APP_LOG_ERROR("AT命令测试失败 status:%d.\r\n",status);
-   result=APP_FALSE;
-   goto err_handle;
- }
- status=at_cmd_find_expect_from_response(&at_cmd_response,"OK");
- if(status!=AT_CMD_STATUS_SUCCESS)
- {
-  APP_LOG_ERROR("AT命令测试失败. status:%d.\r\n",status); 
   result=APP_FALSE;
-  goto err_handle;  
+  goto err_handle;   
  }
- 
- 
+/*获取IMEI*/
+ if(service_get_imei_str(imei_str)==APP_FALSE)
+ {
+  result=APP_FALSE;
+  goto err_handle;   
+ }
+
  APP_LOG_DEBUG("AT命令测试成功.GPRS模块复位成功.status:%d.\r\n",status); 
  
  err_handle:
@@ -132,10 +134,16 @@ static app_bool_t service_http_init()
    result=APP_FALSE;
    goto err_handle;  
  }
- /*第二步 设置数据运营商AT+SAPBR=3,1,"APN","CMNET" */
+ 
+ /*第二步 设置数据运营商AT+SAPBR=3,1,"APN","xxxx" */
  at_cmd_response.is_response_delay=AT_CMD_FALSE;
  at_cmd_response.response_timeout=AT_CMD_CONFIG_NORMAL_RESPONSE_TIMEOUT;
+ 
+ if(strcmp((const char *)operator_str,CHINA_MOBILE_2G_CODE_STR)==0)
  status=at_ex_cmd_set("+SAPBR","3,1,\"APN\",\"CMNET\"",&at_cmd_response);
+ else if(strcmp((const char *)operator_str,CHINA_UNICOM_2G_CODE_STR)==0)
+ status=at_ex_cmd_set("+SAPBR","3,1,\"APN\",\"UNINET\"",&at_cmd_response);
+ 
  if(status!=AT_CMD_STATUS_SUCCESS)
  {
    APP_LOG_ERROR("+SAPBR运营商参数输入失败 status:%d.\r\n",status); 
@@ -365,6 +373,46 @@ void service_http_make_request_size_time_to_str(uint16_t size,uint16_t time,uint
 }
 
 
+/*获取imei值*/
+static app_bool_t service_get_imei_str(uint8_t *ptr_imei_str)
+{
+ uint8_t *ptr_start_addr=ptr_imei_str;
+ uint8_t i;
+ app_bool_t result=APP_TRUE;
+ at_cmd_status_t status;
+ 
+/*AT+GSN*/
+ at_cmd_response.is_response_delay=AT_CMD_FALSE;
+ at_cmd_response.response_timeout=AT_CMD_CONFIG_NORMAL_RESPONSE_TIMEOUT;
+ status=at_ex_cmd_exe("+GSN",&at_cmd_response);
+ if(status!=AT_CMD_STATUS_SUCCESS)
+ {
+   APP_LOG_ERROR("+GSN 参数输入失败 status:%d.\r\n",status);
+   result=APP_FALSE;
+   goto err_handle;
+ }
+ status=at_cmd_find_expect_from_response(&at_cmd_response,"OK");
+ if(status!=AT_CMD_STATUS_SUCCESS)
+ {
+  APP_LOG_ERROR("+GSN 参数设置失败. status:%d.\r\n",status); 
+  result=APP_FALSE;
+  goto err_handle;  
+ }
+ for(i=0;i<at_cmd_response.size;i++)
+ {
+  if(at_cmd_response.response[i]>='0' && at_cmd_response.response[i]<='9')
+  {
+   *ptr_start_addr++=at_cmd_response.response[i];
+  }
+ }
+ *ptr_start_addr=0;
+ APP_LOG_DEBUG("找到IMEI值.已拷贝.IMEI:%s\r\n",ptr_imei_str);
+ 
+err_handle:
+ return result;
+}
+
+
 /*获取rssi值*/
 app_bool_t service_get_rssi_str(uint8_t *ptr_rssi_str)
 {
@@ -463,6 +511,105 @@ err_handle:
  return result;
 }
 
+
+/*获取运营商字符串*/
+static app_bool_t service_get_operator_str(uint8_t *ptr_operator_str)
+{
+ app_bool_t result=APP_TRUE;
+ uint8_t *ptr_start,*ptr_end;
+ at_cmd_status_t status;
+ 
+ at_cmd_response.is_response_delay=AT_CMD_FALSE;
+ at_cmd_response.response_timeout=AT_CMD_CONFIG_NORMAL_RESPONSE_TIMEOUT;
+ /*数字格式*/
+ status=at_ex_cmd_set("+COPS","0,2",&at_cmd_response);
+ if(status!=AT_CMD_STATUS_SUCCESS)
+ {
+   APP_LOG_ERROR("设置运营商参数输入失败 status:%d.\r\n",status);
+   result=APP_FALSE;
+   goto err_handle;  
+ }
+ status=at_cmd_find_expect_from_response(&at_cmd_response,"OK");
+ if(status!=AT_CMD_STATUS_SUCCESS)
+ {
+  APP_LOG_ERROR("设置运营商参数失败. status:%d.\r\n",status);
+  result=APP_FALSE;
+  goto err_handle;  
+ }
+ 
+ at_cmd_response.is_response_delay=AT_CMD_FALSE;
+ at_cmd_response.response_timeout=AT_CMD_CONFIG_NORMAL_RESPONSE_TIMEOUT;
+ status=at_ex_cmd_query("+COPS",&at_cmd_response);
+ if(status!=AT_CMD_STATUS_SUCCESS)
+ {
+   APP_LOG_ERROR("获取运营商参数输入失败 status:%d.\r\n",status);
+   result=APP_FALSE;
+   goto err_handle;  
+ }
+ status=at_cmd_find_expect_from_response(&at_cmd_response,"OK");
+ if(status!=AT_CMD_STATUS_SUCCESS)
+ {
+  APP_LOG_ERROR("+获取运营商参数失败. status:%d.\r\n",status);
+  result=APP_FALSE;
+  goto err_handle;  
+ }
+ ptr_start=(uint8_t *)strstr((const char *)at_cmd_response.response,"\"");/*运运营商地址开始标志*/
+ if(ptr_start==NULL)
+ {
+  APP_LOG_ERROR("+回应中无运营商字符串.\r\n");
+  result=APP_FALSE;
+  goto err_handle;   
+ }
+ 
+ ptr_end=(uint8_t *)strstr((const char *)(ptr_start+1),"\"");/*运运营商结束标志*/
+ if(ptr_end==NULL)
+ {
+  APP_LOG_ERROR("+回应中无运营商字符串.\r\n");
+  result=APP_FALSE;
+  goto err_handle;   
+ }
+ *(ptr_end+1)=0;
+
+/*比较运营商字符*/
+if(strcmp(CHINA_MOBILE_2G_STR,(const char *)ptr_start)==0)
+{
+ strcpy((char *)ptr_operator_str,CHINA_MOBILE_2G_CODE_STR);
+}
+else if(strcmp(CHINA_UNICOM_2G_STR,(const char *)ptr_start)==0)
+{
+ strcpy((char *)ptr_operator_str,CHINA_UNICOM_2G_CODE_STR); 
+}
+else
+{
+APP_LOG_DEBUG("获取运营商失败.\r\n");
+result=APP_FALSE;
+goto err_handle; 
+}
+APP_LOG_DEBUG("获取运营商成功.运营商=%s.\r\n",ptr_operator_str);
+
+err_handle:
+ return result;
+}
+/*拷贝imei*/
+app_bool_t service_cpy_imei_str_to(uint8_t *ptr_imei_str)
+{
+ if(ptr_imei_str==NULL)
+   return APP_FALSE;
+ strcpy((char *)ptr_imei_str,(const char *)imei_str);
+ 
+ return APP_TRUE;
+}
+/*拷贝运营商代码*/
+app_bool_t service_cpy_operator_str_to(uint8_t *ptr_operator_str)
+{
+ if(ptr_operator_str==NULL)
+   return APP_FALSE;
+ strcpy((char *)ptr_operator_str,(const char *)operator_str);
+ 
+ return APP_TRUE;
+}
+
+
 app_bool_t service_reset()
 {
  app_bool_t result=APP_TRUE;
@@ -492,7 +639,6 @@ service_init_start:
  service_device_err_cnt=0;
  APP_LOG_INFO("GPRS模块复位成功.\r\n");
  
-
  /*http 参数初始化*/
 service_http_init_start: 
  result=service_http_init();

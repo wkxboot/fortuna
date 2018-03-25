@@ -11,13 +11,11 @@
 #include "app_error.h"
 
 
-#define  MAX_ADU_SIZE                              250
-
 static uint8_t send_adu_buff[MAX_ADU_SIZE];
 static uint8_t volatile recv_adu_buff[MAX_ADU_SIZE];
 
-static uint8_t volatile send_adu_size;
-static uint8_t volatile recv_adu_size;
+static uint16_t volatile send_adu_size;
+static uint16_t volatile recv_adu_size;
 
 EventGroupHandle_t at_cmd_evt_group_hdl;
 osMutexId at_cmd_mutex_id;

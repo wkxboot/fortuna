@@ -37,27 +37,20 @@ void report_task(void const * argument)
   
   APP_LOG_INFO("@上报设备状态任务开始.\r\n");
   /*复位*/
-  service_reset();
- /*串号--MAC地址*/
- /* 
-  do
-  {
-  result=service_get_imei_str(report_device.pid.value);
-  }while(result==APP_FALSE);
- 
-  json_set_item_name_value(report_device.push_id,NULL,report_device.pid.value); 
-  */
-  /*获取IP地址*/
-  do
-  {
-  result=service_get_ip_str(report_device.ip.value);
-  }while(result==APP_FALSE);  
-  
-    
+  service_reset();   
   APP_LOG_DEBUG("上报设备状态任务等待同步完成...\r\n");
   /*等待任务同步*/
   xEventGroupSync(task_sync_evt_group_hdl,REPORT_TASK_SYNC_EVT,SHOPPING_TASK_SYNC_EVT|REPORT_TASK_SYNC_EVT,osWaitForever); 
   APP_LOG_DEBUG("上报设备状态任务等待同步完成.\r\n");
+  
+ /*获取运营商字符*/
+  service_cpy_operator_str_to(report_device.net.value);
+ /*串号--MAC地址*/
+  /* 暂时需要固定imei值 
+  service_cpy_imei_str_to(report_device.pid.value);
+  service_cpy_imei_str_to(report_device.push_id.value); 
+  */
+  
   while(1)
   {
   osDelay(REPORT_TASK_INTERVAL);
@@ -65,6 +58,19 @@ void report_task(void const * argument)
 
   while(1)
   {
+  /*获取IP地址 这个是随着复位变化的所以要每一次读取*/
+  do
+  {
+  result=service_get_ip_str(report_device.ip.value);
+  }while(result==APP_FALSE); 
+  
+ /*信号质量 这个是变化的所以要每一次读取*/
+  do
+  {
+  result=service_get_rssi_str(report_device.rssi.value);
+  }while(result==APP_FALSE);
+  
+  /*获取UPS状态*/
   if(get_ups_status()==UPS_TASK_STATUS_PWR_ON)
   {
    json_set_item_name_value(&report_device.m_power,NULL,"1"); /*主电源状态*/ 
@@ -73,23 +79,19 @@ void report_task(void const * argument)
   {
    json_set_item_name_value(&report_device.m_power,NULL,"2"); /*主电源状态*/  
   }
-  /*温度值*/
+  /*获取温度值*/
   json_set_item_name_value(&report_device.temperature,NULL,get_average_temperature_str());
-  /*信号质量*/
-  service_get_rssi_str(report_device.rssi.value);
-  /*锁的异常状态*/
+  /*获取锁的异常状态*/
   if(lock_task_get_lock_exception()==LOCK_EXCEPTION_NONE)
   {
-  /*锁的异常状态*/
   json_set_item_name_value(&report_device.lock,NULL,"1"); 
   }
   else
   {
-  /*锁的异常状态*/
   json_set_item_name_value(&report_device.lock,NULL,"2");  
   }
   
-  
+  /*上报开始*/
   report_request.ptr_url="\"URL\",\"http://rack-brain-app-pre.jd.com/brain/reportDeviceStatus\"";
   if(json_body_to_str(&report_device,report_request.param)!=APP_TRUE)
   {

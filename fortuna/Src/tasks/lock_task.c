@@ -14,7 +14,7 @@
 #include "app_error.h"
 
 
-/*任务和消息句柄*/
+/*任务句柄*/
 osThreadId lock_task_hdl;
 
 osTimerId lock_timer_id;
@@ -200,17 +200,17 @@ static void lock_task_unlock_lock()
 {
  BSP_LOCK_CTL(LOCK_CTL_UNLOCK); 
 }
-/*关锁成功时 打开橙色led和风扇*/
+/*关锁成功时 打开绿色led*/
 static void lock_task_turn_on_lock_led()
 {
- APP_LOG_DEBUG("打开橙色门灯.\r\n");
+ APP_LOG_DEBUG("打开绿色门灯.\r\n");
  BSP_LED_TURN_ON_OFF(DOOR_GREEN_LED,LED_CTL_ON); 
  BSP_LED_TURN_ON_OFF(DOOR_ORANGE_LED,LED_CTL_OFF);
 }
-/*开锁成功时 打开绿色led，关闭风扇*/
+/*开锁成功时 打开绿色led*/
 static void lock_task_turn_on_unlock_led()
 {
- APP_LOG_DEBUG("打开绿色门灯.\r\n");
+ APP_LOG_DEBUG("打开橙色门灯.\r\n");
  BSP_LED_TURN_ON_OFF(DOOR_ORANGE_LED,LED_CTL_ON); 
  BSP_LED_TURN_ON_OFF(DOOR_GREEN_LED,LED_CTL_OFF); 
 }

@@ -1,6 +1,23 @@
 #ifndef  __SERVICE_H__
 #define  __SERVICE_H__
 
+
+#define  CHINA_MOBILE_2G_STR                            "\"46000\""
+#define  CHINA_UNICOM_2G_STR                            "\"46001\""
+/*协议里代码定义*/
+#define  CHINA_MOBILE_2G_CODE_STR                       "12"
+#define  CHINA_UNICOM_2G_CODE_STR                       "32"
+
+#define  FIRMWARE_VERSION                               "\"12\""
+#define  EXPERIMENT_IMEI                                "\"011201711022810\""  
+#define  EXPERIMENT_IP                                  "\"12.34.56.78\""
+#define  EXPERIMENT_RSSI                                "29"
+#define  EXPERIMENT_NET                                 CHINA_MOBILE_2G_CODE_STR
+
+
+
+
+
 #define  IMEI_STR_SIZE                                  15
 #define  SERVICE_NET_ERR_CNT_MAX                        5
 #define  SERVICE_DEVICE_ERR_CNT_MAX                     5
@@ -15,9 +32,9 @@
 #define  AT_MODULE                                      SIM900A_MODULE
 
 
-#define  HTTP_REQUEST_STR_MAX_SIZE                      250
+#define  HTTP_REQUEST_STR_MAX_SIZE                      300
 #define  HTTP_REQUEST_SIZE_TIME_STR_MAX_SIZE            12
-#define  HTTP_RESPONSE_STR_MAX_SIZE                     250
+#define  HTTP_RESPONSE_STR_MAX_SIZE                     300
 
 typedef struct
 {
@@ -28,7 +45,7 @@ typedef struct
 
 typedef struct
 {
- uint8_t size;
+ uint16_t size;
  uint8_t json_str[HTTP_RESPONSE_STR_MAX_SIZE];
 }http_response_t;
 
@@ -48,8 +65,11 @@ void service_http_make_request_size_time_to_str(uint16_t size,uint16_t time,uint
 app_bool_t service_get_rssi_str(uint8_t *ptr_rssi_str);
 /*获取IP地址字符串*/
 app_bool_t service_get_ip_str(uint8_t *ptr_ip_str);
-/*获取IMEI字符串*/
-app_bool_t service_get_imei_str(uint8_t *ptr_imei_str);
+/*拷贝imei*/
+app_bool_t service_cpy_imei_str_to(uint8_t *ptr_imei_str);
+/*拷贝运营商代码*/
+app_bool_t service_cpy_operator_str_to(uint8_t *ptr_imei_str);
+
 
 app_bool_t service_reset();
 
