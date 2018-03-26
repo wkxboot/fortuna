@@ -39,13 +39,13 @@ typedef enum
 typedef struct
 {
   t_direction_t dir;
-  int8_t temperature;
+  int16_t temperature;
   uint32_t hold_time;
 }temperature_ctl_t;
 
 
 /*温度值*/
-static int8_t temperature[TEMPERATURE_CNT];
+static int16_t temperature[TEMPERATURE_CNT];
 static temperature_ctl_t average_temperature;
 
 
@@ -55,7 +55,7 @@ static void temperature_init()
  average_temperature.temperature=0;
  average_temperature.hold_time=T_HOLD_TIME;
 }
-static void update_temperature(uint8_t t_idx,int8_t t)
+static void update_temperature(uint8_t t_idx,int16_t t)
 {
 if(t==NTC_ERROR_T_VALUE)
 {
@@ -135,7 +135,7 @@ static void update_temperature_warning()
 }
 
 
-int8_t get_temperature(uint8_t t_idx)
+int16_t get_temperature(uint8_t t_idx)
 {
  if(t_idx > TEMPERATURE_CNT-1)
  {
@@ -144,7 +144,8 @@ int8_t get_temperature(uint8_t t_idx)
  }
  return temperature[t_idx];
 }
-int8_t get_average_temperature()
+
+int16_t get_average_temperature()
 {
 return average_temperature.temperature;
 }
@@ -152,30 +153,68 @@ return average_temperature.temperature;
 uint8_t* get_average_temperature_str()
 {
 
- uint8_t num= average_temperature.temperature;
- uint8_t temp;
+ int16_t num= average_temperature.temperature;
+ uint16_t temp;
  uint8_t str[]={'0','1','2','3','4','5','6','7','8','9'};
- static uint8_t t_str[3];
- if(num>99)
+ static uint8_t t_str[5];
+ if(num==TEMPERATURE_TASK_ERR_T_VALUE ||num <TEMPERATURE_TASK_INVALID_VALUE_NEGATIVE)
  {
   t_str[0]='9';
   t_str[1]='9';
-  t_str[2]=0;
+  t_str[2]='.';
+  t_str[3]='9';
+  t_str[4]=0;
  }
- else if(num >9)
+ else if(num >=100)
  {   
- temp=num/10;
+ temp=num/100;
  t_str[0]=str[temp];
+ num%=100;
+ temp=num/10;
+ t_str[1]=str[temp];
+ t_str[2]='.';
  num%=10;
  temp=num;
- t_str[1]=str[temp];
- t_str[2]=0;
+ t_str[3]=str[temp];
+ t_str[4]=0;
  }
- else
+ else if(num >=10)
  {
-  temp=num;
+  temp=num/10;
   t_str[0]=str[temp]; 
-  t_str[1]=0; 
+  t_str[1]='.';
+  temp=num%10;
+  t_str[2]=str[temp]; 
+  t_str[3]=0;
+ }
+ else if(num >=0)
+ {
+  t_str[0]=str[0]; 
+  t_str[1]='.';
+  temp=num;
+  t_str[2]=str[temp]; 
+  t_str[3]=0; 
+ }
+ else if(num >-10)
+ {
+  num*=-1;
+  t_str[0]='-'; 
+  t_str[1]=str[0];
+  t_str[2]='.';
+  temp=num;
+  t_str[3]=str[temp]; 
+  t_str[4]=0; 
+ }
+ else /*num >-100*/
+ {
+  num*=-1;
+  t_str[0]='-'; 
+  temp=num/10;
+  t_str[1]=str[temp]; 
+  t_str[2]='.';
+  temp=num%10;
+  t_str[3]=str[temp]; 
+  t_str[4]=0; 
  }
  return t_str;
 }
@@ -222,7 +261,7 @@ void temperature_task(void const * argument)
  /*计算温度值*/
  for(uint8_t i=0;i<TEMPERATURE_CNT;i++)
  {
- update_temperature(i,ntc_3950_get_t(sample_average[i]));
+ update_temperature(i,ntc_3950_get_10x_t(sample_average[i]));
  }
  /*计算更新平均值*/
  update_average_temperature();

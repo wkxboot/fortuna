@@ -22,10 +22,10 @@
 #define  SERVICE_NET_ERR_CNT_MAX                        5
 #define  SERVICE_DEVICE_ERR_CNT_MAX                     5
 
-#define  SERVICE_RESET_HOLD_ON_TIME                     2000
-#define  SERVICE_RESET_WAIT_TIME                        15000/*等待15秒*/
+#define  SERVICE_RESET_HOLD_ON_TIME                     3000
+#define  SERVICE_RESET_WAIT_TIME                        10000/*等待10秒*/
 
-#define  HTTP_RESPONSE_TIMEOUT                          40000/*40秒超时*/
+#define  HTTP_RESPONSE_TIMEOUT                          5000/*5秒超时*/
 
 #define  SIM800A_MODULE                                 1
 #define  SIM900A_MODULE                                 2

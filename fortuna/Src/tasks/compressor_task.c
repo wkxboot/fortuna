@@ -82,7 +82,7 @@ static void compressor_rest_time_timer_stop()
 */
 static void compressor_rest_time_timer_expired(void const * argument)
 {
- int8_t t;
+ int16_t t;
  APP_LOG_DEBUG("压缩机到达最小休息时长.可以被开启.\r\n");
  is_compressor_enable_pwr_turn_on=APP_TRUE;/*使能打开压缩机*/
  /*检查当前温度*/

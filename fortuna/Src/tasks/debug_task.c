@@ -213,7 +213,7 @@ void debug_task(void const * argument)
   APP_LOG_ERROR("温度命令长度非法.\r\n");
   continue;
  }
- int8_t t;
+ int16_t t;
  offset=cmd_len;
  if(cmd[offset]=='0')/*0代表所有温度计平均值*/
  t=get_average_temperature();
@@ -226,7 +226,7 @@ void debug_task(void const * argument)
   APP_LOG_ERROR("温度命令参数%2d非法.0-1-2之一.\r\n",cmd[offset]);
   continue;  
  }
- APP_LOG_DEBUG("温度值：%2d 摄氏度.\r\n",t);
+ APP_LOG_DEBUG("温度值x10：%d 摄氏度.\r\n",t);
  continue;
  } 
   /*开锁*/

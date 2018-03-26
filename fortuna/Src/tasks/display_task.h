@@ -17,7 +17,7 @@ typedef struct
 extern const dis_num_t *ptr_display_buff;
 
 #define  DISPLAY_TASK_FPS                        50/*每秒刷新值设置为50Hz*/
-#define  DISPLAY_TASK_REFRESH_INTERVAL          (1000/DISPLAY_TASK_FPS)/*每次刷新间隔时间*/       
+#define  DISPLAY_TASK_REFRESH_INTERVAL           (1000/DISPLAY_TASK_FPS)/*每次刷新间隔时间*/       
 #define  DISPLAY_TASK_HOLD_ON_TIME_PER_POS       8
 
 

@@ -100,7 +100,7 @@ static void lock_timer_expired(void const * argument)
  {
   APP_LOG_DEBUG("向购物任务发送关锁失败信号.\r\n");
   osSignalSet(shopping_task_hdl,SHOPPING_TASK_LOCK_LOCK_FAIL_SIGNAL); 
-  lock_task_unlock_lock();
+  //lock_task_unlock_lock();
   
   /*置为锁异常状态*/
   lock_exception=LOCK_EXCEPTION_HAPPEN;

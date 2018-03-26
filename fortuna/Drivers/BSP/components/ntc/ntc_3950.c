@@ -60,8 +60,8 @@ static uint32_t ntc_3950_get_r(uint16_t adc)
   
   return r;
 }
-
-int8_t ntc_3950_get_t(uint16_t adc)
+/*单倍温度值 便于小数显示*/
+int16_t ntc_3950_get_t(uint16_t adc)
 {
   uint32_t r; 
   uint8_t idx;
@@ -71,4 +71,18 @@ int8_t ntc_3950_get_t(uint16_t adc)
   return NTC_ERROR_T_VALUE;
   
   return r_t_map[idx][1];
+}
+
+/*10倍温度值 便于小数显示*/
+int16_t ntc_3950_get_10x_t(uint16_t adc)
+{
+  uint32_t r,delta_r; 
+  uint8_t idx;
+  r=ntc_3950_get_r(adc);
+  idx=ntc_3950_seek_idex(r);
+  if(idx==NTC_R_T_MAP_ERR_IDX)
+  return NTC_ERROR_T_VALUE;
+  
+  delta_r=r_t_map[idx][0]-r_t_map[idx+1][0]; 
+  return 10*r_t_map[idx][1]+10*(r_t_map[idx][0]-r)/delta_r ;  
 }

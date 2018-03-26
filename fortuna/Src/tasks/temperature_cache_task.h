@@ -11,11 +11,11 @@ extern osThreadId temperature_cache_task_hdl;
 void temperature_cache_task(void const * argument);
 
 /*温度显示缓存任务运行间隔*/
-#define  TEMPERATURE_CACHE_TASK_INTERVAL           1000
+#define  TEMPERATURE_CACHE_TASK_INTERVAL                 1000
 
 
-#define  TEMPERATURE_INVALID_VALUE                 99
-#define  TEMPERATURE_INVALID_VALUE_NEGATIVE        (-9)
+#define  TEMPERATURE_CACHE_INVALID_VALUE                  99
+#define  TEMPERATURE_CAHCE_INVALID_VALUE_NEGATIVE        (-99)
 
 
 #endif
